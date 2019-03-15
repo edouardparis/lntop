@@ -8,10 +8,14 @@ import (
 )
 
 type Field = zapcore.Field
+type ObjectEncoder = zapcore.ObjectEncoder
 
 type Logger interface {
 	Info(string, ...Field)
 	Error(string, ...Field)
+	Sync() error
+	Debug(string, ...Field)
+	With(fields ...Field) *zap.Logger
 }
 
 func String(k, v string) Field {
@@ -32,6 +36,10 @@ func Int64(k string, i int64) Field {
 
 func Error(v error) Field {
 	return zap.Error(v)
+}
+
+func Object(key string, val zapcore.ObjectMarshaler) Field {
+	return zap.Object(key, val)
 }
 
 type Config struct {
