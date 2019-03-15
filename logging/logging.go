@@ -3,6 +3,7 @@ package logging
 import (
 	"time"
 
+	"github.com/edouardparis/lntop/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -42,14 +43,27 @@ func Object(key string, val zapcore.ObjectMarshaler) Field {
 	return zap.Object(key, val)
 }
 
-type Config struct {
-	Environment string `json:"environment"`
+func New(cfg config.Logger) Logger {
+	var logger Logger
+	if cfg.Type == "development" {
+		logger, _ = NewDevelopmentLogger()
+	} else if cfg.Type == "noop" {
+		logger, _ = NewNopLogger()
+	} else {
+		logger, _ = NewProductionLogger()
+	}
+
+	return logger
 }
 
-func NewCliLogger(c *Config) (Logger, error) {
-	cfg := zap.NewProductionConfig()
-	if c.Environment == "debug" {
-		cfg = zap.NewDevelopmentConfig()
-	}
-	return cfg.Build()
+func NewProductionLogger() (Logger, error) {
+	return zap.NewProduction()
+}
+
+func NewDevelopmentLogger() (Logger, error) {
+	return zap.NewDevelopment()
+}
+
+func NewNopLogger() (Logger, error) {
+	return zap.NewNop(), nil
 }
