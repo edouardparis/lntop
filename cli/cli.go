@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"fmt"
 
 	cli "gopkg.in/urfave/cli.v2"
 
@@ -60,10 +61,12 @@ func walletBalance(c *cli.Context) error {
 		return err
 	}
 
-	_, err = clt.GetWalletBalance(context.Background())
+	res, err := clt.GetWalletBalance(context.Background())
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(res.TotalBalance)
 
 	return nil
 }
