@@ -4,11 +4,14 @@ require (
 	github.com/btcsuite/btcwallet v0.0.0-20190313041134-68fc7c82e131 // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/grpc-ecosystem/grpc-gateway v1.8.5 // indirect
+	github.com/jroimartin/gocui v0.4.0
 	github.com/juju/clock v0.0.0-20190205081909-9c5c9712527c // indirect
 	github.com/juju/errors v0.0.0-20190207033735-e65537c515d7 // indirect
 	github.com/juju/loggo v0.0.0-20190212223446-d976af380377 // indirect
 	github.com/lightningnetwork/lnd v0.5.2-beta
+	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/miekg/dns v1.1.6 // indirect
+	github.com/nsf/termbox-go v0.0.0-20190121233118-02980233997d // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.3.0 // indirect
 	go.etcd.io/bbolt v1.3.2 // indirect
