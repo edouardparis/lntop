@@ -10,7 +10,6 @@ import (
 	"github.com/edouardparis/lntop/config"
 	"github.com/edouardparis/lntop/logging"
 	"github.com/edouardparis/lntop/network"
-	"github.com/edouardparis/lntop/network/backend"
 	"github.com/edouardparis/lntop/ui"
 )
 
@@ -48,21 +47,23 @@ func New() *cli.App {
 }
 
 func run(c *cli.Context) error {
-	a, err := app.Load()
+	network, err := getNetworkFromConfig(c)
 	if err != nil {
 		return err
 	}
 
+	a := &app.App{Network: network}
+
 	return ui.New(a).Run()
 }
 
-func getNetworkFromConfig(c *cli.Context) (backend.Backend, error) {
+func getNetworkFromConfig(c *cli.Context) (*network.Network, error) {
 	cfg, err := config.Load(c.String("config"))
 	if err != nil {
 		return nil, err
 	}
 
-	logger := logging.New(config.Logger{Type: "development"})
+	logger := logging.New(config.Logger{Type: "nope"})
 
 	return network.New(&cfg.Network, logger)
 }

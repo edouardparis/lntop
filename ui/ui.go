@@ -1,15 +1,15 @@
 package ui
 
 import (
-	"fmt"
-
 	"github.com/jroimartin/gocui"
 
 	"github.com/edouardparis/lntop/app"
+	"github.com/edouardparis/lntop/ui/views"
 )
 
 type Ui struct {
-	app *app.App
+	gui      *gocui.Gui
+	channels *views.Channels
 }
 
 func (u *Ui) Run() error {
@@ -19,27 +19,26 @@ func (u *Ui) Run() error {
 	}
 	defer g.Close()
 
-	g.SetManagerFunc(layout)
+	u.gui = g
 
-	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
+	g.SetManagerFunc(u.layout)
+
+	err = g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit)
+	if err != nil {
 		return err
 	}
 
-	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
+	err = g.MainLoop()
+	if err != nil && err != gocui.ErrQuit {
 		return err
 	}
+
 	return err
 }
 
-func layout(g *gocui.Gui) error {
+func (u *Ui) layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
-	if v, err := g.SetView("hello", maxX/2-7, maxY/2, maxX/2+7, maxY/2+2); err != nil {
-		if err != gocui.ErrUnknownView {
-			return err
-		}
-		fmt.Fprintln(v, "Hello world!")
-	}
-	return nil
+	return u.channels.Set(g, 0, maxY/2, maxX-1, maxY/2+2)
 }
 
 func quit(g *gocui.Gui, v *gocui.View) error {
@@ -47,5 +46,7 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 }
 
 func New(app *app.App) *Ui {
-	return &Ui{app: app}
+	return &Ui{
+		channels: views.NewChannels(app.Network),
+	}
 }
