@@ -27,16 +27,31 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		}
 	}
 	c.View.Frame = false
-	err = c.Update(context.Background())
+	err = c.Refresh(g)
 	if err != nil {
 		return err
 	}
 
-	c.Display()
 	return nil
 }
 
-func (c *Channels) Update(ctx context.Context) error {
+func (c *Channels) Refresh(g *gocui.Gui) error {
+	var err error
+	c.View, err = g.View(CHANNELS)
+	if err != nil {
+		return err
+	}
+
+	err = c.update(context.Background())
+	if err != nil {
+		return err
+	}
+
+	c.display()
+	return nil
+}
+
+func (c *Channels) update(ctx context.Context) error {
 	channels, err := c.network.ListChannels(ctx)
 	if err != nil {
 		return err
@@ -46,9 +61,15 @@ func (c *Channels) Update(ctx context.Context) error {
 	return nil
 }
 
-func (c *Channels) Display() {
-	for i := range c.items {
-		fmt.Fprintln(c.View, fmt.Sprintf("%d", c.items[i].ID))
+func (c *Channels) display() {
+	for _, item := range c.items {
+		line := fmt.Sprintf("%d %9d %9d %s",
+			item.ID,
+			item.LocalBalance,
+			item.Capacity,
+			item.RemotePubKey,
+		)
+		fmt.Fprintln(c.View, line)
 	}
 }
 

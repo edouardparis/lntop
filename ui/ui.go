@@ -38,7 +38,7 @@ func (u *Ui) Run() error {
 
 func (u *Ui) layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
-	return u.channels.Set(g, 0, maxY/2, maxX-1, maxY/2+2)
+	return u.channels.Set(g, 0, maxY/8, maxX-1, maxY-1)
 }
 
 func quit(g *gocui.Gui, v *gocui.View) error {
