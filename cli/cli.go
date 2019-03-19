@@ -6,6 +6,7 @@ import (
 
 	cli "gopkg.in/urfave/cli.v2"
 
+	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/config"
 	"github.com/edouardparis/lntop/logging"
 	"github.com/edouardparis/lntop/network"
@@ -47,7 +48,12 @@ func New() *cli.App {
 }
 
 func run(c *cli.Context) error {
-	return ui.New().Run()
+	a, err := app.Load()
+	if err != nil {
+		return err
+	}
+
+	return ui.New(a).Run()
 }
 
 func getNetworkFromConfig(c *cli.Context) (backend.Backend, error) {

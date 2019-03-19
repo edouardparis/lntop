@@ -4,9 +4,12 @@ import (
 	"fmt"
 
 	"github.com/jroimartin/gocui"
+
+	"github.com/edouardparis/lntop/app"
 )
 
 type Ui struct {
+	app *app.App
 }
 
 func (u *Ui) Run() error {
@@ -43,6 +46,6 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
 
-func New() *Ui {
-	return &Ui{}
+func New(app *app.App) *Ui {
+	return &Ui{app: app}
 }
