@@ -8,9 +8,13 @@ import (
 
 	"github.com/edouardparis/lntop/network"
 	"github.com/edouardparis/lntop/network/models"
+	"github.com/edouardparis/lntop/ui/color"
 )
 
-const CHANNELS = "channels"
+const (
+	CHANNELS        = "channels"
+	CHANNELS_HEADER = "header"
+)
 
 type Channels struct {
 	*gocui.View
@@ -19,19 +23,29 @@ type Channels struct {
 }
 
 func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
-	var err error
-	c.View, err = g.SetView(CHANNELS, x0, y0, x1, y1)
+	headerView, err := g.SetView(CHANNELS_HEADER, x0, y0, x1, y0+2)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+	}
+	headerView.Frame = false
+	headerView.BgColor = gocui.ColorGreen
+
+	c.View, err = g.SetView(CHANNELS, x0, y0+1, x1, y1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 	}
 	c.View.Frame = false
-	err = c.Refresh(g)
+
+	err = c.update(context.Background())
 	if err != nil {
 		return err
 	}
 
+	c.display()
 	return nil
 }
 
@@ -63,7 +77,8 @@ func (c *Channels) update(ctx context.Context) error {
 
 func (c *Channels) display() {
 	for _, item := range c.items {
-		line := fmt.Sprintf("%d %9d %9d %s",
+		line := fmt.Sprintf("%9s %d  %12d %12d  %s",
+			active(item),
 			item.ID,
 			item.LocalBalance,
 			item.Capacity,
@@ -75,4 +90,11 @@ func (c *Channels) display() {
 
 func NewChannels(network *network.Network) *Channels {
 	return &Channels{network: network}
+}
+
+func active(c *models.Channel) string {
+	if c.Active {
+		return color.Green("active  ")
+	}
+	return color.Red("inactive")
 }
