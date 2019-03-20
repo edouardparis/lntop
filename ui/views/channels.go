@@ -1,6 +1,7 @@
 package views
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 
@@ -31,6 +32,8 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	}
 	headerView.Frame = false
 	headerView.BgColor = gocui.ColorGreen
+	headerView.FgColor = gocui.ColorBlack | gocui.AttrBold
+	displayChannelsHeader(headerView)
 
 	c.View, err = g.SetView(CHANNELS, x0, y0+1, x1, y1)
 	if err != nil {
@@ -47,6 +50,16 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 	c.display()
 	return nil
+}
+
+func displayChannelsHeader(v *gocui.View) {
+	fmt.Fprintln(v, fmt.Sprintf("%-9s  %-19s  %12s  %12s  %s",
+		"status",
+		"id",
+		"local",
+		"capacity",
+		"pub_key",
+	))
 }
 
 func (c *Channels) Refresh(g *gocui.Gui) error {
@@ -77,10 +90,10 @@ func (c *Channels) update(ctx context.Context) error {
 
 func (c *Channels) display() {
 	for _, item := range c.items {
-		line := fmt.Sprintf("%9s %d  %12d %12d  %s",
+		line := fmt.Sprintf("%s  %s  %s  %12d  %s",
 			active(item),
-			item.ID,
-			item.LocalBalance,
+			chartID(item),
+			color.Cyan(fmt.Sprintf("%12d", item.LocalBalance)),
 			item.Capacity,
 			item.RemotePubKey,
 		)
@@ -94,7 +107,18 @@ func NewChannels(network *network.Network) *Channels {
 
 func active(c *models.Channel) string {
 	if c.Active {
-		return color.Green("active  ")
+		return color.Green(fmt.Sprintf("%-9s", "active"))
 	}
-	return color.Red("inactive")
+	return color.Red(fmt.Sprintf("%-9s", "inactive"))
+}
+
+func chartID(c *models.Channel) string {
+	id := fmt.Sprintf("%-19d", c.ID)
+	index := int(c.LocalBalance * int64(len(id)) / c.Capacity)
+
+	var buffer bytes.Buffer
+	buffer.WriteString(color.Cyan(id[:index]))
+	buffer.WriteString(id[index:])
+
+	return buffer.String()
 }

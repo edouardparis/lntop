@@ -21,6 +21,7 @@ func (u *Ui) Run() error {
 
 	u.gui = g
 
+	g.Cursor = true
 	g.SetManagerFunc(u.layout)
 
 	err = g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit)
