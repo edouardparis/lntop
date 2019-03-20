@@ -42,6 +42,9 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		}
 	}
 	c.View.Frame = false
+	c.View.Autoscroll = true
+	c.View.SelBgColor = gocui.ColorCyan
+	c.View.SelFgColor = gocui.ColorBlack
 
 	err = c.update(context.Background())
 	if err != nil {
