@@ -2,12 +2,10 @@ package views
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 
 	"github.com/jroimartin/gocui"
 
-	"github.com/edouardparis/lntop/network"
 	"github.com/edouardparis/lntop/network/models"
 	"github.com/edouardparis/lntop/ui/color"
 )
@@ -19,8 +17,7 @@ const (
 
 type Channels struct {
 	*gocui.View
-	items   []*models.Channel
-	network *network.Network
+	items []*models.Channel
 }
 
 func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
@@ -57,37 +54,15 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 func displayChannelsHeader(v *gocui.View) {
 	fmt.Fprintln(v, fmt.Sprintf("%-9s %-19s %12s %12s",
-		"status",
-		"id",
-		"local",
-		"capacity",
+		"Status",
+		"CID",
+		"Local",
+		"Capacity",
 	))
 }
 
-func (c *Channels) Refresh(g *gocui.Gui) error {
-	var err error
-	c.View, err = g.View(CHANNELS)
-	if err != nil {
-		return err
-	}
-
-	err = c.update(context.Background())
-	if err != nil {
-		return err
-	}
-
-	c.display()
-	return nil
-}
-
-func (c *Channels) update(ctx context.Context) error {
-	channels, err := c.network.ListChannels(ctx)
-	if err != nil {
-		return err
-	}
-
-	c.items = channels
-	return nil
+func (c *Channels) Update(items []*models.Channel) {
+	c.items = items
 }
 
 func (c *Channels) display() {
@@ -101,10 +76,6 @@ func (c *Channels) display() {
 		)
 		fmt.Fprintln(c.View, line)
 	}
-}
-
-func NewChannels(network *network.Network) *Channels {
-	return &Channels{network: network}
 }
 
 func active(c *models.Channel) string {
@@ -123,4 +94,8 @@ func chartID(c *models.Channel) string {
 	buffer.WriteString(id[index:])
 
 	return buffer.String()
+}
+
+func NewChannels() *Channels {
+	return &Channels{}
 }

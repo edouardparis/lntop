@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"context"
+
 	"github.com/jroimartin/gocui"
 
 	"github.com/edouardparis/lntop/app"
@@ -8,6 +10,7 @@ import (
 )
 
 type Ui struct {
+	app      *app.App
 	channels *views.Channels
 }
 
@@ -26,7 +29,7 @@ func (u *Ui) Run() error {
 		return err
 	}
 
-	g.Update(u.channels.Refresh)
+	g.Update(u.Refresh)
 
 	err = g.MainLoop()
 	if err != nil && err != gocui.ErrQuit {
@@ -81,6 +84,15 @@ func cursorUp(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
+func (u *Ui) Refresh(g *gocui.Gui) error {
+	channels, err := u.app.Network.ListChannels(context.Background())
+	if err != nil {
+		return err
+	}
+	u.channels.Update(channels)
+	return nil
+}
+
 func (u *Ui) layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 	return u.channels.Set(g, 0, maxY/8, maxX-1, maxY-1)
@@ -92,6 +104,7 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 
 func New(app *app.App) *Ui {
 	return &Ui{
-		channels: views.NewChannels(app.Network),
+		app:      app,
+		channels: views.NewChannels(),
 	}
 }
