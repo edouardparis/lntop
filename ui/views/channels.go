@@ -56,12 +56,11 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 }
 
 func displayChannelsHeader(v *gocui.View) {
-	fmt.Fprintln(v, fmt.Sprintf("%-9s  %12s  %12s  %-64s    %-19s",
+	fmt.Fprintln(v, fmt.Sprintf("%-9s %-19s %12s %12s",
 		"status",
+		"id",
 		"local",
 		"capacity",
-		"pub_key",
-		"id",
 	))
 }
 
@@ -94,12 +93,11 @@ func (c *Channels) update(ctx context.Context) error {
 func (c *Channels) display() {
 	c.Clear()
 	for _, item := range c.items {
-		line := fmt.Sprintf("%s  %s  %12d  %s  %s",
+		line := fmt.Sprintf("%s %s %s %12d",
 			active(item),
+			chartID(item),
 			color.Cyan(fmt.Sprintf("%12d", item.LocalBalance)),
 			item.Capacity,
-			chartPubKey(item),
-			chartID(item),
 		)
 		fmt.Fprintln(c.View, line)
 	}
@@ -123,17 +121,6 @@ func chartID(c *models.Channel) string {
 	var buffer bytes.Buffer
 	buffer.WriteString(color.Cyan(id[:index]))
 	buffer.WriteString(id[index:])
-
-	return buffer.String()
-}
-
-func chartPubKey(c *models.Channel) string {
-	pubkey := c.RemotePubKey
-	index := int(c.LocalBalance * int64(len(pubkey)) / c.Capacity)
-
-	var buffer bytes.Buffer
-	buffer.WriteString(color.Cyan(pubkey[:index]))
-	buffer.WriteString(pubkey[index:])
 
 	return buffer.String()
 }
