@@ -40,16 +40,16 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
+		_, err = g.SetCurrentView(CHANNELS)
+		if err != nil {
+			return err
+		}
 	}
 	c.View.Frame = false
 	c.View.Autoscroll = true
 	c.View.SelBgColor = gocui.ColorCyan
 	c.View.SelFgColor = gocui.ColorBlack
-
-	err = c.update(context.Background())
-	if err != nil {
-		return err
-	}
+	c.Highlight = true
 
 	c.display()
 	return nil
@@ -92,6 +92,7 @@ func (c *Channels) update(ctx context.Context) error {
 }
 
 func (c *Channels) display() {
+	c.Clear()
 	for _, item := range c.items {
 		line := fmt.Sprintf("%s  %s  %12d  %s  %s",
 			active(item),
