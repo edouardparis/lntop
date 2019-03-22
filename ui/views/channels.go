@@ -53,9 +53,9 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 }
 
 func displayChannelsHeader(v *gocui.View) {
-	fmt.Fprintln(v, fmt.Sprintf("%-9s %-19s %12s %12s",
+	fmt.Fprintln(v, fmt.Sprintf("%-9s %-26s %12s %12s",
 		"Status",
-		"CID",
+		"Gauge",
 		"Local",
 		"Capacity",
 	))
@@ -70,7 +70,8 @@ func (c *Channels) display() {
 	for _, item := range c.items {
 		line := fmt.Sprintf("%s %s %s %12d",
 			active(item),
-			chartID(item),
+			gauge(item),
+			//chartID(item),
 			color.Cyan(fmt.Sprintf("%12d", item.LocalBalance)),
 			item.Capacity,
 		)
@@ -94,6 +95,19 @@ func chartID(c *models.Channel) string {
 	buffer.WriteString(id[index:])
 
 	return buffer.String()
+}
+
+func gauge(c *models.Channel) string {
+	index := int(c.LocalBalance * int64(20) / c.Capacity)
+	var buffer bytes.Buffer
+	for i := 0; i < 20; i++ {
+		if i < index {
+			buffer.WriteString(color.Cyan("|"))
+			continue
+		}
+		buffer.WriteString(" ")
+	}
+	return fmt.Sprintf("[%s %2d%%]", buffer.String(), c.LocalBalance*100/c.Capacity)
 }
 
 func NewChannels() *Channels {

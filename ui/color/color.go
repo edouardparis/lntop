@@ -10,4 +10,5 @@ var (
 	Red     = color.New(color.FgRed).SprintFunc()
 	Cyan    = color.New(color.FgCyan).SprintFunc()
 	CyanBg  = color.New(color.BgCyan, color.FgBlack).SprintFunc()
+	WhiteBg = color.New(color.BgWhite, color.FgBlack).SprintFunc()
 )
