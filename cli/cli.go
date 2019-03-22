@@ -54,7 +54,7 @@ func run(c *cli.Context) error {
 
 	a := &app.App{Network: network}
 
-	return ui.New(a).Run()
+	return ui.Run(context.Background(), a)
 }
 
 func getNetworkFromConfig(c *cli.Context) (*network.Network, error) {
