@@ -95,7 +95,7 @@ func gauge(c *models.Channel) string {
 		}
 		buffer.WriteString(" ")
 	}
-	return fmt.Sprintf("[%s %2d%%]", buffer.String(), c.LocalBalance*100/c.Capacity)
+	return fmt.Sprintf("[%s] %2d%%", buffer.String(), c.LocalBalance*100/c.Capacity)
 }
 
 func NewChannels() *Channels {
