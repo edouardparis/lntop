@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	CHANNELS        = "channels"
-	CHANNELS_HEADER = "header"
+	CHANNELS         = "channels"
+	CHANNELS_COLUMNS = "channels_columns"
 )
 
 type Channels struct {
@@ -21,16 +21,16 @@ type Channels struct {
 }
 
 func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
-	headerView, err := g.SetView(CHANNELS_HEADER, x0, y0, x1, y0+2)
+	columns, err := g.SetView(CHANNELS_COLUMNS, x0, y0, x1, y0+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 	}
-	headerView.Frame = false
-	headerView.BgColor = gocui.ColorGreen
-	headerView.FgColor = gocui.ColorBlack | gocui.AttrBold
-	displayChannelsHeader(headerView)
+	columns.Frame = false
+	columns.BgColor = gocui.ColorGreen
+	columns.FgColor = gocui.ColorBlack | gocui.AttrBold
+	displayChannelsColumns(columns)
 
 	c.View, err = g.SetView(CHANNELS, x0, y0+1, x1, y1)
 	if err != nil {
@@ -52,7 +52,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	return nil
 }
 
-func displayChannelsHeader(v *gocui.View) {
+func displayChannelsColumns(v *gocui.View) {
 	fmt.Fprintln(v, fmt.Sprintf("%-9s %-26s %12s %12s",
 		"Status",
 		"Gauge",
