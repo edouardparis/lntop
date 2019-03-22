@@ -139,3 +139,22 @@ func sendPaymentProtoToPayment(payreq *models.PayReq, resp *lnrpc.SendResponse) 
 
 	return payment
 }
+
+func infoProtoToInfo(resp *lnrpc.GetInfoResponse) *models.Info {
+	if resp == nil {
+		return nil
+	}
+
+	return &models.Info{
+		PubKey:              resp.IdentityPubkey,
+		Alias:               resp.Alias,
+		NumPendingChannels:  resp.NumPendingChannels,
+		NumActiveChannels:   resp.NumActiveChannels,
+		NumInactiveChannels: resp.NumInactiveChannels,
+		NumPeers:            resp.NumPeers,
+		BlockHeight:         resp.BlockHeight,
+		BlockHash:           resp.BlockHash,
+		Synced:              resp.SyncedToChain,
+		Version:             resp.Version,
+	}
+}

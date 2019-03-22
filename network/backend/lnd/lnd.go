@@ -39,6 +39,20 @@ func (l Backend) NodeName() string {
 	return l.cfg.ID
 }
 
+func (l Backend) Info(ctx context.Context) (*models.Info, error) {
+	clt, err := l.Client(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := clt.GetInfo(ctx, &lnrpc.GetInfoRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	return infoProtoToInfo(resp), nil
+}
+
 func (l Backend) SubscribeInvoice(ctx context.Context, channelInvoice chan *models.Invoice) error {
 	clt, err := l.Client(ctx)
 	if err != nil {

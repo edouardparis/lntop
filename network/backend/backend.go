@@ -12,6 +12,8 @@ type Backend interface {
 
 	NodeName() string
 
+	Info(ctx context.Context) (*models.Info, error)
+
 	GetWalletBalance(context.Context) (*models.WalletBalance, error)
 
 	GetChannelBalance(context.Context) (*models.ChannelBalance, error)

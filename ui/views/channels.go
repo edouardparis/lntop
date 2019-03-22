@@ -53,11 +53,12 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 }
 
 func displayChannelsColumns(v *gocui.View) {
-	fmt.Fprintln(v, fmt.Sprintf("%-9s %-26s %12s %12s",
+	fmt.Fprintln(v, fmt.Sprintf("%-9s %-26s %12s %12s %5s",
 		"Status",
 		"Gauge",
 		"Local",
 		"Capacity",
+		"pHTLC",
 	))
 }
 
@@ -68,11 +69,12 @@ func (c *Channels) Update(items []*models.Channel) {
 func (c *Channels) display() {
 	c.Clear()
 	for _, item := range c.items {
-		line := fmt.Sprintf("%s %s %s %12d",
+		line := fmt.Sprintf("%s %s %s %12d %5d",
 			active(item),
 			gauge(item),
 			color.Cyan(fmt.Sprintf("%12d", item.LocalBalance)),
 			item.Capacity,
+			len(item.PendingHTLC),
 		)
 		fmt.Fprintln(c.View, line)
 	}

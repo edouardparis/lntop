@@ -22,6 +22,10 @@ type Backend struct {
 	sync.RWMutex
 }
 
+func (b *Backend) Info(ctx context.Context) (*models.Info, error) {
+	return nil, nil
+}
+
 func (l *Backend) SendPayment(ctx context.Context, payreq *models.PayReq) (*models.Payment, error) {
 	return nil, nil
 }
