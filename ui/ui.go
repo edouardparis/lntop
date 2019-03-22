@@ -24,6 +24,11 @@ func Run(ctx context.Context, app *app.App) error {
 		return err
 	}
 
+	err = ctrl.Update(ctx)
+	if err != nil {
+		return err
+	}
+
 	g.Update(ctrl.Refresh(ctx))
 
 	err = g.MainLoop()
