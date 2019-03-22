@@ -71,7 +71,6 @@ func (c *Channels) display() {
 		line := fmt.Sprintf("%s %s %s %12d",
 			active(item),
 			gauge(item),
-			//chartID(item),
 			color.Cyan(fmt.Sprintf("%12d", item.LocalBalance)),
 			item.Capacity,
 		)
@@ -84,17 +83,6 @@ func active(c *models.Channel) string {
 		return color.Green(fmt.Sprintf("%-9s", "active"))
 	}
 	return color.Red(fmt.Sprintf("%-9s", "inactive"))
-}
-
-func chartID(c *models.Channel) string {
-	id := fmt.Sprintf("%-19d", c.ID)
-	index := int(c.LocalBalance * int64(len(id)) / c.Capacity)
-
-	var buffer bytes.Buffer
-	buffer.WriteString(color.Cyan(id[:index]))
-	buffer.WriteString(id[index:])
-
-	return buffer.String()
 }
 
 func gauge(c *models.Channel) string {
