@@ -11,17 +11,23 @@ import (
 type controller struct {
 	app      *app.App
 	header   *views.Header
+	summary  *views.Summary
 	channels *views.Channels
 }
 
 func (c *controller) layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
-	err := c.header.Set(g, 0, 0, maxX, 10)
+	err := c.header.Set(g, 0, 0, maxX, 2)
 	if err != nil {
 		return err
 	}
 
-	return c.channels.Set(g, 0, maxY/8, maxX-1, maxY-1)
+	err = c.summary.Set(g, 0, 2, maxX, 10)
+	if err != nil {
+		return err
+	}
+
+	return c.channels.Set(g, 0, 10, maxX-1, maxY-1)
 }
 
 func cursorDown(g *gocui.Gui, v *gocui.View) error {
@@ -109,6 +115,7 @@ func newController(app *app.App) *controller {
 	return &controller{
 		app:      app,
 		header:   views.NewHeader(),
+		summary:  views.NewSummary(),
 		channels: views.NewChannels(),
 	}
 }
