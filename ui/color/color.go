@@ -5,6 +5,7 @@ import "github.com/fatih/color"
 type Color color.Color
 
 var (
+	Yellow  = color.New(color.FgYellow).SprintFunc()
 	Green   = color.New(color.FgGreen).SprintFunc()
 	GreenBg = color.New(color.BgGreen, color.FgBlack).SprintFunc()
 	Red     = color.New(color.FgRed).SprintFunc()

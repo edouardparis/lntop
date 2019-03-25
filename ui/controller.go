@@ -22,12 +22,12 @@ func (c *controller) layout(g *gocui.Gui) error {
 		return err
 	}
 
-	err = c.summary.Set(g, 0, 2, maxX, 10)
+	err = c.summary.Set(g, 0, 2, maxX, 7)
 	if err != nil {
 		return err
 	}
 
-	return c.channels.Set(g, 0, 10, maxX-1, maxY-1)
+	return c.channels.Set(g, 0, 7, maxX-1, maxY-1)
 }
 
 func cursorDown(g *gocui.Gui, v *gocui.View) error {
@@ -62,6 +62,11 @@ func (c *controller) Update(ctx context.Context) error {
 		return err
 	}
 	c.header.Update(info.Alias, "lnd", info.Version)
+	c.summary.UpdateChannelsStats(
+		info.NumPendingChannels,
+		info.NumActiveChannels,
+		info.NumInactiveChannels,
+	)
 
 	channels, err := c.app.Network.ListChannels(ctx)
 	if err != nil {

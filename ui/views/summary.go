@@ -25,7 +25,7 @@ type Summary struct {
 
 func (s *Summary) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	var err error
-	s.left, err = g.SetView(SUMMARY_LEFT, x0, y0, x1/2, y1)
+	s.left, err = g.SetView(SUMMARY_LEFT, x0, y0, x0+40, y1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -33,7 +33,7 @@ func (s *Summary) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	}
 	s.left.Frame = false
 
-	s.right, err = g.SetView(SUMMARY_RIGHT, x1/2, y0, x1, y1)
+	s.right, err = g.SetView(SUMMARY_RIGHT, x0+40, y0, x1, y1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -44,16 +44,20 @@ func (s *Summary) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	return nil
 }
 
-func (s *Summary) Update() {
-
+func (s *Summary) UpdateChannelsStats(numPendingChannels, numActiveChannels, numInactiveChannels uint32) {
+	s.NumActiveChannels = numActiveChannels
+	s.NumInactiveChannels = numInactiveChannels
+	s.NumPendingChannels = numPendingChannels
 }
 
 func (s *Summary) display() {
 	s.left.Clear()
 	fmt.Fprintln(s.left, color.Green("[ Channels ]"))
-	fmt.Fprintln(s.left, fmt.Sprintf("%s %4d", color.Cyan("Pending: "), s.NumPendingChannels))
-	fmt.Fprintln(s.left, fmt.Sprintf("%s %4d", color.Cyan("Active:  "), s.NumActiveChannels))
-	fmt.Fprintln(s.left, fmt.Sprintf("%s %4d", color.Cyan("Inactive:"), s.NumInactiveChannels))
+	fmt.Fprintln(s.left, fmt.Sprintf("%d %s %d %s %d %s",
+		s.NumPendingChannels, color.Yellow("pending"),
+		s.NumActiveChannels, color.Green("active"),
+		s.NumInactiveChannels, color.Red("inactive"),
+	))
 
 	s.right.Clear()
 	fmt.Fprintln(s.right, color.Green("[ Network ]"))

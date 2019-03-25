@@ -3,6 +3,7 @@ package views
 import (
 	"fmt"
 
+	"github.com/edouardparis/lntop/ui/color"
 	"github.com/jroimartin/gocui"
 )
 
@@ -24,7 +25,7 @@ func (h *Header) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		}
 	}
 	v.Frame = false
-	fmt.Fprintln(v, fmt.Sprintf("[%s %s %s]", h.alias, h.kind, h.version))
+	fmt.Fprintln(v, color.Cyan(fmt.Sprintf("[%s %s %s]", h.alias, h.kind, h.version)))
 	return nil
 }
 
