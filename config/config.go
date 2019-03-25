@@ -1,9 +1,12 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"os/user"
+	"path"
 
 	"gopkg.in/yaml.v2"
 )
@@ -18,9 +21,8 @@ type Logger struct {
 }
 
 type Network struct {
-	ID              string `yaml:"id"`
+	Name            string `yaml:"name"`
 	Type            string `yaml:"type"`
-	Status          string `yaml:"status"`
 	Address         string `yaml:"address"`
 	Cert            string `yaml:"cert"`
 	Macaroon        string `yaml:"macaroon"`
@@ -33,6 +35,14 @@ type Network struct {
 
 func Load(path string) (*Config, error) {
 	c := &Config{}
+
+	if path == "" {
+		dir, err := getAppDir()
+		if err != nil {
+			return nil, err
+		}
+		path = fmt.Sprintf("%s/config.yml", dir)
+	}
 
 	err := loadFromPath(path, c)
 	if err != nil {
@@ -66,4 +76,24 @@ func loadFromPath(path string, out interface{}) error {
 	}
 
 	return yaml.Unmarshal(data, out)
+}
+
+// getappDir creates if not exists the app directory where the config file
+// as well as the log file will be stored. In case of failure the current dir
+// will be used.
+func getAppDir() (string, error) {
+	usr, _ := user.Current()
+	dir := path.Join(usr.HomeDir, ".lntop")
+	_, err := os.Stat(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			oserr := os.Mkdir(dir, 0700)
+			if oserr != nil {
+				return "", oserr
+			}
+		} else {
+			return "", err
+		}
+	}
+	return dir, nil
 }

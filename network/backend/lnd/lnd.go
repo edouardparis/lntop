@@ -36,7 +36,7 @@ type Backend struct {
 }
 
 func (l Backend) NodeName() string {
-	return l.cfg.ID
+	return l.cfg.Name
 }
 
 func (l Backend) Info(ctx context.Context) (*models.Info, error) {
@@ -273,7 +273,7 @@ func New(c *config.Network, logger logging.Logger) (*Backend, error) {
 
 	backend := &Backend{
 		cfg:    c,
-		logger: logger.With(logging.String("id", c.ID)),
+		logger: logger.With(logging.String("name", c.Name)),
 	}
 
 	backend.pool, err = pool.New(backend.NewClientConn, c.PoolCapacity, time.Duration(c.ConnTimeout))

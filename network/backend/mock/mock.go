@@ -31,7 +31,7 @@ func (l *Backend) SendPayment(ctx context.Context, payreq *models.PayReq) (*mode
 }
 
 func (b *Backend) NodeName() string {
-	return b.cfg.ID
+	return b.cfg.Name
 }
 
 func (b *Backend) SubscribeInvoice(ctx context.Context, ChannelInvoice chan *models.Invoice) error {
