@@ -1,10 +1,7 @@
 package lnd
 
 import (
-	"crypto/tls"
-	"crypto/x509"
-	"encoding/hex"
-	"fmt"
+	"io/ioutil"
 	"net/url"
 
 	"github.com/pkg/errors"
@@ -19,7 +16,7 @@ import (
 )
 
 func newClientConn(c *config.Network) (*grpc.ClientConn, error) {
-	macaroonBytes, err := hex.DecodeString(c.Macaroon)
+	macaroonBytes, err := ioutil.ReadFile(c.Macaroon)
 	if err != nil {
 		return nil, err
 	}
@@ -31,31 +28,16 @@ func newClientConn(c *config.Network) (*grpc.ClientConn, error) {
 	}
 
 	macConstraints := []macaroons.Constraint{
-		// We add a time-based constraint to prevent replay of the
-		// macaroon. It's good for 60 seconds by default to make up for
-		// any discrepancy between client and server clocks, but leaking
-		// the macaroon before it becomes invalid makes it possible for
-		// an attacker to reuse the macaroon. In addition, the validity
-		// time of the macaroon is extended by the time the server clock
-		// is behind the client clock, or shortened by the time the
-		// server clock is ahead of the client clock (or invalid
-		// altogether if, in the latter case, this time is more than 60
-		// seconds).
 		macaroons.TimeoutConstraint(c.MacaroonTimeOut),
-
-		// Lock macaroon down to a specific IP address.
 		macaroons.IPLockConstraint(c.MacaroonIP),
-
-		// ... Add more constraints if needed.
 	}
 
-	// Apply constraints to the macaroon.
 	constrainedMac, err := macaroons.AddConstraints(mac, macConstraints...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	cred, err := newCredentialsFromCert(c.Cert)
+	cred, err := credentials.NewClientTLSFromFile(c.Cert, "")
 	if err != nil {
 		return nil, err
 	}
@@ -68,8 +50,6 @@ func newClientConn(c *config.Network) (*grpc.ClientConn, error) {
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(cred),
 		grpc.WithPerRPCCredentials(macaroons.NewMacaroonCredential(constrainedMac)),
-		// We need to use a custom dialer so we can also connect to unix sockets
-		// and not just TCP addresses.
 		grpc.WithDialer(lncfg.ClientAddressDialer(u.Port())),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(c.MaxMsgRecvSize)),
 	}
@@ -80,16 +60,4 @@ func newClientConn(c *config.Network) (*grpc.ClientConn, error) {
 	}
 
 	return conn, nil
-}
-
-func newCredentialsFromCert(cert string) (credentials.TransportCredentials, error) {
-	b, err := hex.DecodeString(cert)
-	if err != nil {
-		return nil, err
-	}
-	cp := x509.NewCertPool()
-	if !cp.AppendCertsFromPEM(b) {
-		return nil, fmt.Errorf("credentials: failed to append certificates")
-	}
-	return credentials.NewTLS(&tls.Config{ServerName: "", RootCAs: cp}), nil
 }
