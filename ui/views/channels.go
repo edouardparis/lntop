@@ -21,7 +21,7 @@ type Channels struct {
 }
 
 func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
-	columns, err := g.SetView(CHANNELS_COLUMNS, x0, y0, x1, y0+2)
+	columns, err := g.SetView(CHANNELS_COLUMNS, x0-1, y0, x1+2, y0+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -32,7 +32,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	columns.FgColor = gocui.ColorBlack | gocui.AttrBold
 	displayChannelsColumns(columns)
 
-	c.View, err = g.SetView(CHANNELS, x0, y0+1, x1, y1)
+	c.View, err = g.SetView(CHANNELS, x0-1, y0+1, x1+2, y1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -69,7 +69,7 @@ func (c *Channels) Update(items []*models.Channel) {
 func (c *Channels) display() {
 	c.Clear()
 	for _, item := range c.items {
-		line := fmt.Sprintf("%s %s %s %12d %5d %100s",
+		line := fmt.Sprintf("%s %s %s %12d %5d %500s",
 			active(item),
 			gauge(item),
 			color.Cyan(fmt.Sprintf("%12d", item.LocalBalance)),
