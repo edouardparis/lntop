@@ -8,8 +8,10 @@ import (
 
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/config"
+	"github.com/edouardparis/lntop/events"
 	"github.com/edouardparis/lntop/logging"
 	"github.com/edouardparis/lntop/network"
+	"github.com/edouardparis/lntop/pubsub"
 	"github.com/edouardparis/lntop/ui"
 )
 
@@ -42,6 +44,12 @@ func New() *cli.App {
 				Usage:   "",
 				Action:  walletBalance,
 			},
+			{
+				Name:    "pubsub",
+				Aliases: []string{""},
+				Usage:   "",
+				Action:  pubsubRun,
+			},
 		},
 	}
 }
@@ -58,6 +66,21 @@ func run(c *cli.Context) error {
 	}
 
 	return ui.Run(context.Background(), app)
+}
+
+func pubsubRun(c *cli.Context) error {
+	cfg, err := config.Load(c.String("config"))
+	if err != nil {
+		return err
+	}
+
+	app, err := app.New(cfg)
+	if err != nil {
+		return err
+	}
+
+	events := make(chan *events.Event)
+	return pubsub.Run(context.Background(), app, events)
 }
 
 func getNetworkFromConfig(c *cli.Context) (*network.Network, error) {
