@@ -13,6 +13,7 @@ type controller struct {
 	header   *views.Header
 	summary  *views.Summary
 	channels *views.Channels
+	footer   *views.Footer
 }
 
 func (c *controller) layout(g *gocui.Gui) error {
@@ -27,7 +28,12 @@ func (c *controller) layout(g *gocui.Gui) error {
 		return err
 	}
 
-	return c.channels.Set(g, 0, 7, maxX-1, maxY-1)
+	err = c.channels.Set(g, 0, 7, maxX-1, maxY-1)
+	if err != nil {
+		return err
+	}
+
+	return c.footer.Set(g, 0, maxY-2, maxX, maxY)
 }
 
 func cursorDown(g *gocui.Gui, v *gocui.View) error {
@@ -120,6 +126,7 @@ func newController(app *app.App) *controller {
 	return &controller{
 		app:      app,
 		header:   views.NewHeader(),
+		footer:   views.NewFooter(),
 		summary:  views.NewSummary(),
 		channels: views.NewChannels(),
 	}
