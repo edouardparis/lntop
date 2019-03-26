@@ -47,14 +47,17 @@ func New() *cli.App {
 }
 
 func run(c *cli.Context) error {
-	network, err := getNetworkFromConfig(c)
+	cfg, err := config.Load(c.String("config"))
 	if err != nil {
 		return err
 	}
 
-	a := &app.App{Network: network}
+	app, err := app.New(cfg)
+	if err != nil {
+		return err
+	}
 
-	return ui.Run(context.Background(), a)
+	return ui.Run(context.Background(), app)
 }
 
 func getNetworkFromConfig(c *cli.Context) (*network.Network, error) {

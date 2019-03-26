@@ -18,6 +18,7 @@ type Config struct {
 
 type Logger struct {
 	Type string `yaml:"type"`
+	Dest string `yaml:"dest"`
 }
 
 type Network struct {

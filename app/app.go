@@ -12,6 +12,17 @@ type App struct {
 	Network *network.Network
 }
 
-func Load() (*App, error) {
-	return &App{}, nil
+func New(cfg *config.Config) (*App, error) {
+	logger := logging.New(cfg.Logger)
+
+	network, err := network.New(&cfg.Network, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	return &App{
+		Config:  cfg,
+		Logger:  logger,
+		Network: network,
+	}, nil
 }
