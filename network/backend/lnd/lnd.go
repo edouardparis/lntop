@@ -74,6 +74,27 @@ func (l Backend) SubscribeInvoice(ctx context.Context, channelInvoice chan *mode
 	}
 }
 
+func (l Backend) SubscribeChannels(ctx context.Context, events chan *models.ChannelUpdate) error {
+	_, err := l.Client(ctx)
+	if err != nil {
+		return err
+	}
+
+	// events, err := clt.SubscribeChannelEvents(ctx, &lnrpc.ChannelEventSubscription{})
+	// if err != nil {
+	// 	return err
+	// }
+
+	// for {
+	// 	event, err := events.Recv()
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// events <-
+	//}
+	return nil
+}
+
 func (l Backend) Client(ctx context.Context) (*Client, error) {
 	conn, err := l.pool.Get(ctx)
 	if err != nil {

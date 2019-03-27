@@ -52,3 +52,6 @@ func (m Channel) MarshalLogObject(enc logging.ObjectEncoder) error {
 
 	return nil
 }
+
+type ChannelUpdate struct {
+}

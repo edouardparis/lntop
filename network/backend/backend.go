@@ -10,6 +10,8 @@ import (
 type Backend interface {
 	SubscribeInvoice(context.Context, chan *models.Invoice) error
 
+	SubscribeChannels(context.Context, chan *models.ChannelUpdate) error
+
 	NodeName() string
 
 	Info(ctx context.Context) (*models.Info, error)

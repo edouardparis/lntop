@@ -38,6 +38,10 @@ func (b *Backend) SubscribeInvoice(ctx context.Context, ChannelInvoice chan *mod
 	return nil
 }
 
+func (b *Backend) SubscribeChannels(context.Context, chan *models.ChannelUpdate) error {
+	return nil
+}
+
 func (b *Backend) GetWalletBalance(ctx context.Context) (*models.WalletBalance, error) {
 	return &models.WalletBalance{}, nil
 }
