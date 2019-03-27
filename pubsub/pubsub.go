@@ -42,6 +42,11 @@ func (p *pubSub) invoices(ctx context.Context, sub chan *events.Event) {
 			default:
 				invoice := <-invoices
 				p.logger.Debug("receive invoice", logging.Object("invoice", invoice))
+				if invoice.Settled {
+					sub <- events.New(events.InvoiceSettled)
+				} else {
+					sub <- events.New(events.InvoiceCreated)
+				}
 			}
 		}
 	}()
