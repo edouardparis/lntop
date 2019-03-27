@@ -18,17 +18,17 @@ type controller struct {
 
 func (c *controller) layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
-	err := c.header.Set(g, 0, 0, maxX, 2)
+	err := c.header.Set(g, 0, -1, maxX, 1)
 	if err != nil {
 		return err
 	}
 
-	err = c.summary.Set(g, 0, 2, maxX, 7)
+	err = c.summary.Set(g, 0, 1, maxX, 6)
 	if err != nil {
 		return err
 	}
 
-	err = c.channels.Set(g, 0, 7, maxX-1, maxY-1)
+	err = c.channels.Set(g, 0, 6, maxX-1, maxY-1)
 	if err != nil {
 		return err
 	}
