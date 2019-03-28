@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	"github.com/edouardparis/lntop/ui/color"
+	"github.com/edouardparis/lntop/ui/models"
 	"github.com/jroimartin/gocui"
 )
 
@@ -15,9 +16,7 @@ const (
 var versionReg = regexp.MustCompile(`(\d+\.)?(\d+\.)?(\*|\d+)`)
 
 type Header struct {
-	alias   string
-	kind    string
-	version string
+	Info *models.Info
 }
 
 func (h *Header) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
@@ -29,25 +28,21 @@ func (h *Header) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	}
 	v.Frame = false
 
-	version := h.version
-	matches := versionReg.FindStringSubmatch(h.version)
+	version := h.Info.Version
+	matches := versionReg.FindStringSubmatch(h.Info.Version)
 	if len(matches) > 0 {
 		version = matches[0]
 	}
 
-	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		color.CyanBg(h.alias),
-		color.Cyan(fmt.Sprintf("%s-v%s", h.kind, version)),
+	fmt.Fprintln(v, fmt.Sprintf("%s %s %s %s",
+		color.CyanBg(h.Info.Alias),
+		color.Cyan(fmt.Sprintf("%s-v%s", "lnd", version)),
+		fmt.Sprintf("%s %d", color.Cyan("height:"), h.Info.BlockHeight),
+		fmt.Sprintf("%s %d", color.Cyan("peers:"), h.Info.NumPeers),
 	))
 	return nil
 }
 
-func (h *Header) Update(alias, kind, version string) {
-	h.alias = alias
-	h.kind = kind
-	h.version = version
-}
-
-func NewHeader() *Header {
-	return &Header{}
+func NewHeader(info *models.Info) *Header {
+	return &Header{Info: info}
 }

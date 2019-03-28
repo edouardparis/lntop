@@ -47,20 +47,16 @@ func cursorUp(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (c *controller) Update(ctx context.Context) error {
-	info, err := c.models.App.Network.Info(ctx)
+	err := c.models.RefreshInfo(ctx)
 	if err != nil {
 		return err
 	}
-	alias := info.Alias
-	if c.models.App.Config.Network.Name != "" {
-		alias = c.models.App.Config.Network.Name
-	}
-	c.views.Header.Update(alias, "lnd", info.Version)
-	c.views.Summary.UpdateChannelsStats(
-		info.NumPendingChannels,
-		info.NumActiveChannels,
-		info.NumInactiveChannels,
-	)
+
+	// c.views.Summary.UpdateChannelsStats(
+	// 	info.NumPendingChannels,
+	//	info.NumActiveChannels,
+	//	info.NumInactiveChannels,
+	//)
 
 	channels, err := c.models.App.Network.ListChannels(ctx)
 	if err != nil {
@@ -94,8 +90,9 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 }
 
 func newController(app *app.App) *controller {
+	m := models.New(app)
 	return &controller{
-		models: models.New(app),
-		views:  views.New(),
+		models: m,
+		views:  views.New(m),
 	}
 }

@@ -1,6 +1,9 @@
 package views
 
-import "github.com/jroimartin/gocui"
+import (
+	"github.com/edouardparis/lntop/ui/models"
+	"github.com/jroimartin/gocui"
+)
 
 type Views struct {
 	Header   *Header
@@ -28,9 +31,9 @@ func (v *Views) Layout(g *gocui.Gui, maxX, maxY int) error {
 	return v.Footer.Set(g, 0, maxY-2, maxX, maxY)
 }
 
-func New() *Views {
+func New(m *models.Models) *Views {
 	return &Views{
-		Header:   NewHeader(),
+		Header:   NewHeader(m.Info),
 		Footer:   NewFooter(),
 		Summary:  NewSummary(),
 		Channels: NewChannels(),
