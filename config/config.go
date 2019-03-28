@@ -8,30 +8,30 @@ import (
 	"os/user"
 	"path"
 
-	"gopkg.in/yaml.v2"
+	"github.com/BurntSushi/toml"
 )
 
 type Config struct {
-	Logger  Logger  `yaml:"logger"`
-	Network Network `yaml:"network"`
+	Logger  Logger  `toml:"logger"`
+	Network Network `toml:"network"`
 }
 
 type Logger struct {
-	Type string `yaml:"type"`
-	Dest string `yaml:"dest"`
+	Type string `toml:"type"`
+	Dest string `toml:"dest"`
 }
 
 type Network struct {
-	Name            string `yaml:"name"`
-	Type            string `yaml:"type"`
-	Address         string `yaml:"address"`
-	Cert            string `yaml:"cert"`
-	Macaroon        string `yaml:"macaroon"`
-	MacaroonTimeOut int64  `yaml:"macaroon_timeout"`
-	MacaroonIP      string `yaml:"macaroon_ip"`
-	MaxMsgRecvSize  int    `yaml:"max_msg_recv_size"`
-	ConnTimeout     int    `yaml:"conn_timeout"`
-	PoolCapacity    int    `yaml:"pool_capacity"`
+	Name            string `toml:"name"`
+	Type            string `toml:"type"`
+	Address         string `toml:"address"`
+	Cert            string `toml:"cert"`
+	Macaroon        string `toml:"macaroon"`
+	MacaroonTimeOut int64  `toml:"macaroon_timeout"`
+	MacaroonIP      string `toml:"macaroon_ip"`
+	MaxMsgRecvSize  int    `toml:"max_msg_recv_size"`
+	ConnTimeout     int    `toml:"conn_timeout"`
+	PoolCapacity    int    `toml:"pool_capacity"`
 }
 
 func Load(path string) (*Config, error) {
@@ -76,7 +76,7 @@ func loadFromPath(path string, out interface{}) error {
 		return err
 	}
 
-	return yaml.Unmarshal(data, out)
+	return toml.Unmarshal(data, out)
 }
 
 // getappDir creates if not exists the app directory where the config file

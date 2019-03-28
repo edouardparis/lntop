@@ -1,6 +1,7 @@
 module github.com/edouardparis/lntop
 
 require (
+	github.com/BurntSushi/toml v0.3.1
 	github.com/btcsuite/btcwallet v0.0.0-20190313041134-68fc7c82e131 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/gofrs/uuid v3.2.0+incompatible
@@ -28,5 +29,4 @@ require (
 	gopkg.in/macaroon-bakery.v2 v2.1.0 // indirect
 	gopkg.in/macaroon.v2 v2.1.0
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8
-	gopkg.in/yaml.v2 v2.2.2
 )
