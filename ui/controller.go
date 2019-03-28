@@ -49,7 +49,11 @@ func (c *controller) Update(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	c.views.Header.Update(info.Alias, "lnd", info.Version)
+	alias := info.Alias
+	if c.app.Config.Network.Name != "" {
+		alias = c.app.Config.Network.Name
+	}
+	c.views.Header.Update(alias, "lnd", info.Version)
 	c.views.Summary.UpdateChannelsStats(
 		info.NumPendingChannels,
 		info.NumActiveChannels,

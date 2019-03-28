@@ -35,8 +35,10 @@ func (h *Header) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		version = matches[0]
 	}
 
-	fmt.Fprintln(v, fmt.Sprintf("%s %s %s",
-		color.CyanBg(h.alias), color.Cyan(h.kind), color.Cyan(version)))
+	fmt.Fprintln(v, fmt.Sprintf("%s %s",
+		color.CyanBg(h.alias),
+		color.Cyan(fmt.Sprintf("%s-v%s", h.kind, version)),
+	))
 	return nil
 }
 
