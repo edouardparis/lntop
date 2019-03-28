@@ -3,14 +3,16 @@ package ui
 import (
 	"context"
 
-	"github.com/edouardparis/lntop/app"
-	"github.com/edouardparis/lntop/ui/views"
 	"github.com/jroimartin/gocui"
+
+	"github.com/edouardparis/lntop/app"
+	"github.com/edouardparis/lntop/ui/models"
+	"github.com/edouardparis/lntop/ui/views"
 )
 
 type controller struct {
-	app   *app.App
-	views *views.Views
+	models *models.Models
+	views  *views.Views
 }
 
 func (c *controller) layout(g *gocui.Gui) error {
@@ -45,13 +47,13 @@ func cursorUp(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (c *controller) Update(ctx context.Context) error {
-	info, err := c.app.Network.Info(ctx)
+	info, err := c.models.App.Network.Info(ctx)
 	if err != nil {
 		return err
 	}
 	alias := info.Alias
-	if c.app.Config.Network.Name != "" {
-		alias = c.app.Config.Network.Name
+	if c.models.App.Config.Network.Name != "" {
+		alias = c.models.App.Config.Network.Name
 	}
 	c.views.Header.Update(alias, "lnd", info.Version)
 	c.views.Summary.UpdateChannelsStats(
@@ -60,7 +62,7 @@ func (c *controller) Update(ctx context.Context) error {
 		info.NumInactiveChannels,
 	)
 
-	channels, err := c.app.Network.ListChannels(ctx)
+	channels, err := c.models.App.Network.ListChannels(ctx)
 	if err != nil {
 		return err
 	}
@@ -93,7 +95,7 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 
 func newController(app *app.App) *controller {
 	return &controller{
-		app:   app,
-		views: views.New(),
+		models: models.New(app),
+		views:  views.New(),
 	}
 }
