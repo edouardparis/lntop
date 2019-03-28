@@ -9,31 +9,13 @@ import (
 )
 
 type controller struct {
-	app      *app.App
-	header   *views.Header
-	summary  *views.Summary
-	channels *views.Channels
-	footer   *views.Footer
+	app   *app.App
+	views *views.Views
 }
 
 func (c *controller) layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
-	err := c.header.Set(g, 0, -1, maxX, 1)
-	if err != nil {
-		return err
-	}
-
-	err = c.summary.Set(g, 0, 1, maxX, 6)
-	if err != nil {
-		return err
-	}
-
-	err = c.channels.Set(g, 0, 6, maxX-1, maxY-1)
-	if err != nil {
-		return err
-	}
-
-	return c.footer.Set(g, 0, maxY-2, maxX, maxY)
+	return c.views.Layout(g, maxX, maxY)
 }
 
 func cursorDown(g *gocui.Gui, v *gocui.View) error {
@@ -67,8 +49,8 @@ func (c *controller) Update(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	c.header.Update(info.Alias, "lnd", info.Version)
-	c.summary.UpdateChannelsStats(
+	c.views.Header.Update(info.Alias, "lnd", info.Version)
+	c.views.Summary.UpdateChannelsStats(
 		info.NumPendingChannels,
 		info.NumActiveChannels,
 		info.NumInactiveChannels,
@@ -78,7 +60,7 @@ func (c *controller) Update(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	c.channels.Update(channels)
+	c.views.Channels.Update(channels)
 	return nil
 }
 
@@ -88,13 +70,13 @@ func (c *controller) Refresh(ctx context.Context) func(*gocui.Gui) error {
 		if err != nil {
 			return err
 		}
-		c.header.Update(info.Alias, "lnd", info.Version)
+		c.views.Header.Update(info.Alias, "lnd", info.Version)
 
 		channels, err := c.app.Network.ListChannels(ctx)
 		if err != nil {
 			return err
 		}
-		c.channels.Update(channels)
+		c.views.Channels.Update(channels)
 		return nil
 	}
 }
@@ -124,10 +106,7 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 
 func newController(app *app.App) *controller {
 	return &controller{
-		app:      app,
-		header:   views.NewHeader(),
-		footer:   views.NewFooter(),
-		summary:  views.NewSummary(),
-		channels: views.NewChannels(),
+		app:   app,
+		views: views.New(),
 	}
 }
