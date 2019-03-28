@@ -2,6 +2,7 @@ package views
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/edouardparis/lntop/ui/color"
 	"github.com/jroimartin/gocui"
@@ -10,6 +11,8 @@ import (
 const (
 	HEADER = "myheader"
 )
+
+var versionReg = regexp.MustCompile(`(\d+\.)?(\d+\.)?(\*|\d+)`)
 
 type Header struct {
 	alias   string
@@ -25,7 +28,15 @@ func (h *Header) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		}
 	}
 	v.Frame = false
-	fmt.Fprintln(v, color.Cyan(fmt.Sprintf("[%s %s %s]", h.alias, h.kind, h.version)))
+
+	version := h.version
+	matches := versionReg.FindStringSubmatch(h.version)
+	if len(matches) > 0 {
+		version = matches[0]
+	}
+
+	fmt.Fprintln(v, fmt.Sprintf("%s %s %s",
+		color.CyanBg(h.alias), color.Cyan(h.kind), color.Cyan(version)))
 	return nil
 }
 

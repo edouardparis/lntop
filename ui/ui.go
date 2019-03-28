@@ -29,8 +29,6 @@ func Run(ctx context.Context, app *app.App) error {
 		return err
 	}
 
-	g.Update(ctrl.Refresh(ctx))
-
 	err = g.MainLoop()
 	if err != nil && err != gocui.ErrQuit {
 		return err

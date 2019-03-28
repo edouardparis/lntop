@@ -64,23 +64,6 @@ func (c *controller) Update(ctx context.Context) error {
 	return nil
 }
 
-func (c *controller) Refresh(ctx context.Context) func(*gocui.Gui) error {
-	return func(g *gocui.Gui) error {
-		info, err := c.app.Network.Info(ctx)
-		if err != nil {
-			return err
-		}
-		c.views.Header.Update(info.Alias, "lnd", info.Version)
-
-		channels, err := c.app.Network.ListChannels(ctx)
-		if err != nil {
-			return err
-		}
-		c.views.Channels.Update(channels)
-		return nil
-	}
-}
-
 func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
