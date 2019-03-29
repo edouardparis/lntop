@@ -1,6 +1,7 @@
 package events
 
 const (
+	Quit           = "quit"
 	InvoiceCreated = "invoice.created"
 	InvoiceSettled = "invoice.settled"
 )

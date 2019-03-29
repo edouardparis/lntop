@@ -80,7 +80,14 @@ func pubsubRun(c *cli.Context) error {
 	}
 
 	events := make(chan *events.Event)
-	return pubsub.Run(context.Background(), app, events)
+	err = pubsub.Run(context.Background(), app, events)
+	if err != nil {
+		return err
+	}
+	//ev := <-events
+	//app.Logger.Info("events quit ", logging.String("type", ev.Type))
+
+	return nil
 }
 
 func getNetworkFromConfig(c *cli.Context) (*network.Network, error) {
