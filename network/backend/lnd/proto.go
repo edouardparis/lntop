@@ -14,8 +14,8 @@ func protoToWalletBalance(w *lnrpc.WalletBalanceResponse) *models.WalletBalance 
 	}
 }
 
-func protoToChannelBalance(w *lnrpc.ChannelBalanceResponse) *models.ChannelBalance {
-	return &models.ChannelBalance{
+func protoToChannelsBalance(w *lnrpc.ChannelBalanceResponse) *models.ChannelsBalance {
+	return &models.ChannelsBalance{
 		PendingOpenBalance: w.GetPendingOpenBalance(),
 		Balance:            w.GetBalance(),
 	}

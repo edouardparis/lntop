@@ -46,8 +46,8 @@ func (b *Backend) GetWalletBalance(ctx context.Context) (*models.WalletBalance, 
 	return &models.WalletBalance{}, nil
 }
 
-func (b *Backend) GetChannelBalance(ctx context.Context) (*models.ChannelBalance, error) {
-	return &models.ChannelBalance{}, nil
+func (b *Backend) GetChannelsBalance(ctx context.Context) (*models.ChannelsBalance, error) {
+	return &models.ChannelsBalance{}, nil
 }
 
 func (b *Backend) ListChannels(ctx context.Context, opt ...options.Channel) ([]*models.Channel, error) {

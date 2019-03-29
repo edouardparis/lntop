@@ -135,7 +135,7 @@ func (l Backend) GetWalletBalance(ctx context.Context) (*models.WalletBalance, e
 	return balance, nil
 }
 
-func (l Backend) GetChannelBalance(ctx context.Context) (*models.ChannelBalance, error) {
+func (l Backend) GetChannelsBalance(ctx context.Context) (*models.ChannelsBalance, error) {
 	l.logger.Debug("Retrieve channel balance...")
 
 	clt, err := l.Client(ctx)
@@ -150,7 +150,7 @@ func (l Backend) GetChannelBalance(ctx context.Context) (*models.ChannelBalance,
 		return nil, errors.WithStack(err)
 	}
 
-	balance := protoToChannelBalance(resp)
+	balance := protoToChannelsBalance(resp)
 
 	l.logger.Debug("Channel balance retrieved", logging.Object("balance", balance))
 

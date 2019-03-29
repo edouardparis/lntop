@@ -18,7 +18,7 @@ type Backend interface {
 
 	GetWalletBalance(context.Context) (*models.WalletBalance, error)
 
-	GetChannelBalance(context.Context) (*models.ChannelBalance, error)
+	GetChannelsBalance(context.Context) (*models.ChannelsBalance, error)
 
 	ListChannels(context.Context, ...options.Channel) ([]*models.Channel, error)
 

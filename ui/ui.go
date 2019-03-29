@@ -17,14 +17,14 @@ func Run(ctx context.Context, app *app.App) error {
 
 	g.Cursor = true
 	ctrl := newController(app)
-	g.SetManagerFunc(ctrl.layout)
-
-	err = ctrl.setKeyBinding(g)
+	err = ctrl.SetModels(ctx)
 	if err != nil {
 		return err
 	}
 
-	err = ctrl.Update(ctx)
+	g.SetManagerFunc(ctrl.layout)
+
+	err = ctrl.setKeyBinding(g)
 	if err != nil {
 		return err
 	}

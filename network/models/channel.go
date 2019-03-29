@@ -2,12 +2,12 @@ package models
 
 import "github.com/edouardparis/lntop/logging"
 
-type ChannelBalance struct {
+type ChannelsBalance struct {
 	Balance            int64
 	PendingOpenBalance int64
 }
 
-func (m ChannelBalance) MarshalLogObject(enc logging.ObjectEncoder) error {
+func (m ChannelsBalance) MarshalLogObject(enc logging.ObjectEncoder) error {
 	enc.AddInt64("balance", m.Balance)
 	enc.AddInt64("pending_open_balance", m.PendingOpenBalance)
 

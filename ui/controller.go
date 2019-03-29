@@ -46,17 +46,22 @@ func cursorUp(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
-func (c *controller) Update(ctx context.Context) error {
+func (c *controller) SetModels(ctx context.Context) error {
 	err := c.models.RefreshInfo(ctx)
 	if err != nil {
 		return err
 	}
 
-	// c.views.Summary.UpdateChannelsStats(
-	// 	info.NumPendingChannels,
-	//	info.NumActiveChannels,
-	//	info.NumInactiveChannels,
-	//)
+	err = c.models.RefreshWalletBalance(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = c.models.RefreshChannelsBalance(ctx)
+	if err != nil {
+		return err
+	}
+
 	return c.models.RefreshChannels(ctx)
 }
 
