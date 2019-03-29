@@ -65,7 +65,17 @@ func run(c *cli.Context) error {
 		return err
 	}
 
-	return ui.Run(context.Background(), app)
+	events := make(chan *events.Event)
+
+	go func() {
+		err := ui.Run(context.Background(), app, events)
+		if err != nil {
+			app.Logger.Debug("ui", logging.String("error", err.Error()))
+		}
+	}()
+
+	pubsub.Run(context.Background(), app, events)
+	return nil
 }
 
 func pubsubRun(c *cli.Context) error {
@@ -80,10 +90,7 @@ func pubsubRun(c *cli.Context) error {
 	}
 
 	events := make(chan *events.Event)
-	err = pubsub.Run(context.Background(), app, events)
-	if err != nil {
-		return err
-	}
+	pubsub.Run(context.Background(), app, events)
 	//ev := <-events
 	//app.Logger.Info("events quit ", logging.String("type", ev.Type))
 

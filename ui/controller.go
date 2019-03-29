@@ -6,6 +6,8 @@ import (
 	"github.com/jroimartin/gocui"
 
 	"github.com/edouardparis/lntop/app"
+	"github.com/edouardparis/lntop/events"
+	"github.com/edouardparis/lntop/logging"
 	"github.com/edouardparis/lntop/ui/models"
 	"github.com/edouardparis/lntop/ui/views"
 )
@@ -63,6 +65,17 @@ func (c *controller) SetModels(ctx context.Context) error {
 	}
 
 	return c.models.RefreshChannels(ctx)
+}
+
+func (c *controller) Refresh(ctx context.Context, sub chan *events.Event) error {
+	for event := range sub {
+		if event.Type == events.Quit {
+			break
+		}
+		c.models.App.Logger.Info("models loop", logging.String("type event", event.Type))
+	}
+
+	return gocui.ErrQuit
 }
 
 func quit(g *gocui.Gui, v *gocui.View) error {

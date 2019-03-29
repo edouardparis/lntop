@@ -6,9 +6,10 @@ import (
 	"github.com/jroimartin/gocui"
 
 	"github.com/edouardparis/lntop/app"
+	"github.com/edouardparis/lntop/events"
 )
 
-func Run(ctx context.Context, app *app.App) error {
+func Run(ctx context.Context, app *app.App, sub chan *events.Event) error {
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
 		return err
@@ -29,10 +30,15 @@ func Run(ctx context.Context, app *app.App) error {
 		return err
 	}
 
+	go func() {
+		err := ctrl.Refresh(ctx, sub)
+		if err != nil {
+			g.Update(func(*gocui.Gui) error { return err })
+		}
+	}()
+
 	err = g.MainLoop()
-	if err != nil && err != gocui.ErrQuit {
-		return err
-	}
+	close(sub)
 
 	return err
 }

@@ -82,11 +82,10 @@ func (p *pubSub) wait() {
 	p.wg.Wait()
 }
 
-func Run(ctx context.Context, app *app.App, sub chan *events.Event) error {
+func Run(ctx context.Context, app *app.App, sub chan *events.Event) {
 	pubSub := newPubSub(app.Logger, app.Network)
 	pubSub.logger.Debug("Starting...")
 
 	pubSub.invoices(ctx, sub)
 	pubSub.wait()
-	return nil
 }
