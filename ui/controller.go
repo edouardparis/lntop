@@ -57,13 +57,7 @@ func (c *controller) Update(ctx context.Context) error {
 	//	info.NumActiveChannels,
 	//	info.NumInactiveChannels,
 	//)
-
-	channels, err := c.models.App.Network.ListChannels(ctx)
-	if err != nil {
-		return err
-	}
-	c.views.Channels.Update(channels)
-	return nil
+	return c.models.RefreshChannels(ctx)
 }
 
 func quit(g *gocui.Gui, v *gocui.View) error {

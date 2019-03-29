@@ -6,8 +6,9 @@ import (
 
 	"github.com/jroimartin/gocui"
 
-	"github.com/edouardparis/lntop/network/models"
+	netmodels "github.com/edouardparis/lntop/network/models"
 	"github.com/edouardparis/lntop/ui/color"
+	"github.com/edouardparis/lntop/ui/models"
 )
 
 const (
@@ -17,7 +18,7 @@ const (
 
 type Channels struct {
 	*gocui.View
-	items []*models.Channel
+	channels *models.Channels
 }
 
 func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
@@ -62,13 +63,9 @@ func displayChannelsColumns(v *gocui.View) {
 	))
 }
 
-func (c *Channels) Update(items []*models.Channel) {
-	c.items = items
-}
-
 func (c *Channels) display() {
 	c.Clear()
-	for _, item := range c.items {
+	for _, item := range c.channels.Items {
 		line := fmt.Sprintf("%s %s %s %12d %5d %500s",
 			active(item),
 			gauge(item),
@@ -81,14 +78,14 @@ func (c *Channels) display() {
 	}
 }
 
-func active(c *models.Channel) string {
+func active(c *netmodels.Channel) string {
 	if c.Active {
 		return color.Green(fmt.Sprintf("%-9s", "active"))
 	}
 	return color.Red(fmt.Sprintf("%-9s", "inactive"))
 }
 
-func gauge(c *models.Channel) string {
+func gauge(c *netmodels.Channel) string {
 	index := int(c.LocalBalance * int64(20) / c.Capacity)
 	var buffer bytes.Buffer
 	for i := 0; i < 20; i++ {
@@ -101,6 +98,6 @@ func gauge(c *models.Channel) string {
 	return fmt.Sprintf("[%s] %2d%%", buffer.String(), c.LocalBalance*100/c.Capacity)
 }
 
-func NewChannels() *Channels {
-	return &Channels{}
+func NewChannels(channels *models.Channels) *Channels {
+	return &Channels{channels: channels}
 }

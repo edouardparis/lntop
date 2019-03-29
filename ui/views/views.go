@@ -36,6 +36,6 @@ func New(m *models.Models) *Views {
 		Header:   NewHeader(m.Info),
 		Footer:   NewFooter(),
 		Summary:  NewSummary(),
-		Channels: NewChannels(),
+		Channels: NewChannels(m.Channels),
 	}
 }

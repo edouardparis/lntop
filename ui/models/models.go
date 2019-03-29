@@ -8,14 +8,16 @@ import (
 )
 
 type Models struct {
-	App  *app.App
-	Info *Info
+	App      *app.App
+	Info     *Info
+	Channels *Channels
 }
 
 func New(app *app.App) *Models {
 	return &Models{
-		App:  app,
-		Info: &Info{},
+		App:      app,
+		Info:     &Info{},
+		Channels: &Channels{},
 	}
 }
 
@@ -28,6 +30,19 @@ func (m *Models) RefreshInfo(ctx context.Context) error {
 	return nil
 }
 
+func (m *Models) RefreshChannels(ctx context.Context) error {
+	channels, err := m.App.Network.ListChannels(ctx)
+	if err != nil {
+		return err
+	}
+	*m.Channels = Channels{channels}
+	return nil
+}
+
 type Info struct {
 	*models.Info
+}
+
+type Channels struct {
+	Items []*models.Channel
 }
