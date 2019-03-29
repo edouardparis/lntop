@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/signal"
 	"sync"
-	"time"
 
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/events"
@@ -33,6 +32,7 @@ func newPubSub(logger logging.Logger, network *network.Network) *pubSub {
 func (p *pubSub) invoices(ctx context.Context, sub chan *events.Event) {
 	p.wg.Add(2)
 	invoices := make(chan *models.Invoice)
+	ctx, cancel := context.WithCancel(ctx)
 
 	go func() {
 		for invoice := range invoices {
@@ -47,25 +47,15 @@ func (p *pubSub) invoices(ctx context.Context, sub chan *events.Event) {
 	}()
 
 	go func() {
-		for {
-			select {
-			case <-p.stop:
-				p.logger.Info("stop invoices")
-				close(invoices)
-				p.logger.Info("close invoices")
-				p.wg.Done()
-				return
-			default:
-				time.Sleep(3 * time.Second)
-				p.logger.Info("loop")
-				//err := p.network.SubscribeInvoice(ctx, invoices)
-				//if err != nil {
-				//
-				//p.logger.Error("SubscribeInvoice returned an error", logging.Error(err))
-				//}
-			}
+		err := p.network.SubscribeInvoice(ctx, invoices)
+		if err != nil {
+			p.logger.Error("SubscribeInvoice returned an error", logging.Error(err))
 		}
+		close(invoices)
 	}()
+
+	<-p.stop
+	cancel()
 }
 
 func (p *pubSub) wait() {
