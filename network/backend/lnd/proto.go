@@ -156,5 +156,7 @@ func infoProtoToInfo(resp *lnrpc.GetInfoResponse) *models.Info {
 		BlockHash:           resp.BlockHash,
 		Synced:              resp.SyncedToChain,
 		Version:             resp.Version,
+		Chains:              resp.Chains,
+		Testnet:             resp.Testnet,
 	}
 }

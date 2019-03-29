@@ -13,6 +13,8 @@ type Info struct {
 	BlockHash           string
 	Synced              bool
 	Version             string
+	Chains              []string
+	Testnet             bool
 }
 
 func (i Info) MarshalLogObject(enc logging.ObjectEncoder) error {

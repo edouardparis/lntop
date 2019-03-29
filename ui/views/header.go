@@ -34,9 +34,26 @@ func (h *Header) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		version = matches[0]
 	}
 
-	fmt.Fprintln(v, fmt.Sprintf("%s %s %s %s",
+	chain := ""
+	if len(h.Info.Chains) > 0 {
+		chain = h.Info.Chains[0]
+	}
+
+	network := "testnet"
+	if !h.Info.Testnet {
+		network = "mainnet"
+	}
+
+	sync := color.Yellow("[syncing]")
+	if h.Info.Synced {
+		sync = color.Green("[synced]")
+	}
+
+	fmt.Fprintln(v, fmt.Sprintf("%s %s %s %s %s %s",
 		color.CyanBg(h.Info.Alias),
 		color.Cyan(fmt.Sprintf("%s-v%s", "lnd", version)),
+		fmt.Sprintf("%s %s", chain, network),
+		sync,
 		fmt.Sprintf("%s %d", color.Cyan("height:"), h.Info.BlockHeight),
 		fmt.Sprintf("%s %d", color.Cyan("peers:"), h.Info.NumPeers),
 	))
