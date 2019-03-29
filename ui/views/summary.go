@@ -1,8 +1,10 @@
 package views
 
 import (
+	"bytes"
 	"fmt"
 
+	netmodels "github.com/edouardparis/lntop/network/models"
 	"github.com/edouardparis/lntop/ui/color"
 	"github.com/edouardparis/lntop/ui/models"
 	"github.com/jroimartin/gocui"
@@ -19,6 +21,7 @@ type Summary struct {
 	info            *models.Info
 	channelsBalance *models.ChannelsBalance
 	walletBalance   *models.WalletBalance
+	channels        *models.Channels
 }
 
 func (s *Summary) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
@@ -30,6 +33,7 @@ func (s *Summary) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		}
 	}
 	s.left.Frame = false
+	s.left.Wrap = true
 
 	s.right, err = g.SetView(SUMMARY_RIGHT, x1/2, y0, x1, y1)
 	if err != nil {
@@ -38,6 +42,7 @@ func (s *Summary) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		}
 	}
 	s.right.Frame = false
+	s.right.Wrap = true
 	s.display()
 	return nil
 }
@@ -57,6 +62,10 @@ func (s *Summary) display() {
 		s.info.NumPendingChannels, color.Yellow("pending"),
 		s.info.NumInactiveChannels, color.Red("inactive"),
 	))
+	fmt.Fprintln(s.left, fmt.Sprintf("%s %s",
+		color.Cyan("gauge  :"),
+		gaugeTotal(s.channelsBalance.Balance, s.channels.Items),
+	))
 
 	s.right.Clear()
 	fmt.Fprintln(s.right, color.Green("[ Wallet ]"))
@@ -68,10 +77,31 @@ func (s *Summary) display() {
 	))
 }
 
-func NewSummary(info *models.Info, channelsBalance *models.ChannelsBalance, walletBalance *models.WalletBalance) *Summary {
+func gaugeTotal(balance int64, channels []*netmodels.Channel) string {
+	capacity := int64(0)
+	for i := range channels {
+		capacity += channels[i].Capacity
+	}
+	index := int(balance * int64(20) / capacity)
+	var buffer bytes.Buffer
+	for i := 0; i < 20; i++ {
+		if i < index {
+			buffer.WriteString(color.Cyan("|"))
+			continue
+		}
+		buffer.WriteString(" ")
+	}
+	return fmt.Sprintf("[%s] %2d%%", buffer.String(), balance*100/capacity)
+}
+
+func NewSummary(info *models.Info,
+	channelsBalance *models.ChannelsBalance,
+	walletBalance *models.WalletBalance,
+	channels *models.Channels) *Summary {
 	return &Summary{
 		info:            info,
 		channelsBalance: channelsBalance,
 		walletBalance:   walletBalance,
+		channels:        channels,
 	}
 }
