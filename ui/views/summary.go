@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/edouardparis/lntop/ui/color"
+	"github.com/edouardparis/lntop/ui/models"
 	"github.com/jroimartin/gocui"
 )
 
@@ -13,14 +14,9 @@ const (
 )
 
 type Summary struct {
-	left                *gocui.View
-	right               *gocui.View
-	NumPendingChannels  uint32
-	NumActiveChannels   uint32
-	NumInactiveChannels uint32
-	NumPeers            uint32
-	BlockHeight         uint32
-	Synced              bool
+	left  *gocui.View
+	right *gocui.View
+	info  *models.Info
 }
 
 func (s *Summary) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
@@ -44,27 +40,18 @@ func (s *Summary) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	return nil
 }
 
-func (s *Summary) UpdateChannelsStats(numPendingChannels, numActiveChannels, numInactiveChannels uint32) {
-	s.NumActiveChannels = numActiveChannels
-	s.NumInactiveChannels = numInactiveChannels
-	s.NumPendingChannels = numPendingChannels
-}
-
 func (s *Summary) display() {
 	s.left.Clear()
 	fmt.Fprintln(s.left, color.Green("[ Channels ]"))
 	fmt.Fprintln(s.left, fmt.Sprintf("%d %s %d %s %d %s",
-		s.NumPendingChannels, color.Yellow("pending"),
-		s.NumActiveChannels, color.Green("active"),
-		s.NumInactiveChannels, color.Red("inactive"),
+		s.info.NumPendingChannels, color.Yellow("pending"),
+		s.info.NumActiveChannels, color.Green("active"),
+		s.info.NumInactiveChannels, color.Red("inactive"),
 	))
 
 	s.right.Clear()
-	fmt.Fprintln(s.right, color.Green("[ Network ]"))
-	fmt.Fprintln(s.right, fmt.Sprintf("%s %4d", color.Cyan("Block Height: "), s.BlockHeight))
-	fmt.Fprintln(s.right, fmt.Sprintf("%s %4d", color.Cyan("Synced:  "), s.NumActiveChannels))
 }
 
-func NewSummary() *Summary {
-	return &Summary{}
+func NewSummary(info *models.Info) *Summary {
+	return &Summary{info: info}
 }
