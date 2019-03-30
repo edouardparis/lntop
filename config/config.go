@@ -42,7 +42,7 @@ func Load(path string) (*Config, error) {
 		if err != nil {
 			return nil, err
 		}
-		path = fmt.Sprintf("%s/config.yml", dir)
+		path = fmt.Sprintf("%s/config.toml", dir)
 	}
 
 	err := loadFromPath(path, c)
