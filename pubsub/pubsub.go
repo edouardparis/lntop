@@ -30,7 +30,7 @@ func newPubSub(logger logging.Logger, network *network.Network) *pubSub {
 }
 
 func (p *pubSub) invoices(ctx context.Context, sub chan *events.Event) {
-	p.wg.Add(2)
+	p.wg.Add(3)
 	invoices := make(chan *models.Invoice)
 	ctx, cancel := context.WithCancel(ctx)
 
@@ -51,11 +51,15 @@ func (p *pubSub) invoices(ctx context.Context, sub chan *events.Event) {
 		if err != nil {
 			p.logger.Error("SubscribeInvoice returned an error", logging.Error(err))
 		}
-		close(invoices)
+		p.wg.Done()
 	}()
 
-	<-p.stop
-	cancel()
+	go func() {
+		<-p.stop
+		cancel()
+		close(invoices)
+		p.wg.Done()
+	}()
 }
 
 func (p *pubSub) wait() {

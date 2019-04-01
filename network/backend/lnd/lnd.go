@@ -8,6 +8,8 @@ import (
 	"github.com/lightningnetwork/lnd/lnrpc"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/edouardparis/lntop/config"
 	"github.com/edouardparis/lntop/logging"
@@ -44,6 +46,7 @@ func (l Backend) Info(ctx context.Context) (*models.Info, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer clt.Close()
 
 	resp, err := clt.GetInfo(ctx, &lnrpc.GetInfoRequest{})
 	if err != nil {
@@ -58,6 +61,7 @@ func (l Backend) SubscribeInvoice(ctx context.Context, channelInvoice chan *mode
 	if err != nil {
 		return err
 	}
+	defer clt.Close()
 
 	cltInvoices, err := clt.SubscribeInvoices(ctx, &lnrpc.InvoiceSubscription{})
 	if err != nil {
@@ -65,12 +69,22 @@ func (l Backend) SubscribeInvoice(ctx context.Context, channelInvoice chan *mode
 	}
 
 	for {
-		invoice, err := cltInvoices.Recv()
-		if err != nil {
-			return err
-		}
+		select {
+		case <-ctx.Done():
+			break
+		default:
+			invoice, err := cltInvoices.Recv()
+			if err != nil {
+				st, ok := status.FromError(err)
+				if ok && st.Code() == codes.Canceled {
+					l.logger.Debug("stopping subscribe invoice: context canceled")
+					return nil
+				}
+				return err
+			}
 
-		channelInvoice <- lookupInvoiceProtoToInvoice(invoice)
+			channelInvoice <- lookupInvoiceProtoToInvoice(invoice)
+		}
 	}
 }
 
