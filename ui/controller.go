@@ -71,9 +71,23 @@ func (c *controller) SetModels(ctx context.Context) error {
 func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.Event) {
 	c.logger.Debug("Listening...")
 	for event := range sub {
+		var err error
 		switch event.Type {
+		case events.BlockReceived:
+			err = c.models.RefreshInfo(ctx)
+		case events.ChannelPending:
+			err = c.models.RefreshInfo(ctx)
+		case events.ChannelActive:
+			err = c.models.RefreshInfo(ctx)
+		case events.ChannelInactive:
+			err = c.models.RefreshInfo(ctx)
+		case events.PeerUpdated:
+			err = c.models.RefreshInfo(ctx)
 		default:
 			c.logger.Info("event received", logging.String("type", event.Type))
+		}
+		if err != nil {
+			c.logger.Error("failed", logging.String("event", event.Type))
 		}
 	}
 }

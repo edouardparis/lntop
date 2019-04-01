@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"time"
 
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/events"
@@ -27,6 +28,49 @@ func newPubSub(logger logging.Logger, network *network.Network) *pubSub {
 		wg:      &sync.WaitGroup{},
 		stop:    make(chan bool),
 	}
+}
+
+func (p *pubSub) ticker(ctx context.Context, sub chan *events.Event) {
+	p.wg.Add(1)
+	ticker := time.NewTicker(3 * time.Second)
+	go func() {
+		var old *models.Info
+		for {
+			select {
+			case <-p.stop:
+				ticker.Stop()
+				p.wg.Done()
+				return
+			case <-ticker.C:
+				info, err := p.network.Info(ctx)
+				if err != nil {
+					p.logger.Error("SubscribeInvoice returned an error", logging.Error(err))
+				}
+				if old != nil {
+					if old.BlockHeight != info.BlockHeight {
+						sub <- events.New(events.BlockReceived)
+					}
+
+					if old.NumPeers != info.NumPeers {
+						sub <- events.New(events.PeerUpdated)
+					}
+
+					if old.NumPendingChannels < info.NumPendingChannels {
+						sub <- events.New(events.ChannelPending)
+					}
+
+					if old.NumActiveChannels < info.NumActiveChannels {
+						sub <- events.New(events.ChannelActive)
+					}
+
+					if old.NumInactiveChannels < info.NumInactiveChannels {
+						sub <- events.New(events.ChannelInactive)
+					}
+				}
+				old = info
+			}
+		}
+	}()
 }
 
 func (p *pubSub) invoices(ctx context.Context, sub chan *events.Event) {
@@ -81,5 +125,6 @@ func Run(ctx context.Context, app *app.App, sub chan *events.Event) {
 	pubSub.logger.Debug("Starting...")
 
 	pubSub.invoices(ctx, sub)
+	pubSub.ticker(ctx, sub)
 	pubSub.wait()
 }

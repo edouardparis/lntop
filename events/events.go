@@ -1,8 +1,13 @@
 package events
 
 const (
-	InvoiceCreated = "invoice.created"
-	InvoiceSettled = "invoice.settled"
+	PeerUpdated     = "peer.updated"
+	BlockReceived   = "block.received"
+	InvoiceCreated  = "invoice.created"
+	InvoiceSettled  = "invoice.settled"
+	ChannelPending  = "channel.pending"
+	ChannelActive   = "channel.active"
+	ChannelInactive = "channel.inactive"
 )
 
 type Event struct {
