@@ -13,6 +13,7 @@ import (
 )
 
 type controller struct {
+	logger logging.Logger
 	models *models.Models
 	views  *views.Views
 }
@@ -67,15 +68,14 @@ func (c *controller) SetModels(ctx context.Context) error {
 	return c.models.RefreshChannels(ctx)
 }
 
-func (c *controller) Refresh(ctx context.Context, sub chan *events.Event) error {
+func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.Event) {
+	c.logger.Debug("Listening...")
 	for event := range sub {
-		if event.Type == events.Quit {
-			break
+		switch event.Type {
+		default:
+			c.logger.Info("event received", logging.String("type", event.Type))
 		}
-		c.models.App.Logger.Info("models loop", logging.String("type event", event.Type))
 	}
-
-	return gocui.ErrQuit
 }
 
 func quit(g *gocui.Gui, v *gocui.View) error {
@@ -104,6 +104,7 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 func newController(app *app.App) *controller {
 	m := models.New(app)
 	return &controller{
+		logger: app.Logger.With(logging.String("logger", "controller")),
 		models: m,
 		views:  views.New(m),
 	}

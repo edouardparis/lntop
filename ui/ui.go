@@ -30,12 +30,7 @@ func Run(ctx context.Context, app *app.App, sub chan *events.Event) error {
 		return err
 	}
 
-	go func() {
-		err := ctrl.Refresh(ctx, sub)
-		if err != nil {
-			g.Update(func(*gocui.Gui) error { return err })
-		}
-	}()
+	go ctrl.Listen(ctx, g, sub)
 
 	err = g.MainLoop()
 	close(sub)
