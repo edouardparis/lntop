@@ -49,6 +49,7 @@ func (h *Header) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		sync = color.Green("[synced]")
 	}
 
+	v.Clear()
 	fmt.Fprintln(v, fmt.Sprintf("%s %s %s %s %s %s",
 		color.CyanBg(h.Info.Alias),
 		color.Cyan(fmt.Sprintf("%s-v%s", "lnd", version)),
