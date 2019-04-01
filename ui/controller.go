@@ -96,6 +96,11 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
 
+func Help(g *gocui.Gui, v *gocui.View) error {
+	maxX, maxY := g.Size()
+	return views.SetHelp(g, 0, -1, maxX, maxY)
+}
+
 func (c *controller) setKeyBinding(g *gocui.Gui) error {
 	err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit)
 	if err != nil {
@@ -108,6 +113,11 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 	}
 
 	err = g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, cursorDown)
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", gocui.KeyCtrlH, gocui.ModNone, Help)
 	if err != nil {
 		return err
 	}
