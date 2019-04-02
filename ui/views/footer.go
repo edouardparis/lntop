@@ -15,7 +15,7 @@ const (
 type Footer struct{}
 
 func (f *Footer) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
-	v, err := g.SetView(FOOTER, x0, y0, x1, y1)
+	v, err := g.SetView(FOOTER, x0-1, y0, x1, y1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
