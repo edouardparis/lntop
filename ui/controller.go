@@ -96,9 +96,30 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
 
-func Help(g *gocui.Gui, v *gocui.View) error {
+func (c *controller) Help(g *gocui.Gui, v *gocui.View) error {
 	maxX, maxY := g.Size()
-	return views.SetHelp(g, 0, -1, maxX, maxY)
+	view := c.views.Get(g.CurrentView().Name())
+	if view == nil {
+		return nil
+	}
+
+	if view.Name() != views.HELP {
+		c.views.SetPrevious(view)
+		c.logger.Info("hello")
+		return c.views.Help.Set(g, 0, -1, maxX, maxY)
+	}
+
+	err := g.DeleteView(views.HELP)
+	if err != nil {
+		return err
+	}
+
+	if c.views.Previous != nil {
+		_, err := g.SetCurrentView(c.views.Previous.Name())
+		return err
+	}
+
+	return nil
 }
 
 func (c *controller) setKeyBinding(g *gocui.Gui) error {
@@ -117,7 +138,7 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 		return err
 	}
 
-	err = g.SetKeybinding("", gocui.KeyCtrlH, gocui.ModNone, Help)
+	err = g.SetKeybinding("", gocui.KeyF1, gocui.ModNone, c.Help)
 	if err != nil {
 		return err
 	}

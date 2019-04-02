@@ -13,4 +13,5 @@ var (
 	Cyan    = color.New(color.FgCyan).SprintFunc()
 	CyanBg  = color.New(color.BgCyan, color.FgBlack).SprintFunc()
 	WhiteBg = color.New(color.BgWhite, color.FgBlack).SprintFunc()
+	BlackBg = color.New(color.BgBlack, color.FgWhite).SprintFunc()
 )

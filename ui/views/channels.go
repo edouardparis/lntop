@@ -21,6 +21,10 @@ type Channels struct {
 	channels *models.Channels
 }
 
+func (c Channels) Name() string {
+	return CHANNELS
+}
+
 func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	columns, err := g.SetView(CHANNELS_COLUMNS, x0-1, y0, x1+2, y0+2)
 	if err != nil {

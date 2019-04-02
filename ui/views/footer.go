@@ -1,6 +1,12 @@
 package views
 
-import "github.com/jroimartin/gocui"
+import (
+	"fmt"
+
+	"github.com/jroimartin/gocui"
+
+	"github.com/edouardparis/lntop/ui/color"
+)
 
 const (
 	FOOTER = "footer"
@@ -17,7 +23,9 @@ func (f *Footer) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	}
 	v.Frame = false
 	v.BgColor = gocui.ColorCyan
-	v.FgColor = gocui.ColorBlack | gocui.AttrBold
+	v.FgColor = gocui.ColorBlack
+	v.Clear()
+	fmt.Fprintln(v, fmt.Sprintf("%s%s", color.BlackBg("F1"), "Help"))
 	return nil
 }
 
