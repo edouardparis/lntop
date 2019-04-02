@@ -105,7 +105,6 @@ func (c *controller) Help(g *gocui.Gui, v *gocui.View) error {
 
 	if view.Name() != views.HELP {
 		c.views.SetPrevious(view)
-		c.logger.Info("hello")
 		return c.views.Help.Set(g, 0, -1, maxX, maxY)
 	}
 
