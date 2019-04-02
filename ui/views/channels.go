@@ -12,12 +12,12 @@ import (
 )
 
 const (
+	CHANNEL          = "channel"
 	CHANNELS         = "channels"
 	CHANNELS_COLUMNS = "channels_columns"
 )
 
 type Channels struct {
-	*gocui.View
 	channels *models.Channels
 }
 
@@ -37,7 +37,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	columns.FgColor = gocui.ColorBlack | gocui.AttrBold
 	displayChannelsColumns(columns)
 
-	c.View, err = g.SetView(CHANNELS, x0-1, y0+1, x1+2, y1)
+	v, err := g.SetView(CHANNELS, x0-1, y0+1, x1+2, y1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -47,13 +47,13 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 			return err
 		}
 	}
-	c.View.Frame = false
-	c.View.Autoscroll = true
-	c.View.SelBgColor = gocui.ColorCyan
-	c.View.SelFgColor = gocui.ColorBlack
-	c.Highlight = true
+	v.Frame = false
+	v.Autoscroll = true
+	v.SelBgColor = gocui.ColorCyan
+	v.SelFgColor = gocui.ColorBlack
+	v.Highlight = true
 
-	c.display()
+	c.display(v)
 	return nil
 }
 
@@ -67,8 +67,8 @@ func displayChannelsColumns(v *gocui.View) {
 	))
 }
 
-func (c *Channels) display() {
-	c.Clear()
+func (c *Channels) display(v *gocui.View) {
+	v.Clear()
 	for _, item := range c.channels.Items {
 		line := fmt.Sprintf("%s %s %s %12d %5d %500s",
 			active(item),
@@ -78,7 +78,7 @@ func (c *Channels) display() {
 			len(item.PendingHTLC),
 			"",
 		)
-		fmt.Fprintln(c.View, line)
+		fmt.Fprintln(v, line)
 	}
 }
 
@@ -104,4 +104,37 @@ func gauge(c *netmodels.Channel) string {
 
 func NewChannels(channels *models.Channels) *Channels {
 	return &Channels{channels: channels}
+}
+
+type Channel struct {
+	channel *models.Channel
+}
+
+func (c Channel) Name() string {
+	return CHANNEL
+}
+
+func (c Channel) Empty() bool {
+	return c.channel == nil
+}
+
+func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
+	v, err := g.SetView(CHANNEL, x0-1, y0, x1+2, y1)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+	}
+	c.display(v)
+	return nil
+}
+
+func (c *Channel) display(v *gocui.View) {
+	v.Clear()
+	fmt.Fprintln(v, fmt.Sprintf("%s %d",
+		color.Cyan("ID:"), c.channel.Item.ID))
+}
+
+func NewChannel(channel *models.Channel) *Channel {
+	return &Channel{channel: channel}
 }

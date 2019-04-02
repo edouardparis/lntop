@@ -16,6 +16,7 @@ type Views struct {
 	Header   *Header
 	Summary  *Summary
 	Channels *Channels
+	Channel  *Channel
 	Footer   *Footer
 }
 
@@ -60,5 +61,6 @@ func New(m *models.Models) *Views {
 		Help:     NewHelp(),
 		Summary:  NewSummary(m.Info, m.ChannelsBalance, m.WalletBalance, m.Channels),
 		Channels: NewChannels(m.Channels),
+		Channel:  NewChannel(m.CurrentChannel),
 	}
 }

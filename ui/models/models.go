@@ -11,6 +11,7 @@ type Models struct {
 	App             *app.App
 	Info            *Info
 	Channels        *Channels
+	CurrentChannel  *Channel
 	WalletBalance   *WalletBalance
 	ChannelsBalance *ChannelsBalance
 }
@@ -22,6 +23,7 @@ func New(app *app.App) *Models {
 		Channels:        &Channels{},
 		WalletBalance:   &WalletBalance{},
 		ChannelsBalance: &ChannelsBalance{},
+		CurrentChannel:  &Channel{},
 	}
 }
 
@@ -38,16 +40,21 @@ func (m *Models) RefreshInfo(ctx context.Context) error {
 	return nil
 }
 
-type Channels struct {
-	Items []*models.Channel
-}
-
 func (m *Models) RefreshChannels(ctx context.Context) error {
 	channels, err := m.App.Network.ListChannels(ctx)
 	if err != nil {
 		return err
 	}
-	*m.Channels = Channels{channels}
+	*m.Channels = Channels{Items: channels}
+	return nil
+}
+
+func (m *Models) SetCurrentChannel(ctx context.Context, index int) error {
+	channel := m.Channels.Get(index)
+	if channel == nil {
+		return nil
+	}
+	*m.CurrentChannel = Channel{Item: channel}
 	return nil
 }
 

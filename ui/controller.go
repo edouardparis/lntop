@@ -121,6 +121,23 @@ func (c *controller) Help(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
+func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
+	maxX, maxY := g.Size()
+	view := c.views.Get(v.Name())
+	if view == nil {
+		return nil
+	}
+
+	switch view.Name() {
+	case views.CHANNELS:
+		c.views.SetPrevious(view)
+		_, cy := v.Cursor()
+		c.models.SetCurrentChannel(context.Background(), cy)
+		return c.views.Channel.Set(g, 0, 6, maxX-1, maxY-1)
+	}
+	return nil
+}
+
 func (c *controller) setKeyBinding(g *gocui.Gui) error {
 	err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit)
 	if err != nil {
@@ -133,6 +150,11 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 	}
 
 	err = g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, cursorDown)
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", gocui.KeyEnter, gocui.ModNone, c.OnEnter)
 	if err != nil {
 		return err
 	}
