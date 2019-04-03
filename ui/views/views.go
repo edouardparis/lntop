@@ -26,6 +26,8 @@ func (v Views) Get(name string) view {
 		return v.Channels
 	case HELP:
 		return v.Help
+	case CHANNEL:
+		return v.Channel
 	default:
 		return nil
 	}
