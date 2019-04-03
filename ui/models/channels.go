@@ -7,7 +7,7 @@ type Channels struct {
 }
 
 func (c *Channels) Get(index int) *models.Channel {
-	if index < 0 || index > len(c.Items) {
+	if index < 0 || index > len(c.Items)-1 {
 		return nil
 	}
 

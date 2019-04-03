@@ -119,20 +119,45 @@ func (c Channel) Empty() bool {
 }
 
 func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
-	v, err := g.SetView(CHANNEL, x0-1, y0, x1+2, y1)
+	header, err := g.SetView(CHANNELS_COLUMNS, x0-1, y0, x1+2, y0+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 	}
+	header.Frame = false
+	header.BgColor = gocui.ColorGreen
+	header.FgColor = gocui.ColorBlack | gocui.AttrBold
+	header.Clear()
+	fmt.Fprintln(header, "Channel")
+
+	v, err := g.SetView(CHANNEL, x0-1, y0+1, x1+2, y1)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+	}
+	v.Frame = false
 	c.display(v)
 	return nil
 }
 
 func (c *Channel) display(v *gocui.View) {
 	v.Clear()
+	channel := c.channel.Item
+	fmt.Fprintln(v, active(channel))
 	fmt.Fprintln(v, fmt.Sprintf("%s %d",
-		color.Cyan("ID:"), c.channel.Item.ID))
+		color.Cyan("             ID:"), channel.ID))
+	fmt.Fprintln(v, fmt.Sprintf("%s %d",
+		color.Cyan("       Capacity:"), channel.Capacity))
+	fmt.Fprintln(v, fmt.Sprintf("%s %d",
+		color.Cyan("  Local Balance:"), channel.LocalBalance))
+	fmt.Fprintln(v, fmt.Sprintf("%s %d",
+		color.Cyan(" Remote Balance:"), channel.RemoteBalance))
+	fmt.Fprintln(v, fmt.Sprintf("%s %s",
+		color.Cyan("  Remote PubKey:"), channel.RemotePubKey))
+	fmt.Fprintln(v, fmt.Sprintf("%s %s",
+		color.Cyan("  Channel Point:"), channel.ChannelPoint))
 }
 
 func NewChannel(channel *models.Channel) *Channel {

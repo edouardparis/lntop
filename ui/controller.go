@@ -132,8 +132,33 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 	case views.CHANNELS:
 		c.views.SetPrevious(view)
 		_, cy := v.Cursor()
-		c.models.SetCurrentChannel(context.Background(), cy)
-		return c.views.Channel.Set(g, 0, 6, maxX-1, maxY-1)
+		err := c.models.SetCurrentChannel(context.Background(), cy)
+		if err != nil {
+			return err
+		}
+
+		err = c.views.Channel.Set(g, 0, 6, maxX-1, maxY-1)
+		if err != nil {
+			return err
+		}
+		_, err = g.SetCurrentView(c.views.Channel.Name())
+		return err
+
+	case views.CHANNEL:
+		err := g.DeleteView(view.Name())
+		if err != nil {
+			return err
+		}
+
+		if c.views.Previous != nil {
+			_, err := g.SetCurrentView(c.views.Previous.Name())
+			return err
+		}
+
+		err = c.views.Channels.Set(g, 0, 6, maxX-1, maxY-1)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
