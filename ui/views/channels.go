@@ -13,6 +13,7 @@ import (
 
 const (
 	CHANNEL          = "channel"
+	CHANNEL_HEADER   = "channel_header"
 	CHANNELS         = "channels"
 	CHANNELS_COLUMNS = "channels_columns"
 )
@@ -58,6 +59,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 }
 
 func displayChannelsColumns(v *gocui.View) {
+	v.Clear()
 	fmt.Fprintln(v, fmt.Sprintf("%-9s %-26s %12s %12s %5s",
 		"Status",
 		"Gauge",
@@ -69,7 +71,7 @@ func displayChannelsColumns(v *gocui.View) {
 
 func (c *Channels) display(v *gocui.View) {
 	v.Clear()
-	for _, item := range c.channels.Items {
+	for _, item := range c.channels.List() {
 		line := fmt.Sprintf("%s %s %s %12d %5d %500s",
 			active(item),
 			gauge(item),
@@ -119,7 +121,7 @@ func (c Channel) Empty() bool {
 }
 
 func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
-	header, err := g.SetView(CHANNELS_COLUMNS, x0-1, y0, x1+2, y0+2)
+	header, err := g.SetView(CHANNEL_HEADER, x0-1, y0, x1+2, y0+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -140,6 +142,14 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	v.Frame = false
 	c.display(v)
 	return nil
+}
+
+func (c Channel) Delete(g *gocui.Gui) error {
+	err := g.DeleteView(CHANNEL_HEADER)
+	if err != nil {
+		return err
+	}
+	return g.DeleteView(CHANNEL)
 }
 
 func (c *Channel) display(v *gocui.View) {

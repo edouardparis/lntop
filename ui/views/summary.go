@@ -64,7 +64,7 @@ func (s *Summary) display() {
 	))
 	fmt.Fprintln(s.left, fmt.Sprintf("%s %s",
 		color.Cyan("gauge  :"),
-		gaugeTotal(s.channelsBalance.Balance, s.channels.Items),
+		gaugeTotal(s.channelsBalance.Balance, s.channels.List()),
 	))
 
 	s.right.Clear()

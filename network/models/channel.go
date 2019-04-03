@@ -1,6 +1,10 @@
 package models
 
-import "github.com/edouardparis/lntop/logging"
+import (
+	"time"
+
+	"github.com/edouardparis/lntop/logging"
+)
 
 type ChannelsBalance struct {
 	Balance            int64
@@ -32,6 +36,7 @@ type Channel struct {
 	CSVDelay            uint32
 	Private             bool
 	PendingHTLC         []*HTLC
+	LastUpdated         *time.Time
 }
 
 func (m Channel) MarshalLogObject(enc logging.ObjectEncoder) error {

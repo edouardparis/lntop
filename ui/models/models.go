@@ -20,7 +20,7 @@ func New(app *app.App) *Models {
 	return &Models{
 		App:             app,
 		Info:            &Info{},
-		Channels:        &Channels{},
+		Channels:        NewChannels(),
 		WalletBalance:   &WalletBalance{},
 		ChannelsBalance: &ChannelsBalance{},
 		CurrentChannel:  &Channel{},
@@ -45,7 +45,18 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	*m.Channels = Channels{Items: channels}
+	for i := range channels {
+		if !m.Channels.Contains(channels[i]) {
+			m.Channels.Add(channels[i])
+			continue
+		}
+		channel := m.Channels.GetByID(channels[i].ID)
+		if channel != nil &&
+			(channel.UpdatesCount < channels[i].UpdatesCount ||
+				channel.LastUpdated == nil) {
+			m.Channels.Update(channels[i])
+		}
+	}
 	return nil
 }
 

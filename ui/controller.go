@@ -145,7 +145,7 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 		return err
 
 	case views.CHANNEL:
-		err := g.DeleteView(view.Name())
+		err := c.views.Channel.Delete(g)
 		if err != nil {
 			return err
 		}
