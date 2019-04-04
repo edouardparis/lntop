@@ -48,12 +48,16 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 	for i := range channels {
 		if !m.Channels.Contains(channels[i]) {
 			m.Channels.Add(channels[i])
-			continue
 		}
 		channel := m.Channels.GetByID(channels[i].ID)
 		if channel != nil &&
 			(channel.UpdatesCount < channels[i].UpdatesCount ||
-				channel.LastUpdated == nil) {
+				channel.LastUpdate == nil) {
+			err := m.App.Network.GetChannelInfo(ctx, channels[i])
+			if err != nil {
+				return err
+			}
+
 			m.Channels.Update(channels[i])
 		}
 	}

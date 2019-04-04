@@ -56,8 +56,8 @@ func (c *Channels) Update(newChannel *models.Channel) {
 	oldChannel.Private = newChannel.Private
 	oldChannel.PendingHTLC = newChannel.PendingHTLC
 
-	if newChannel.LastUpdated != nil {
-		oldChannel.LastUpdated = newChannel.LastUpdated
+	if newChannel.LastUpdate != nil {
+		oldChannel.LastUpdate = newChannel.LastUpdate
 	}
 }
 
