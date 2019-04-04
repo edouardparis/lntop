@@ -78,12 +78,12 @@ func (c *Channels) display(v *gocui.View) {
 	p := message.NewPrinter(language.English)
 	v.Clear()
 	for _, item := range c.channels.List() {
-		line := p.Sprintf("%s %-20s %s %s %12d %5d  %15s %d %500s",
+		line := fmt.Sprintf("%s %-20s %s %s %s %5d  %15s %d %500s",
 			active(item),
 			alias(item),
 			gauge(item),
 			color.Cyan(p.Sprintf("%12d", item.LocalBalance)),
-			item.Capacity,
+			p.Sprintf("%12d", item.Capacity),
 			len(item.PendingHTLC),
 			lastUpdate(item),
 			item.ID,
