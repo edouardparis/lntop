@@ -36,7 +36,7 @@ type Channel struct {
 	CSVDelay            uint32
 	Private             bool
 	PendingHTLC         []*HTLC
-	LastUpdated         *time.Time
+	LastUpdate          *time.Time
 }
 
 func (m Channel) MarshalLogObject(enc logging.ObjectEncoder) error {

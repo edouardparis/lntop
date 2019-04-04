@@ -22,6 +22,8 @@ type Backend interface {
 
 	ListChannels(context.Context, ...options.Channel) ([]*models.Channel, error)
 
+	GetChannelInfo(context.Context, *models.Channel) error
+
 	CreateInvoice(context.Context, int64, string) (*models.Invoice, error)
 
 	GetInvoice(context.Context, string) (*models.Invoice, error)

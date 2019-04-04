@@ -54,6 +54,10 @@ func (b *Backend) ListChannels(ctx context.Context, opt ...options.Channel) ([]*
 	return []*models.Channel{}, nil
 }
 
+func (b *Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) error {
+	return nil
+}
+
 func (b *Backend) DecodePayReq(ctx context.Context, payreq string) (*models.PayReq, error) {
 	return &models.PayReq{}, nil
 }

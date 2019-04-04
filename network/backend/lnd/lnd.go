@@ -206,6 +206,30 @@ func (l Backend) ListChannels(ctx context.Context, opt ...options.Channel) ([]*m
 	return channels, nil
 }
 
+func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) error {
+	l.logger.Debug("GetChannelInfo")
+
+	clt, err := l.Client(ctx)
+	if err != nil {
+		return err
+	}
+	defer clt.Close()
+
+	req := &lnrpc.ChanInfoRequest{ChanId: channel.ID}
+	resp, err := clt.GetChanInfo(ctx, req)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if resp == nil {
+		return nil
+	}
+
+	t := time.Unix(int64(uint64(resp.LastUpdate)), 0)
+	channel.LastUpdate = &t
+
+	return nil
+}
+
 func (l Backend) CreateInvoice(ctx context.Context, amount int64, desc string) (*models.Invoice, error) {
 	l.logger.Debug("Create invoice...",
 		logging.Int64("amount", amount),
