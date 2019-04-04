@@ -58,6 +58,14 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 				return err
 			}
 
+			if channels[i].Node == nil {
+				channels[i].Node, err = m.App.Network.GetNode(ctx,
+					channels[i].RemotePubKey)
+				if err != nil {
+					return err
+				}
+			}
+
 			m.Channels.Update(channels[i])
 		}
 	}

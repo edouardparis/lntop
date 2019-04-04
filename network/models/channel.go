@@ -37,6 +37,7 @@ type Channel struct {
 	Private             bool
 	PendingHTLC         []*HTLC
 	LastUpdate          *time.Time
+	Node                *Node
 }
 
 func (m Channel) MarshalLogObject(enc logging.ObjectEncoder) error {
