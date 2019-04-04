@@ -7,7 +7,7 @@
 
 `lntop` is an interactive text-mode channels viewer for Unix systems.
 
-<img src="http://paris.iiens.net/lntop-v0.0.0.png" alt="screencast" width="880" />
+<img align="center" src="http://paris.iiens.net/lntop-v0.0.0.png" alt="screencast" style="max-width: 400px;" />
 
 ## Install
 
