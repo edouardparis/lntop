@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/jroimartin/gocui"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+
 	netmodels "github.com/edouardparis/lntop/network/models"
 	"github.com/edouardparis/lntop/ui/color"
 	"github.com/edouardparis/lntop/ui/models"
-	"github.com/jroimartin/gocui"
 )
 
 const (
@@ -49,12 +52,13 @@ func (s *Summary) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 func (s *Summary) display() {
 	s.left.Clear()
+	p := message.NewPrinter(language.English)
 	fmt.Fprintln(s.left, color.Green("[ Channels ]"))
-	fmt.Fprintln(s.left, fmt.Sprintf("%s %d (%s|%s)",
+	fmt.Fprintln(s.left, p.Sprintf("%s %d (%s|%s)",
 		color.Cyan("balance:"),
 		s.channelsBalance.Balance+s.channelsBalance.PendingOpenBalance,
-		color.Green(fmt.Sprintf("%d", s.channelsBalance.Balance)),
-		color.Yellow(fmt.Sprintf("%d", s.channelsBalance.PendingOpenBalance)),
+		color.Green(p.Sprintf("%d", s.channelsBalance.Balance)),
+		color.Yellow(p.Sprintf("%d", s.channelsBalance.PendingOpenBalance)),
 	))
 	fmt.Fprintln(s.left, fmt.Sprintf("%s %d %s %d %s %d %s",
 		color.Cyan("state  :"),
@@ -69,11 +73,11 @@ func (s *Summary) display() {
 
 	s.right.Clear()
 	fmt.Fprintln(s.right, color.Green("[ Wallet ]"))
-	fmt.Fprintln(s.right, fmt.Sprintf("%s %d (%s|%s)",
+	fmt.Fprintln(s.right, p.Sprintf("%s %d (%s|%s)",
 		color.Cyan("balance:"),
 		s.walletBalance.TotalBalance,
-		color.Green(fmt.Sprintf("%d", s.walletBalance.ConfirmedBalance)),
-		color.Yellow(fmt.Sprintf("%d", s.walletBalance.UnconfirmedBalance)),
+		color.Green(p.Sprintf("%d", s.walletBalance.ConfirmedBalance)),
+		color.Yellow(p.Sprintf("%d", s.walletBalance.UnconfirmedBalance)),
 	))
 }
 

@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/jroimartin/gocui"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 
 	netmodels "github.com/edouardparis/lntop/network/models"
 	"github.com/edouardparis/lntop/ui/color"
@@ -73,13 +75,14 @@ func displayChannelsColumns(v *gocui.View) {
 }
 
 func (c *Channels) display(v *gocui.View) {
+	p := message.NewPrinter(language.English)
 	v.Clear()
 	for _, item := range c.channels.List() {
-		line := fmt.Sprintf("%s %-20s %s %s %12d %5d  %15s %d %500s",
+		line := p.Sprintf("%s %-20s %s %s %12d %5d  %15s %d %500s",
 			active(item),
 			alias(item),
 			gauge(item),
-			color.Cyan(fmt.Sprintf("%12d", item.LocalBalance)),
+			color.Cyan(p.Sprintf("%12d", item.LocalBalance)),
 			item.Capacity,
 			len(item.PendingHTLC),
 			lastUpdate(item),
@@ -175,6 +178,7 @@ func (c Channel) Delete(g *gocui.Gui) error {
 }
 
 func (c *Channel) display(v *gocui.View) {
+	p := message.NewPrinter(language.English)
 	v.Clear()
 	channel := c.channel.Item
 	fmt.Fprintln(v, color.Green(" [ Channel ]"))
@@ -182,11 +186,11 @@ func (c *Channel) display(v *gocui.View) {
 		color.Cyan("         Status:"), active(channel)))
 	fmt.Fprintln(v, fmt.Sprintf("%s %d",
 		color.Cyan("             ID:"), channel.ID))
-	fmt.Fprintln(v, fmt.Sprintf("%s %d",
+	fmt.Fprintln(v, p.Sprintf("%s %d",
 		color.Cyan("       Capacity:"), channel.Capacity))
-	fmt.Fprintln(v, fmt.Sprintf("%s %d",
+	fmt.Fprintln(v, p.Sprintf("%s %d",
 		color.Cyan("  Local Balance:"), channel.LocalBalance))
-	fmt.Fprintln(v, fmt.Sprintf("%s %d",
+	fmt.Fprintln(v, p.Sprintf("%s %d",
 		color.Cyan(" Remote Balance:"), channel.RemoteBalance))
 	fmt.Fprintln(v, fmt.Sprintf("%s %s",
 		color.Cyan("  Channel Point:"), channel.ChannelPoint))
@@ -198,9 +202,9 @@ func (c *Channel) display(v *gocui.View) {
 		color.Cyan("         PubKey:"), channel.RemotePubKey))
 
 	if channel.Node != nil {
-		fmt.Fprintln(v, fmt.Sprintf("%s %d",
+		fmt.Fprintln(v, p.Sprintf("%s %d",
 			color.Cyan(" Total Capacity:"), channel.Node.TotalCapacity))
-		fmt.Fprintln(v, fmt.Sprintf("%s %d",
+		fmt.Fprintln(v, p.Sprintf("%s %d",
 			color.Cyan(" Total Channels:"), channel.Node.NumChannels))
 	}
 }

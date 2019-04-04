@@ -23,7 +23,7 @@ require (
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.9.1
 	golang.org/x/net v0.0.0-20190311183353-d8887717615a // indirect
-	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2 // indirect
+	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2
 	google.golang.org/genproto v0.0.0-20190307195333-5fe7a883aa19 // indirect
 	google.golang.org/grpc v1.19.0
 	gopkg.in/macaroon-bakery.v2 v2.1.0 // indirect
