@@ -230,6 +230,24 @@ func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) er
 	return nil
 }
 
+func (l Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, error) {
+	l.logger.Debug("GetNode")
+
+	clt, err := l.Client(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer clt.Close()
+
+	req := &lnrpc.NodeInfoRequest{PubKey: pubkey}
+	resp, err := clt.GetNodeInfo(ctx, req)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return nodeProtoToNode(resp), nil
+}
+
 func (l Backend) CreateInvoice(ctx context.Context, amount int64, desc string) (*models.Invoice, error) {
 	l.logger.Debug("Create invoice...",
 		logging.Int64("amount", amount),

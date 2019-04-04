@@ -1,6 +1,8 @@
 package lnd
 
 import (
+	"time"
+
 	"github.com/lightningnetwork/lnd/lnrpc"
 
 	"github.com/edouardparis/lntop/network/models"
@@ -158,5 +160,28 @@ func infoProtoToInfo(resp *lnrpc.GetInfoResponse) *models.Info {
 		Version:             resp.Version,
 		Chains:              resp.Chains,
 		Testnet:             resp.Testnet,
+	}
+}
+
+func nodeProtoToNode(resp *lnrpc.NodeInfo) *models.Node {
+	if resp == nil || resp.Node == nil {
+		return nil
+	}
+
+	addresses := make([]*models.NodeAddress, len(resp.Node.Addresses))
+	for i := range resp.Node.Addresses {
+		addresses[i] = &models.NodeAddress{
+			Network: resp.Node.Addresses[i].Network,
+			Addr:    resp.Node.Addresses[i].Addr,
+		}
+	}
+
+	return &models.Node{
+		NumChannels:   resp.NumChannels,
+		TotalCapacity: resp.TotalCapacity,
+		LastUpdate:    time.Unix(int64(resp.Node.LastUpdate), 0),
+		PubKey:        resp.Node.PubKey,
+		Alias:         resp.Node.Alias,
+		Addresses:     addresses,
 	}
 }
