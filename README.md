@@ -7,6 +7,8 @@
 
 `lntop` is an interactive text-mode channels viewer for Unix systems.
 
+<img src="http://paris.iiens.net/lntop-v0.0.0.png" alt="screencast" width="880" />
+
 ## Install
 
 Require the [go programming language](https://golang.org/) (version >= 1.11)
