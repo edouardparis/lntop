@@ -177,7 +177,9 @@ func (c Channel) Delete(g *gocui.Gui) error {
 func (c *Channel) display(v *gocui.View) {
 	v.Clear()
 	channel := c.channel.Item
-	fmt.Fprintln(v, active(channel))
+	fmt.Fprintln(v, color.Green(" [ Channel ]"))
+	fmt.Fprintln(v, fmt.Sprintf("%s %s",
+		color.Cyan("         Status:"), active(channel)))
 	fmt.Fprintln(v, fmt.Sprintf("%s %d",
 		color.Cyan("             ID:"), channel.ID))
 	fmt.Fprintln(v, fmt.Sprintf("%s %d",
@@ -187,9 +189,20 @@ func (c *Channel) display(v *gocui.View) {
 	fmt.Fprintln(v, fmt.Sprintf("%s %d",
 		color.Cyan(" Remote Balance:"), channel.RemoteBalance))
 	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		color.Cyan("  Remote PubKey:"), channel.RemotePubKey))
-	fmt.Fprintln(v, fmt.Sprintf("%s %s",
 		color.Cyan("  Channel Point:"), channel.ChannelPoint))
+	fmt.Fprintln(v, "")
+	fmt.Fprintln(v, color.Green(" [ Node ]"))
+	fmt.Fprintln(v, fmt.Sprintf("%s %s",
+		color.Cyan("          Alias:"), alias(channel)))
+	fmt.Fprintln(v, fmt.Sprintf("%s %s",
+		color.Cyan("         PubKey:"), channel.RemotePubKey))
+
+	if channel.Node != nil {
+		fmt.Fprintln(v, fmt.Sprintf("%s %d",
+			color.Cyan(" Total Capacity:"), channel.Node.TotalCapacity))
+		fmt.Fprintln(v, fmt.Sprintf("%s %d",
+			color.Cyan(" Total Channels:"), channel.Node.NumChannels))
+	}
 }
 
 func NewChannel(channel *models.Channel) *Channel {
