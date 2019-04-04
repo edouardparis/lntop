@@ -60,7 +60,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 func displayChannelsColumns(v *gocui.View) {
 	v.Clear()
-	fmt.Fprintln(v, fmt.Sprintf("%-9s %-26s %12s %12s %5s %16s",
+	fmt.Fprintln(v, fmt.Sprintf("%-9s %-26s %12s %12s %5s  %-15s",
 		"Status",
 		"Gauge",
 		"Local",
@@ -73,7 +73,7 @@ func displayChannelsColumns(v *gocui.View) {
 func (c *Channels) display(v *gocui.View) {
 	v.Clear()
 	for _, item := range c.channels.List() {
-		line := fmt.Sprintf("%s %s %s %12d %5d %16s %500s",
+		line := fmt.Sprintf("%s %s %s %12d %5d  %15s %500s",
 			active(item),
 			gauge(item),
 			color.Cyan(fmt.Sprintf("%12d", item.LocalBalance)),
