@@ -60,28 +60,38 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 func displayChannelsColumns(v *gocui.View) {
 	v.Clear()
-	fmt.Fprintln(v, fmt.Sprintf("%-9s %-26s %12s %12s %5s",
+	fmt.Fprintln(v, fmt.Sprintf("%-9s %-26s %12s %12s %5s %16s",
 		"Status",
 		"Gauge",
 		"Local",
 		"Capacity",
 		"pHTLC",
+		"Last Update",
 	))
 }
 
 func (c *Channels) display(v *gocui.View) {
 	v.Clear()
 	for _, item := range c.channels.List() {
-		line := fmt.Sprintf("%s %s %s %12d %5d %500s",
+		line := fmt.Sprintf("%s %s %s %12d %5d %16s %500s",
 			active(item),
 			gauge(item),
 			color.Cyan(fmt.Sprintf("%12d", item.LocalBalance)),
 			item.Capacity,
 			len(item.PendingHTLC),
+			lastUpdate(item),
 			"",
 		)
 		fmt.Fprintln(v, line)
 	}
+}
+
+func lastUpdate(c *netmodels.Channel) string {
+	if c.LastUpdate != nil {
+		return c.LastUpdate.Format("15:04:05 Jan _2")
+	}
+
+	return ""
 }
 
 func active(c *netmodels.Channel) string {
