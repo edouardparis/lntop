@@ -42,7 +42,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	columns.FgColor = gocui.ColorBlack
 	displayChannelsColumns(columns)
 
-	v, err := g.SetView(CHANNELS, x0-1, y0+1, x1+2, y1-2)
+	v, err := g.SetView(CHANNELS, x0-1, y0+1, x1+2, y1-1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -53,7 +53,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		}
 	}
 	v.Frame = false
-	v.Autoscroll = true
+	v.Autoscroll = false
 	v.SelBgColor = gocui.ColorCyan
 	v.SelFgColor = gocui.ColorBlack
 	v.Highlight = true
