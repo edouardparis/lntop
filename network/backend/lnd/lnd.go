@@ -41,6 +41,15 @@ func (l Backend) NodeName() string {
 	return l.cfg.Name
 }
 
+func (l Backend) Ping() error {
+	clt, err := l.Client(context.Background())
+	if err != nil {
+		return err
+	}
+	defer clt.Close()
+	return nil
+}
+
 func (l Backend) Info(ctx context.Context) (*models.Info, error) {
 	clt, err := l.Client(ctx)
 	if err != nil {

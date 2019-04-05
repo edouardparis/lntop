@@ -26,5 +26,10 @@ func New(c *config.Network, logger logging.Logger) (*Network, error) {
 		}
 	}
 
+	err = b.Ping()
+	if err != nil {
+		return nil, err
+	}
+
 	return &Network{b}, nil
 }

@@ -8,6 +8,8 @@ import (
 )
 
 type Backend interface {
+	Ping() error
+
 	SubscribeInvoice(context.Context, chan *models.Invoice) error
 
 	SubscribeChannels(context.Context, chan *models.ChannelUpdate) error

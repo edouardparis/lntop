@@ -22,6 +22,10 @@ type Backend struct {
 	sync.RWMutex
 }
 
+func (b *Backend) Ping() error {
+	return nil
+}
+
 func (b *Backend) Info(ctx context.Context) (*models.Info, error) {
 	return nil, nil
 }

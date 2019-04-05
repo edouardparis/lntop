@@ -88,9 +88,14 @@ func getAppDir() (string, error) {
 	_, err := os.Stat(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			oserr := os.Mkdir(dir, 0700)
-			if oserr != nil {
-				return "", oserr
+			err := os.Mkdir(dir, 0700)
+			if err != nil {
+				return "", err
+			}
+			err = ioutil.WriteFile(dir+"/config.toml",
+				[]byte(DefaultFileContent()), 0644)
+			if err != nil {
+				return "", err
 			}
 		} else {
 			return "", err

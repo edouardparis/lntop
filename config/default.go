@@ -1,6 +1,10 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+	"os/user"
+	"path"
+)
 
 func DefaultFileContent() string {
 	cfg := NewDefault()
@@ -35,5 +39,22 @@ pool_capacity = %[11]d
 }
 
 func NewDefault() *Config {
-	return &Config{}
+	usr, _ := user.Current()
+	return &Config{
+		Logger: Logger{
+			Type: "production",
+			Dest: path.Join(usr.HomeDir, ".lntop/lntop.log"),
+		},
+		Network: Network{
+			Name:            "lnd",
+			Type:            "lnd",
+			Address:         "//127.0.0.1:10009",
+			Cert:            path.Join(usr.HomeDir, ".lnd/tls.cert"),
+			Macaroon:        path.Join(usr.HomeDir, ".lnd/data/chain/bitcoin/mainnet/admin.macaroon"),
+			MacaroonTimeOut: 60,
+			MaxMsgRecvSize:  52428800,
+			ConnTimeout:     1000000,
+			PoolCapacity:    3,
+		},
+	}
 }
