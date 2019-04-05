@@ -16,8 +16,10 @@ import (
 const (
 	CHANNEL          = "channel"
 	CHANNEL_HEADER   = "channel_header"
+	CHANNEL_FOOTER   = "channel_footer"
 	CHANNELS         = "channels"
 	CHANNELS_COLUMNS = "channels_columns"
+	CHANNELS_FOOTER  = "channels_footer"
 )
 
 type Channels struct {
@@ -40,7 +42,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	columns.FgColor = gocui.ColorBlack | gocui.AttrBold
 	displayChannelsColumns(columns)
 
-	v, err := g.SetView(CHANNELS, x0-1, y0+1, x1+2, y1)
+	v, err := g.SetView(CHANNELS, x0-1, y0+1, x1+2, y1-2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -57,6 +59,18 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	v.Highlight = true
 
 	c.display(v)
+
+	footer, err := g.SetView(CHANNELS_FOOTER, x0-1, y1-2, x1, y1)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+	}
+	footer.Frame = false
+	footer.BgColor = gocui.ColorCyan
+	footer.FgColor = gocui.ColorBlack
+	footer.Clear()
+	fmt.Fprintln(footer, fmt.Sprintf("%s%s", color.BlackBg("F1"), "Help"))
 	return nil
 }
 
@@ -158,7 +172,7 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	header.Clear()
 	fmt.Fprintln(header, "Channel")
 
-	v, err := g.SetView(CHANNEL, x0-1, y0+1, x1+2, y1)
+	v, err := g.SetView(CHANNEL, x0-1, y0+1, x1+2, y1-2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -166,6 +180,18 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	}
 	v.Frame = false
 	c.display(v)
+
+	footer, err := g.SetView(CHANNEL_FOOTER, x0-1, y1-2, x1, y1)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+	}
+	footer.Frame = false
+	footer.BgColor = gocui.ColorCyan
+	footer.FgColor = gocui.ColorBlack
+	footer.Clear()
+	fmt.Fprintln(footer, fmt.Sprintf("%s%s", color.BlackBg("F1"), "Help"))
 	return nil
 }
 
@@ -174,7 +200,13 @@ func (c Channel) Delete(g *gocui.Gui) error {
 	if err != nil {
 		return err
 	}
-	return g.DeleteView(CHANNEL)
+
+	err = g.DeleteView(CHANNEL)
+	if err != nil {
+		return err
+	}
+
+	return g.DeleteView(CHANNEL_FOOTER)
 }
 
 func (c *Channel) display(v *gocui.View) {

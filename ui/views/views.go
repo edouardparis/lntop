@@ -17,7 +17,6 @@ type Views struct {
 	Summary  *Summary
 	Channels *Channels
 	Channel  *Channel
-	Footer   *Footer
 }
 
 func (v Views) Get(name string) view {
@@ -48,18 +47,12 @@ func (v *Views) Layout(g *gocui.Gui, maxX, maxY int) error {
 		return err
 	}
 
-	err = v.Channels.Set(g, 0, 6, maxX-1, maxY-1)
-	if err != nil {
-		return err
-	}
-
-	return v.Footer.Set(g, 0, maxY-2, maxX, maxY)
+	return v.Channels.Set(g, 0, 6, maxX-1, maxY)
 }
 
 func New(m *models.Models) *Views {
 	return &Views{
 		Header:   NewHeader(m.Info),
-		Footer:   NewFooter(),
 		Help:     NewHelp(),
 		Summary:  NewSummary(m.Info, m.ChannelsBalance, m.WalletBalance, m.Channels),
 		Channels: NewChannels(m.Channels),

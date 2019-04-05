@@ -137,7 +137,7 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 
-		err = c.views.Channel.Set(g, 0, 6, maxX-1, maxY-1)
+		err = c.views.Channel.Set(g, 0, 6, maxX-1, maxY)
 		if err != nil {
 			return err
 		}
@@ -155,7 +155,7 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 
-		err = c.views.Channels.Set(g, 0, 6, maxX-1, maxY-1)
+		err = c.views.Channels.Set(g, 0, 6, maxX-1, maxY)
 		if err != nil {
 			return err
 		}
