@@ -70,7 +70,11 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.BgColor = gocui.ColorCyan
 	footer.FgColor = gocui.ColorBlack
 	footer.Clear()
-	fmt.Fprintln(footer, fmt.Sprintf("%s%s", color.BlackBg("F1"), "Help"))
+	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s",
+		color.BlackBg("F1"), "Help",
+		color.BlackBg("Enter"), "Channel",
+		color.BlackBg("F10"), "Quit",
+	))
 	return nil
 }
 
@@ -191,7 +195,11 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.BgColor = gocui.ColorCyan
 	footer.FgColor = gocui.ColorBlack
 	footer.Clear()
-	fmt.Fprintln(footer, fmt.Sprintf("%s%s", color.BlackBg("F1"), "Help"))
+	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s",
+		color.BlackBg("F1"), "Help",
+		color.BlackBg("Enter"), "Channels",
+		color.BlackBg("F10"), "Quit",
+	))
 	return nil
 }
 

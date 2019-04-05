@@ -169,6 +169,11 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 		return err
 	}
 
+	err = g.SetKeybinding("", gocui.KeyF10, gocui.ModNone, quit)
+	if err != nil {
+		return err
+	}
+
 	err = g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, cursorUp)
 	if err != nil {
 		return err
