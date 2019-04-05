@@ -185,3 +185,16 @@ func nodeProtoToNode(resp *lnrpc.NodeInfo) *models.Node {
 		Addresses:     addresses,
 	}
 }
+
+func protoToRoutingPolicy(resp *lnrpc.RoutingPolicy) *models.RoutingPolicy {
+	if resp == nil {
+		return nil
+	}
+	return &models.RoutingPolicy{
+		TimeLockDelta:    resp.TimeLockDelta,
+		MinHtlc:          resp.MinHtlc,
+		FeeBaseMsat:      resp.FeeBaseMsat,
+		FeeRateMilliMsat: resp.FeeRateMilliMsat,
+		Disabled:         resp.Disabled,
+	}
+}

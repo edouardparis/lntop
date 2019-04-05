@@ -59,6 +59,14 @@ func (c *Channels) Update(newChannel *models.Channel) {
 	if newChannel.LastUpdate != nil {
 		oldChannel.LastUpdate = newChannel.LastUpdate
 	}
+
+	if newChannel.Policy1 != nil {
+		oldChannel.Policy1 = newChannel.Policy1
+	}
+
+	if newChannel.Policy2 != nil {
+		oldChannel.Policy2 = newChannel.Policy2
+	}
 }
 
 func NewChannels() *Channels {

@@ -235,6 +235,8 @@ func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) er
 
 	t := time.Unix(int64(uint64(resp.LastUpdate)), 0)
 	channel.LastUpdate = &t
+	channel.Policy1 = protoToRoutingPolicy(resp.Node1Policy)
+	channel.Policy2 = protoToRoutingPolicy(resp.Node2Policy)
 
 	return nil
 }

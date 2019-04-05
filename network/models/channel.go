@@ -38,6 +38,8 @@ type Channel struct {
 	PendingHTLC         []*HTLC
 	LastUpdate          *time.Time
 	Node                *Node
+	Policy1             *RoutingPolicy
+	Policy2             *RoutingPolicy
 }
 
 func (m Channel) MarshalLogObject(enc logging.ObjectEncoder) error {
@@ -60,4 +62,12 @@ func (m Channel) MarshalLogObject(enc logging.ObjectEncoder) error {
 }
 
 type ChannelUpdate struct {
+}
+
+type RoutingPolicy struct {
+	TimeLockDelta    uint32
+	MinHtlc          int64
+	FeeBaseMsat      int64
+	FeeRateMilliMsat int64
+	Disabled         bool
 }

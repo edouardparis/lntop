@@ -247,6 +247,38 @@ func (c *Channel) display(v *gocui.View) {
 		fmt.Fprintln(v, p.Sprintf("%s %d",
 			color.Cyan(" Total Channels:"), channel.Node.NumChannels))
 	}
+
+	if channel.Policy1 != nil {
+		fmt.Fprintln(v, "")
+		fmt.Fprintln(v, color.Green(" [ Forward Policy Node1 ]"))
+		if channel.Policy1.Disabled {
+			fmt.Fprintln(v, color.Red("disabled"))
+		}
+		fmt.Fprintln(v, p.Sprintf("%s %d",
+			color.Cyan("    Time lock delta:"), channel.Policy1.TimeLockDelta))
+		fmt.Fprintln(v, p.Sprintf("%s %d",
+			color.Cyan("           Min htlc:"), channel.Policy1.MinHtlc))
+		fmt.Fprintln(v, p.Sprintf("%s %d",
+			color.Cyan("      Fee base msat:"), channel.Policy1.FeeBaseMsat))
+		fmt.Fprintln(v, p.Sprintf("%s %d",
+			color.Cyan("Fee rate milli msat:"), channel.Policy1.FeeRateMilliMsat))
+	}
+
+	if channel.Policy2 != nil {
+		fmt.Fprintln(v, "")
+		fmt.Fprintln(v, color.Green(" [ Forward Policy Node 2 ]"))
+		if channel.Policy2.Disabled {
+			fmt.Fprintln(v, color.Red("disabled"))
+		}
+		fmt.Fprintln(v, p.Sprintf("%s %d",
+			color.Cyan("    Time lock delta:"), channel.Policy2.TimeLockDelta))
+		fmt.Fprintln(v, p.Sprintf("%s %d",
+			color.Cyan("           Min htlc:"), channel.Policy2.MinHtlc))
+		fmt.Fprintln(v, p.Sprintf("%s %d",
+			color.Cyan("      Fee base msat:"), channel.Policy2.FeeBaseMsat))
+		fmt.Fprintln(v, p.Sprintf("%s %d",
+			color.Cyan("Fee rate milli msat:"), channel.Policy2.FeeRateMilliMsat))
+	}
 }
 
 func NewChannel(channel *models.Channel) *Channel {
