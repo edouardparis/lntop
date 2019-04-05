@@ -39,7 +39,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	}
 	columns.Frame = false
 	columns.BgColor = gocui.ColorGreen
-	columns.FgColor = gocui.ColorBlack | gocui.AttrBold
+	columns.FgColor = gocui.ColorBlack
 	displayChannelsColumns(columns)
 
 	v, err := g.SetView(CHANNELS, x0-1, y0+1, x1+2, y1-2)
@@ -80,13 +80,13 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 func displayChannelsColumns(v *gocui.View) {
 	v.Clear()
-	fmt.Fprintln(v, fmt.Sprintf("%-9s %-20s %-26s %12s %12s %5s  %-15s %s",
-		"Status",
-		"Alias",
-		"Gauge",
-		"Local",
-		"Capacity",
-		"pHTLC",
+	fmt.Fprintln(v, fmt.Sprintf("%-9s %-20s %-21s %12s %12s %5s  %-15s %s",
+		"STATUS",
+		"ALIAS",
+		"GAUGE",
+		"LOCAL",
+		"CAP",
+		"HTLC",
 		"Last Update",
 		"ID",
 	))
@@ -135,9 +135,9 @@ func active(c *netmodels.Channel) string {
 }
 
 func gauge(c *netmodels.Channel) string {
-	index := int(c.LocalBalance * int64(20) / c.Capacity)
+	index := int(c.LocalBalance * int64(15) / c.Capacity)
 	var buffer bytes.Buffer
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 15; i++ {
 		if i < index {
 			buffer.WriteString(color.Cyan("|"))
 			continue
