@@ -204,8 +204,17 @@ func (l Backend) ListChannels(ctx context.Context, opt ...options.Channel) ([]*m
 
 	channels := listChannelsProtoToChannels(resp)
 
-	fields := make([]logging.Field, len(channels))
+	if opts.Pending {
+		req := &lnrpc.PendingChannelsRequest{}
+		resp, err := clt.PendingChannels(ctx, req)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
 
+		channels = append(channels, pendingChannelsProtoToChannels(resp)...)
+	}
+
+	fields := make([]logging.Field, len(channels))
 	for i := range channels {
 		fields[i] = logging.Object(fmt.Sprintf("channel_%d", i), channels[i])
 	}

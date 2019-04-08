@@ -102,6 +102,23 @@ func htlcProtoToHTLC(h *lnrpc.HTLC) *models.HTLC {
 	}
 }
 
+func pendingChannelsProtoToChannels(r *lnrpc.PendingChannelsResponse) []*models.Channel {
+	resp := r.GetPendingOpenChannels()
+	channels := make([]*models.Channel, len(resp))
+	for i := range resp {
+		channels[i] = openingProtoToChannel(resp[i])
+	}
+
+	return channels
+}
+
+func openingProtoToChannel(c *lnrpc.PendingChannelsResponse_PendingOpenChannel) *models.Channel {
+	return &models.Channel{
+		CommitWeight:     c.GetCommitWeight(),
+		FeePerKiloWeight: c.GetFeePerKw(),
+	}
+}
+
 func payreqProtoToPayReq(h *lnrpc.PayReq, payreq string) *models.PayReq {
 	if h == nil {
 		return nil
