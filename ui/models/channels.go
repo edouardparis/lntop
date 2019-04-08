@@ -1,13 +1,18 @@
 package models
 
-import "github.com/edouardparis/lntop/network/models"
+import (
+	"sync"
+
+	"github.com/edouardparis/lntop/network/models"
+)
 
 type Channels struct {
 	index map[uint64]*models.Channel
 	list  []*models.Channel
+	mu    sync.RWMutex
 }
 
-func (c Channels) List() []*models.Channel {
+func (c *Channels) List() []*models.Channel {
 	return c.list
 }
 
@@ -23,12 +28,14 @@ func (c *Channels) GetByID(id uint64) *models.Channel {
 	return c.index[id]
 }
 
-func (c Channels) Contains(channel *models.Channel) bool {
+func (c *Channels) Contains(channel *models.Channel) bool {
 	_, ok := c.index[channel.ID]
 	return ok
 }
 
 func (c *Channels) Add(channel *models.Channel) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	if c.Contains(channel) {
 		return
 	}
@@ -37,6 +44,9 @@ func (c *Channels) Add(channel *models.Channel) {
 }
 
 func (c *Channels) Update(newChannel *models.Channel) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	oldChannel, ok := c.index[newChannel.ID]
 	if !ok {
 		c.Add(newChannel)
