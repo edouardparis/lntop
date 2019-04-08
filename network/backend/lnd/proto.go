@@ -72,9 +72,15 @@ func channelProtoToChannel(c *lnrpc.Channel) *models.Channel {
 	for i := range htlcs {
 		HTLCs[i] = htlcProtoToHTLC(htlcs[i])
 	}
+
+	status := models.ChannelInactive
+	if c.Active {
+		status = models.ChannelActive
+	}
+
 	return &models.Channel{
 		ID:                  c.GetChanId(),
-		Active:              c.GetActive(),
+		Status:              status,
 		RemotePubKey:        c.GetRemotePubkey(),
 		ChannelPoint:        c.GetChannelPoint(),
 		Capacity:            c.GetCapacity(),
@@ -114,8 +120,15 @@ func pendingChannelsProtoToChannels(r *lnrpc.PendingChannelsResponse) []*models.
 
 func openingProtoToChannel(c *lnrpc.PendingChannelsResponse_PendingOpenChannel) *models.Channel {
 	return &models.Channel{
-		CommitWeight:     c.GetCommitWeight(),
-		FeePerKiloWeight: c.GetFeePerKw(),
+		RemotePubKey:       c.Channel.RemoteNodePub,
+		Capacity:           c.Channel.Capacity,
+		LocalBalance:       c.Channel.LocalBalance,
+		RemoteBalance:      c.Channel.RemoteBalance,
+		ChannelPoint:       c.Channel.ChannelPoint,
+		CommitWeight:       c.CommitWeight,
+		CommitFee:          c.CommitFee,
+		ConfirmationHeight: &c.ConfirmationHeight,
+		FeePerKiloWeight:   c.FeePerKw,
 	}
 }
 

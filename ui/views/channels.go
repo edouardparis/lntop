@@ -97,7 +97,7 @@ func (c *Channels) display(v *gocui.View) {
 	v.Clear()
 	for _, item := range c.channels.List() {
 		line := fmt.Sprintf("%s %-20s %s %s %s %5d  %15s %d %500s",
-			active(item),
+			status(item),
 			alias(item),
 			gauge(item),
 			color.Cyan(p.Sprintf("%12d", item.LocalBalance)),
@@ -127,11 +127,20 @@ func lastUpdate(c *netmodels.Channel) string {
 	return ""
 }
 
-func active(c *netmodels.Channel) string {
-	if c.Active {
+func status(c *netmodels.Channel) string {
+	switch c.Status {
+	case netmodels.ChannelActive:
 		return color.Green(fmt.Sprintf("%-9s", "active"))
+	case netmodels.ChannelInactive:
+		return color.Red(fmt.Sprintf("%-9s", "inactive"))
+	case netmodels.ChannelOpening:
+		return color.Yellow(fmt.Sprintf("%-9s", "opening"))
+	case netmodels.ChannelClosing:
+		return color.Yellow(fmt.Sprintf("%-9s", "closing"))
+	case netmodels.ChannelForceClosing:
+		return color.Yellow(fmt.Sprintf("%-9s", "closing -f"))
 	}
-	return color.Red(fmt.Sprintf("%-9s", "inactive"))
+	return ""
 }
 
 func gauge(c *netmodels.Channel) string {
@@ -223,7 +232,7 @@ func (c *Channel) display(v *gocui.View) {
 	channel := c.channel.Item
 	fmt.Fprintln(v, color.Green(" [ Channel ]"))
 	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		color.Cyan("         Status:"), active(channel)))
+		color.Cyan("         Status:"), status(channel)))
 	fmt.Fprintln(v, fmt.Sprintf("%s %d",
 		color.Cyan("             ID:"), channel.ID))
 	fmt.Fprintln(v, p.Sprintf("%s %d",

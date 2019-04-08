@@ -6,6 +6,14 @@ import (
 	"github.com/edouardparis/lntop/logging"
 )
 
+const (
+	ChannelActive = iota + 1
+	ChannelInactive
+	ChannelOpening
+	ChannelClosing
+	ChannelForceClosing
+)
+
 type ChannelsBalance struct {
 	Balance            int64
 	PendingOpenBalance int64
@@ -20,7 +28,7 @@ func (m ChannelsBalance) MarshalLogObject(enc logging.ObjectEncoder) error {
 
 type Channel struct {
 	ID                  uint64
-	Active              bool
+	Status              int
 	RemotePubKey        string
 	ChannelPoint        string
 	Capacity            int64
@@ -32,6 +40,7 @@ type Channel struct {
 	UnsettledBalance    int64
 	TotalAmountSent     int64
 	TotalAmountReceived int64
+	ConfirmationHeight  *uint32
 	UpdatesCount        uint64
 	CSVDelay            uint32
 	Private             bool
@@ -44,7 +53,7 @@ type Channel struct {
 
 func (m Channel) MarshalLogObject(enc logging.ObjectEncoder) error {
 	enc.AddUint64("id", m.ID)
-	enc.AddBool("active", m.Active)
+	enc.AddInt("status", m.Status)
 	enc.AddString("remote_pubkey", m.RemotePubKey)
 	enc.AddString("channel_point", m.ChannelPoint)
 	enc.AddInt64("capacity", m.Capacity)
