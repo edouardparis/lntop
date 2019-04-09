@@ -77,6 +77,7 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 				c.logger.Error("failed", logging.Error(err))
 			}
 		}
+		g.Update(func(*gocui.Gui) error { return nil })
 	}
 
 	for event := range sub {

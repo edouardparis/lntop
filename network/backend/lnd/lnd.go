@@ -227,6 +227,11 @@ func (l Backend) ListChannels(ctx context.Context, opt ...options.Channel) ([]*m
 func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) error {
 	l.logger.Debug("GetChannelInfo")
 
+	// If channel is opening node information cannot be retrieved.
+	if channel.Status == models.ChannelOpening {
+		return nil
+	}
+
 	clt, err := l.Client(ctx)
 	if err != nil {
 		return err
