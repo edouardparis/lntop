@@ -66,9 +66,9 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 					return err
 				}
 			}
-
-			m.Channels.Update(channels[i])
 		}
+
+		m.Channels.Update(channels[i])
 	}
 	return nil
 }
