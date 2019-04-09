@@ -10,9 +10,7 @@ type ChannelOptions struct {
 	Pending  bool
 }
 
-func WithChannelPending() Channel {
-	return func(c *ChannelOptions) { c.Pending = true }
-}
+func WithChannelPending(c *ChannelOptions) { c.Pending = true }
 
 func WithChannelPublic(v bool) Channel {
 	return func(c *ChannelOptions) { c.Public = v }

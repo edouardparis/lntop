@@ -5,6 +5,7 @@ import (
 
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/network/models"
+	"github.com/edouardparis/lntop/network/options"
 )
 
 type Models struct {
@@ -41,7 +42,7 @@ func (m *Models) RefreshInfo(ctx context.Context) error {
 }
 
 func (m *Models) RefreshChannels(ctx context.Context) error {
-	channels, err := m.App.Network.ListChannels(ctx)
+	channels, err := m.App.Network.ListChannels(ctx, options.WithChannelPending)
 	if err != nil {
 		return err
 	}

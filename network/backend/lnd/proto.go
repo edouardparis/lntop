@@ -109,17 +109,40 @@ func htlcProtoToHTLC(h *lnrpc.HTLC) *models.HTLC {
 }
 
 func pendingChannelsProtoToChannels(r *lnrpc.PendingChannelsResponse) []*models.Channel {
-	resp := r.GetPendingOpenChannels()
-	channels := make([]*models.Channel, len(resp))
-	for i := range resp {
-		channels[i] = openingProtoToChannel(resp[i])
+	respPending := r.GetPendingOpenChannels()
+	pending := make([]*models.Channel, len(respPending))
+	for i := range respPending {
+		pending[i] = openingChannelProtoToChannel(respPending[i])
 	}
 
-	return channels
+	respClosing := r.GetPendingClosingChannels()
+	closing := make([]*models.Channel, len(respClosing))
+	for i := range respClosing {
+		closing[i] = closingChannelProtoToChannel(respClosing[i])
+	}
+
+	channels := append(pending, closing...)
+
+	respForceClosing := r.GetPendingForceClosingChannels()
+	forceClosing := make([]*models.Channel, len(respForceClosing))
+	for i := range respForceClosing {
+		forceClosing[i] = forceClosingChannelProtoToChannel(respForceClosing[i])
+	}
+
+	channels = append(channels, forceClosing...)
+
+	respWaitingClose := r.GetWaitingCloseChannels()
+	waitingClose := make([]*models.Channel, len(respWaitingClose))
+	for i := range respWaitingClose {
+		waitingClose[i] = waitingCloseChannelProtoToChannel(respWaitingClose[i])
+	}
+
+	return append(channels, waitingClose...)
 }
 
-func openingProtoToChannel(c *lnrpc.PendingChannelsResponse_PendingOpenChannel) *models.Channel {
+func openingChannelProtoToChannel(c *lnrpc.PendingChannelsResponse_PendingOpenChannel) *models.Channel {
 	return &models.Channel{
+		Status:             models.ChannelOpening,
 		RemotePubKey:       c.Channel.RemoteNodePub,
 		Capacity:           c.Channel.Capacity,
 		LocalBalance:       c.Channel.LocalBalance,
@@ -129,6 +152,39 @@ func openingProtoToChannel(c *lnrpc.PendingChannelsResponse_PendingOpenChannel) 
 		CommitFee:          c.CommitFee,
 		ConfirmationHeight: &c.ConfirmationHeight,
 		FeePerKiloWeight:   c.FeePerKw,
+	}
+}
+
+func closingChannelProtoToChannel(c *lnrpc.PendingChannelsResponse_ClosedChannel) *models.Channel {
+	return &models.Channel{
+		Status:        models.ChannelClosing,
+		RemotePubKey:  c.Channel.RemoteNodePub,
+		Capacity:      c.Channel.Capacity,
+		LocalBalance:  c.Channel.LocalBalance,
+		RemoteBalance: c.Channel.RemoteBalance,
+		ChannelPoint:  c.Channel.ChannelPoint,
+	}
+}
+
+func forceClosingChannelProtoToChannel(c *lnrpc.PendingChannelsResponse_ForceClosedChannel) *models.Channel {
+	return &models.Channel{
+		Status:        models.ChannelClosing,
+		RemotePubKey:  c.Channel.RemoteNodePub,
+		Capacity:      c.Channel.Capacity,
+		LocalBalance:  c.Channel.LocalBalance,
+		RemoteBalance: c.Channel.RemoteBalance,
+		ChannelPoint:  c.Channel.ChannelPoint,
+	}
+}
+
+func waitingCloseChannelProtoToChannel(c *lnrpc.PendingChannelsResponse_WaitingCloseChannel) *models.Channel {
+	return &models.Channel{
+		Status:        models.ChannelWaitingClose,
+		RemotePubKey:  c.Channel.RemoteNodePub,
+		Capacity:      c.Channel.Capacity,
+		LocalBalance:  c.Channel.LocalBalance,
+		RemoteBalance: c.Channel.RemoteBalance,
+		ChannelPoint:  c.Channel.ChannelPoint,
 	}
 }
 

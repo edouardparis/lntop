@@ -80,7 +80,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 func displayChannelsColumns(v *gocui.View) {
 	v.Clear()
-	fmt.Fprintln(v, fmt.Sprintf("%-9s %-20s %-21s %12s %12s %5s  %-15s %s",
+	fmt.Fprintln(v, fmt.Sprintf("%-13s %-20s %-21s %12s %12s %5s  %-15s %s",
 		"STATUS",
 		"ALIAS",
 		"GAUGE",
@@ -130,15 +130,17 @@ func lastUpdate(c *netmodels.Channel) string {
 func status(c *netmodels.Channel) string {
 	switch c.Status {
 	case netmodels.ChannelActive:
-		return color.Green(fmt.Sprintf("%-9s", "active"))
+		return color.Green(fmt.Sprintf("%-13s", "active"))
 	case netmodels.ChannelInactive:
-		return color.Red(fmt.Sprintf("%-9s", "inactive"))
+		return color.Red(fmt.Sprintf("%-13s", "inactive"))
 	case netmodels.ChannelOpening:
-		return color.Yellow(fmt.Sprintf("%-9s", "opening"))
+		return color.Yellow(fmt.Sprintf("%-13s", "opening"))
 	case netmodels.ChannelClosing:
-		return color.Yellow(fmt.Sprintf("%-9s", "closing"))
+		return color.Yellow(fmt.Sprintf("%-13s", "closing"))
 	case netmodels.ChannelForceClosing:
-		return color.Yellow(fmt.Sprintf("%-9s", "closing -f"))
+		return color.Yellow(fmt.Sprintf("%-13s", "force closing"))
+	case netmodels.ChannelWaitingClose:
+		return color.Yellow(fmt.Sprintf("%-13s", "waiting close"))
 	}
 	return ""
 }

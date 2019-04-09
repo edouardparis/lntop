@@ -70,24 +70,42 @@ func (c *controller) SetModels(ctx context.Context) error {
 
 func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.Event) {
 	c.logger.Debug("Listening...")
+	refresh := func(fn ...func(context.Context) error) {
+		for i := range fn {
+			err := fn[i](ctx)
+			if err != nil {
+				c.logger.Error("failed", logging.Error(err))
+			}
+		}
+	}
+
 	for event := range sub {
-		var err error
+		c.logger.Debug("event received", logging.String("type", event.Type))
 		switch event.Type {
 		case events.BlockReceived:
-			err = c.models.RefreshInfo(ctx)
+			refresh(c.models.RefreshInfo)
 		case events.ChannelPending:
-			err = c.models.RefreshInfo(ctx)
+			refresh(
+				c.models.RefreshInfo,
+				c.models.RefreshChannelsBalance,
+				c.models.RefreshChannels,
+			)
 		case events.ChannelActive:
-			err = c.models.RefreshInfo(ctx)
+			refresh(
+				c.models.RefreshInfo,
+				c.models.RefreshChannelsBalance,
+				c.models.RefreshChannels,
+			)
 		case events.ChannelInactive:
-			err = c.models.RefreshInfo(ctx)
+			refresh(
+				c.models.RefreshInfo,
+				c.models.RefreshChannelsBalance,
+				c.models.RefreshChannels,
+			)
 		case events.PeerUpdated:
-			err = c.models.RefreshInfo(ctx)
+			refresh(c.models.RefreshInfo)
 		default:
 			c.logger.Info("event received", logging.String("type", event.Type))
-		}
-		if err != nil {
-			c.logger.Error("failed", logging.String("event", event.Type))
 		}
 	}
 }
