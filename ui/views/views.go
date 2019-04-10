@@ -7,6 +7,7 @@ import (
 
 type view interface {
 	Set(*gocui.Gui, int, int, int, int) error
+	Wrap(*gocui.View) view
 	Name() string
 }
 
@@ -19,14 +20,17 @@ type Views struct {
 	Channel  *Channel
 }
 
-func (v Views) Get(name string) view {
-	switch name {
+func (v Views) Get(vi *gocui.View) view {
+	if vi == nil {
+		return nil
+	}
+	switch vi.Name() {
 	case CHANNELS:
-		return v.Channels
+		return v.Channels.Wrap(vi)
 	case HELP:
-		return v.Help
+		return v.Help.Wrap(vi)
 	case CHANNEL:
-		return v.Channel
+		return v.Channel.Wrap(vi)
 	default:
 		return nil
 	}

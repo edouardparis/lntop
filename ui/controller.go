@@ -151,7 +151,7 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 
 func (c *controller) Help(g *gocui.Gui, v *gocui.View) error {
 	maxX, maxY := g.Size()
-	view := c.views.Get(g.CurrentView().Name())
+	view := c.views.Get(g.CurrentView())
 	if view == nil {
 		return nil
 	}
@@ -176,7 +176,7 @@ func (c *controller) Help(g *gocui.Gui, v *gocui.View) error {
 
 func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 	maxX, maxY := g.Size()
-	view := c.views.Get(v.Name())
+	view := c.views.Get(v)
 	if view == nil {
 		return nil
 	}

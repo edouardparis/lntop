@@ -23,11 +23,17 @@ const (
 )
 
 type Channels struct {
+	view     *gocui.View
 	channels *models.Channels
 }
 
 func (c Channels) Name() string {
 	return CHANNELS
+}
+
+func (c *Channels) Wrap(v *gocui.View) view {
+	c.view = v
+	return c
 }
 
 func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
@@ -42,7 +48,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	columns.FgColor = gocui.ColorBlack
 	displayChannelsColumns(columns)
 
-	v, err := g.SetView(CHANNELS, x0-1, y0+1, x1+2, y1-1)
+	c.view, err = g.SetView(CHANNELS, x0-1, y0+1, x1+2, y1-1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -52,13 +58,13 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 			return err
 		}
 	}
-	v.Frame = false
-	v.Autoscroll = false
-	v.SelBgColor = gocui.ColorCyan
-	v.SelFgColor = gocui.ColorBlack
-	v.Highlight = true
+	c.view.Frame = false
+	c.view.Autoscroll = false
+	c.view.SelBgColor = gocui.ColorCyan
+	c.view.SelFgColor = gocui.ColorBlack
+	c.view.Highlight = true
 
-	c.display(v)
+	c.display()
 
 	footer, err := g.SetView(CHANNELS_FOOTER, x0-1, y1-2, x1+2, y1)
 	if err != nil {
@@ -92,9 +98,9 @@ func displayChannelsColumns(v *gocui.View) {
 	))
 }
 
-func (c *Channels) display(v *gocui.View) {
+func (c *Channels) display() {
 	p := message.NewPrinter(language.English)
-	v.Clear()
+	c.view.Clear()
 	for _, item := range c.channels.List() {
 		line := fmt.Sprintf("%s %-20s %s %s %s %5d  %15s %d %500s",
 			status(item),
@@ -107,7 +113,7 @@ func (c *Channels) display(v *gocui.View) {
 			item.ID,
 			"",
 		)
-		fmt.Fprintln(v, line)
+		fmt.Fprintln(c.view, line)
 	}
 }
 
@@ -163,6 +169,7 @@ func NewChannels(channels *models.Channels) *Channels {
 }
 
 type Channel struct {
+	view    *gocui.View
 	channel *models.Channel
 }
 
@@ -172,6 +179,11 @@ func (c Channel) Name() string {
 
 func (c Channel) Empty() bool {
 	return c.channel == nil
+}
+
+func (c *Channel) Wrap(v *gocui.View) view {
+	c.view = v
+	return c
 }
 
 func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
@@ -194,7 +206,8 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		}
 	}
 	v.Frame = false
-	c.display(v)
+	c.view = v
+	c.display()
 
 	footer, err := g.SetView(CHANNEL_FOOTER, x0-1, y1-2, x1, y1)
 	if err != nil {
@@ -228,8 +241,9 @@ func (c Channel) Delete(g *gocui.Gui) error {
 	return g.DeleteView(CHANNEL_FOOTER)
 }
 
-func (c *Channel) display(v *gocui.View) {
+func (c *Channel) display() {
 	p := message.NewPrinter(language.English)
+	v := c.view
 	v.Clear()
 	channel := c.channel.Item
 	fmt.Fprintln(v, color.Green(" [ Channel ]"))
