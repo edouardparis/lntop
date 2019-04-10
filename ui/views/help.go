@@ -26,63 +26,19 @@ func (h *Help) Wrap(v *gocui.View) view {
 }
 
 func (h *Help) CursorDown() error {
-	if h.view != nil {
-		cx, cy := h.view.Cursor()
-		err := h.view.SetCursor(cx, cy+1)
-		if err != nil {
-			ox, oy := h.view.Origin()
-			err := h.view.SetOrigin(ox, oy+1)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return cursorDown(h.view, 1)
 }
 
 func (h *Help) CursorUp() error {
-	if h.view != nil {
-		ox, oy := h.view.Origin()
-		cx, cy := h.view.Cursor()
-		err := h.view.SetCursor(cx, cy-1)
-		if err != nil && oy > 0 {
-			err := h.view.SetOrigin(ox, oy-1)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return cursorUp(h.view, 1)
 }
 
 func (h *Help) CursorRight() error {
-	if h.view != nil {
-		cx, cy := h.view.Cursor()
-		err := h.view.SetCursor(cx+2, cy)
-		if err != nil {
-			ox, oy := h.view.Origin()
-			err := h.view.SetOrigin(ox+2, oy)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return cursorRight(h.view, 1)
 }
 
 func (h *Help) CursorLeft() error {
-	if h.view != nil {
-		ox, oy := h.view.Origin()
-		cx, cy := h.view.Cursor()
-		err := h.view.SetCursor(cx-2, cy)
-		if err != nil && ox > 1 {
-			err := h.view.SetOrigin(ox-2, oy)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return cursorLeft(h.view, 1)
 }
 
 func (h Help) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {

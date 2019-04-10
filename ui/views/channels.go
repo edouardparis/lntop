@@ -37,63 +37,19 @@ func (c *Channels) Wrap(v *gocui.View) view {
 }
 
 func (c *Channels) CursorDown() error {
-	if c.view != nil {
-		cx, cy := c.view.Cursor()
-		err := c.view.SetCursor(cx, cy+1)
-		if err != nil {
-			ox, oy := c.view.Origin()
-			err := c.view.SetOrigin(ox, oy+1)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return cursorDown(c.view, 1)
 }
 
 func (c *Channels) CursorUp() error {
-	if c.view != nil {
-		ox, oy := c.view.Origin()
-		cx, cy := c.view.Cursor()
-		err := c.view.SetCursor(cx, cy-1)
-		if err != nil && oy > 0 {
-			err := c.view.SetOrigin(ox, oy-1)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return cursorUp(c.view, 1)
 }
 
 func (c *Channels) CursorRight() error {
-	if c.view != nil {
-		cx, cy := c.view.Cursor()
-		err := c.view.SetCursor(cx+2, cy)
-		if err != nil {
-			ox, oy := c.view.Origin()
-			err := c.view.SetOrigin(ox+2, oy)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return cursorRight(c.view, 2)
 }
 
 func (c *Channels) CursorLeft() error {
-	if c.view != nil {
-		ox, oy := c.view.Origin()
-		cx, cy := c.view.Cursor()
-		err := c.view.SetCursor(cx-2, cy)
-		if err != nil && ox > 1 {
-			err := c.view.SetOrigin(ox-2, oy)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return cursorLeft(c.view, 2)
 }
 
 func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
@@ -247,63 +203,19 @@ func (c *Channel) Wrap(v *gocui.View) view {
 }
 
 func (c *Channel) CursorDown() error {
-	if c.view != nil {
-		cx, cy := c.view.Cursor()
-		err := c.view.SetCursor(cx, cy+1)
-		if err != nil {
-			ox, oy := c.view.Origin()
-			err := c.view.SetOrigin(ox, oy+1)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return cursorDown(c.view, 1)
 }
 
 func (c *Channel) CursorUp() error {
-	if c.view != nil {
-		ox, oy := c.view.Origin()
-		cx, cy := c.view.Cursor()
-		err := c.view.SetCursor(cx, cy-1)
-		if err != nil && oy > 0 {
-			err := c.view.SetOrigin(ox, oy-1)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return cursorUp(c.view, 1)
 }
 
 func (c *Channel) CursorRight() error {
-	if c.view != nil {
-		cx, cy := c.view.Cursor()
-		err := c.view.SetCursor(cx+2, cy)
-		if err != nil {
-			ox, oy := c.view.Origin()
-			err := c.view.SetOrigin(ox+2, oy)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return cursorRight(c.view, 1)
 }
 
 func (c *Channel) CursorLeft() error {
-	if c.view != nil {
-		ox, oy := c.view.Origin()
-		cx, cy := c.view.Cursor()
-		err := c.view.SetCursor(cx-2, cy)
-		if err != nil && ox > 1 {
-			err := c.view.SetOrigin(ox-2, oy)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return cursorLeft(c.view, 1)
 }
 
 func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
