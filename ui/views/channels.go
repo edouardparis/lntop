@@ -60,7 +60,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 	c.display(v)
 
-	footer, err := g.SetView(CHANNELS_FOOTER, x0-1, y1-2, x1, y1)
+	footer, err := g.SetView(CHANNELS_FOOTER, x0-1, y1-2, x1+2, y1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
