@@ -23,6 +23,7 @@ const (
 )
 
 type Channels struct {
+	columns  *gocui.View
 	view     *gocui.View
 	channels *models.Channels
 }
@@ -45,24 +46,35 @@ func (c *Channels) CursorUp() error {
 }
 
 func (c *Channels) CursorRight() error {
+	err := cursorRight(c.columns, 2)
+	if err != nil {
+		return err
+	}
+
 	return cursorRight(c.view, 2)
 }
 
 func (c *Channels) CursorLeft() error {
+	err := cursorLeft(c.columns, 2)
+	if err != nil {
+		return err
+	}
+
 	return cursorLeft(c.view, 2)
 }
 
 func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
-	columns, err := g.SetView(CHANNELS_COLUMNS, x0-1, y0, x1+2, y0+2)
+	var err error
+	c.columns, err = g.SetView(CHANNELS_COLUMNS, x0-1, y0, x1+2, y0+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 	}
-	columns.Frame = false
-	columns.BgColor = gocui.ColorGreen
-	columns.FgColor = gocui.ColorBlack
-	displayChannelsColumns(columns)
+	c.columns.Frame = false
+	c.columns.BgColor = gocui.ColorGreen
+	c.columns.FgColor = gocui.ColorBlack
+	displayChannelsColumns(c.columns)
 
 	c.view, err = g.SetView(CHANNELS, x0-1, y0+1, x1+2, y1-1)
 	if err != nil {
