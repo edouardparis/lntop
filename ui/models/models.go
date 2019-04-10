@@ -50,7 +50,7 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 		if !m.Channels.Contains(channels[i]) {
 			m.Channels.Add(channels[i])
 		}
-		channel := m.Channels.GetByID(channels[i].ID)
+		channel := m.Channels.GetByChanPoint(channels[i].ChannelPoint)
 		if channel != nil &&
 			(channel.UpdatesCount < channels[i].UpdatesCount ||
 				channel.LastUpdate == nil) {

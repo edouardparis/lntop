@@ -114,7 +114,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 func displayChannelsColumns(v *gocui.View) {
 	v.Clear()
-	fmt.Fprintln(v, fmt.Sprintf("%-13s %-20s %-21s %12s %12s %5s  %-15s %s",
+	fmt.Fprintln(v, fmt.Sprintf("%-13s %-25s %-21s %12s %12s %5s  %-15s %s",
 		"STATUS",
 		"ALIAS",
 		"GAUGE",
@@ -130,7 +130,7 @@ func (c *Channels) display() {
 	p := message.NewPrinter(language.English)
 	c.view.Clear()
 	for _, item := range c.channels.List() {
-		line := fmt.Sprintf("%s %-20s %s %s %s %5d  %15s %d %500s",
+		line := fmt.Sprintf("%s %-25s %s %s %s %5d  %15s %d %500s",
 			status(item),
 			alias(item),
 			gauge(item),

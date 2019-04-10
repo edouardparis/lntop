@@ -7,7 +7,7 @@ import (
 )
 
 type Channels struct {
-	index map[uint64]*models.Channel
+	index map[string]*models.Channel
 	list  []*models.Channel
 	mu    sync.RWMutex
 }
@@ -24,12 +24,12 @@ func (c *Channels) Get(index int) *models.Channel {
 	return c.list[index]
 }
 
-func (c *Channels) GetByID(id uint64) *models.Channel {
-	return c.index[id]
+func (c *Channels) GetByChanPoint(chanPoint string) *models.Channel {
+	return c.index[chanPoint]
 }
 
 func (c *Channels) Contains(channel *models.Channel) bool {
-	_, ok := c.index[channel.ID]
+	_, ok := c.index[channel.ChannelPoint]
 	return ok
 }
 
@@ -39,7 +39,7 @@ func (c *Channels) Add(channel *models.Channel) {
 	if c.Contains(channel) {
 		return
 	}
-	c.index[channel.ID] = channel
+	c.index[channel.ChannelPoint] = channel
 	c.list = append(c.list, channel)
 }
 
@@ -47,7 +47,7 @@ func (c *Channels) Update(newChannel *models.Channel) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	oldChannel, ok := c.index[newChannel.ID]
+	oldChannel, ok := c.index[newChannel.ChannelPoint]
 	if !ok {
 		c.Add(newChannel)
 		return
@@ -82,7 +82,7 @@ func (c *Channels) Update(newChannel *models.Channel) {
 func NewChannels() *Channels {
 	return &Channels{
 		list:  []*models.Channel{},
-		index: make(map[uint64]*models.Channel),
+		index: make(map[string]*models.Channel),
 	}
 }
 
