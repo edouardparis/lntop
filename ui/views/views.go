@@ -8,6 +8,10 @@ import (
 type view interface {
 	Set(*gocui.Gui, int, int, int, int) error
 	Wrap(*gocui.View) view
+	CursorLeft() error
+	CursorRight() error
+	CursorUp() error
+	CursorDown() error
 	Name() string
 }
 

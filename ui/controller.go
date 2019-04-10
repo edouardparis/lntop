@@ -23,62 +23,34 @@ func (c *controller) layout(g *gocui.Gui) error {
 	return c.views.Layout(g, maxX, maxY)
 }
 
-func cursorDown(g *gocui.Gui, v *gocui.View) error {
-	if v != nil {
-		cx, cy := v.Cursor()
-		err := v.SetCursor(cx, cy+1)
-		if err != nil {
-			ox, oy := v.Origin()
-			err := v.SetOrigin(ox, oy+1)
-			if err != nil {
-				return err
-			}
-		}
+func (c *controller) cursorDown(g *gocui.Gui, v *gocui.View) error {
+	view := c.views.Get(v)
+	if view != nil {
+		return view.CursorDown()
 	}
 	return nil
 }
 
-func cursorUp(g *gocui.Gui, v *gocui.View) error {
-	if v != nil {
-		ox, oy := v.Origin()
-		cx, cy := v.Cursor()
-		err := v.SetCursor(cx, cy-1)
-		if err != nil && oy > 0 {
-			err := v.SetOrigin(ox, oy-1)
-			if err != nil {
-				return err
-			}
-		}
+func (c *controller) cursorUp(g *gocui.Gui, v *gocui.View) error {
+	view := c.views.Get(v)
+	if view != nil {
+		return view.CursorUp()
 	}
 	return nil
 }
 
-func cursorRight(g *gocui.Gui, v *gocui.View) error {
-	if v != nil {
-		cx, cy := v.Cursor()
-		err := v.SetCursor(cx+2, cy)
-		if err != nil {
-			ox, oy := v.Origin()
-			err := v.SetOrigin(ox+2, oy)
-			if err != nil {
-				return err
-			}
-		}
+func (c *controller) cursorRight(g *gocui.Gui, v *gocui.View) error {
+	view := c.views.Get(v)
+	if view != nil {
+		return view.CursorRight()
 	}
 	return nil
 }
 
-func cursorLeft(g *gocui.Gui, v *gocui.View) error {
-	if v != nil {
-		ox, oy := v.Origin()
-		cx, cy := v.Cursor()
-		err := v.SetCursor(cx-2, cy)
-		if err != nil && ox > 1 {
-			err := v.SetOrigin(ox-2, oy)
-			if err != nil {
-				return err
-			}
-		}
+func (c *controller) cursorLeft(g *gocui.Gui, v *gocui.View) error {
+	view := c.views.Get(v)
+	if view != nil {
+		return view.CursorLeft()
 	}
 	return nil
 }
@@ -227,22 +199,22 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 		return err
 	}
 
-	err = g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, cursorUp)
+	err = g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, c.cursorUp)
 	if err != nil {
 		return err
 	}
 
-	err = g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, cursorDown)
+	err = g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, c.cursorDown)
 	if err != nil {
 		return err
 	}
 
-	err = g.SetKeybinding("", gocui.KeyArrowLeft, gocui.ModNone, cursorLeft)
+	err = g.SetKeybinding("", gocui.KeyArrowLeft, gocui.ModNone, c.cursorLeft)
 	if err != nil {
 		return err
 	}
 
-	err = g.SetKeybinding("", gocui.KeyArrowRight, gocui.ModNone, cursorRight)
+	err = g.SetKeybinding("", gocui.KeyArrowRight, gocui.ModNone, c.cursorRight)
 	if err != nil {
 		return err
 	}
