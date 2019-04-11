@@ -117,8 +117,6 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 			)
 		case events.PeerUpdated:
 			refresh(c.models.RefreshInfo)
-		default:
-			c.logger.Info("event received", logging.String("type", event.Type))
 		}
 	}
 }
