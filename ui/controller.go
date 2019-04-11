@@ -109,6 +109,12 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 				c.models.RefreshChannelsBalance,
 				c.models.RefreshChannels,
 			)
+		case events.InvoiceSettled:
+			refresh(
+				c.models.RefreshInfo,
+				c.models.RefreshChannelsBalance,
+				c.models.RefreshChannels,
+			)
 		case events.PeerUpdated:
 			refresh(c.models.RefreshInfo)
 		default:
