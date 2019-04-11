@@ -114,14 +114,17 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 func displayChannelsColumns(v *gocui.View) {
 	v.Clear()
-	fmt.Fprintln(v, fmt.Sprintf("%-13s %-25s %-21s %12s %12s %5s  %-15s %s",
+	fmt.Fprintln(v, fmt.Sprintf("%-13s %-25s %-21s %12s %12s %5s %-10s %-6s %-15s %s %-19s",
 		"STATUS",
 		"ALIAS",
 		"GAUGE",
 		"LOCAL",
 		"CAP",
 		"HTLC",
+		"UNSETTLED",
+		"CFEE",
 		"Last Update",
+		"PRIVATE",
 		"ID",
 	))
 }
@@ -130,19 +133,38 @@ func (c *Channels) display() {
 	p := message.NewPrinter(language.English)
 	c.view.Clear()
 	for _, item := range c.channels.List() {
-		line := fmt.Sprintf("%s %-25s %s %s %s %5d  %15s %d %500s",
+		line := fmt.Sprintf("%s %-25s %s %s %s %5d %s %s %s %s %19s %500s",
 			status(item),
 			alias(item),
 			gauge(item),
 			color.Cyan(p.Sprintf("%12d", item.LocalBalance)),
 			p.Sprintf("%12d", item.Capacity),
 			len(item.PendingHTLC),
+			color.Yellow(p.Sprintf("%10d", item.UnsettledBalance)),
+			p.Sprintf("%6d", item.CommitFee),
 			lastUpdate(item),
-			item.ID,
+			channelPrivate(item),
+			channelID(item),
 			"",
 		)
 		fmt.Fprintln(c.view, line)
 	}
+}
+
+func channelPrivate(c *netmodels.Channel) string {
+	if c.Private {
+		return color.Red("private")
+	}
+
+	return color.Green("public ")
+}
+
+func channelID(c *netmodels.Channel) string {
+	if c.ID == 0 {
+		return ""
+	}
+
+	return fmt.Sprintf("%d", c.ID)
 }
 
 func alias(c *netmodels.Channel) string {
@@ -155,10 +177,12 @@ func alias(c *netmodels.Channel) string {
 
 func lastUpdate(c *netmodels.Channel) string {
 	if c.LastUpdate != nil {
-		return c.LastUpdate.Format("15:04:05 Jan _2")
+		return color.Cyan(
+			fmt.Sprintf("%15s", c.LastUpdate.Format("15:04:05 Jan _2")),
+		)
 	}
 
-	return ""
+	return fmt.Sprintf("%15s", "")
 }
 
 func status(c *netmodels.Channel) string {

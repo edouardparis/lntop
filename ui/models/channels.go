@@ -52,6 +52,8 @@ func (c *Channels) Update(newChannel *models.Channel) {
 		c.Add(newChannel)
 		return
 	}
+
+	oldChannel.ID = newChannel.ID
 	oldChannel.Status = newChannel.Status
 	oldChannel.LocalBalance = newChannel.LocalBalance
 	oldChannel.RemoteBalance = newChannel.RemoteBalance
