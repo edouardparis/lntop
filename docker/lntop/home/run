@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+if [[ ! $# -eq 0 ]]; then
+  exec "$@"
+fi
+
+echo "this docker-compose service is not designed to be launched via docker-compose up"
+echo "exec lntop via ./lntop.sh or directly via docker, e.g. \`docker exec -ti lntop lntop\`"
+exit 1

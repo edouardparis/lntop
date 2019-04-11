@@ -39,3 +39,34 @@ conn_timeout = 1000000
 pool_capacity = 3
 ```
 Change macaroon path according to your network.
+
+## Docker
+
+If you prefer to run `lntop` from a docker container:
+
+```sh
+cd docker
+
+# now you should review ./lntop/config.toml
+
+# point LND_HOME to your actual lnd directory 
+# we recommend using .envrc with direnv
+export LND_HOME=~/.lnd
+
+# build the container
+./build.sh
+
+# run lntop from the contaner
+./lntop.sh 
+```
+
+To see `lntop` logs, you can tail them in another terminal session via:
+```sh
+./logs.sh -f
+```
+
+To start from scratch:
+```sh
+./clean.sh
+./build.sh --no-cache
+```
