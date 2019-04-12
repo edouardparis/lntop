@@ -4,6 +4,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/btcsuite/btcwallet v0.0.0-20190313041134-68fc7c82e131 // indirect
 	github.com/fatih/color v1.7.0
+	github.com/fiatjaf/lightningd-gjson-rpc v0.0.0-20190408160303-cd87d55be651
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/grpc-ecosystem/grpc-gateway v1.8.5 // indirect
 	github.com/jroimartin/gocui v0.4.0
@@ -18,6 +19,9 @@ require (
 	github.com/nsf/termbox-go v0.0.0-20190121233118-02980233997d // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.3.0 // indirect
+	github.com/tidwall/gjson v1.2.1
+	github.com/tidwall/match v1.0.1 // indirect
+	github.com/tidwall/pretty v0.0.0-20190325153808-1166b9ac2b65 // indirect
 	go.etcd.io/bbolt v1.3.2 // indirect
 	go.uber.org/atomic v1.3.2 // indirect
 	go.uber.org/multierr v1.1.0 // indirect

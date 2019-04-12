@@ -32,6 +32,7 @@ type Network struct {
 	MaxMsgRecvSize  int    `toml:"max_msg_recv_size"`
 	ConnTimeout     int    `toml:"conn_timeout"`
 	PoolCapacity    int    `toml:"pool_capacity"`
+	SocketPath      string `toml:"socket_path"`
 }
 
 func Load(path string) (*Config, error) {
