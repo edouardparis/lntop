@@ -19,7 +19,7 @@ WORKDIR $GOPATH/src/github.com/edouardparis/lntop
 COPY "$LNTOP_SRC_PATH" .
 
 ENV GO111MODULE=on
-RUN go install ./...
+RUN go install -mod=vendor ./...
 
 # ---------------------------------------------------------------------------------------------------------------------------
 

@@ -56,7 +56,7 @@ export LND_HOME=~/.lnd
 # build the container
 ./build.sh
 
-# run lntop from the contaner
+# run lntop from the container
 ./lntop.sh 
 ```
 
