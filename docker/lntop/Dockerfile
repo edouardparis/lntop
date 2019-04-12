@@ -11,10 +11,6 @@ WORKDIR /root/_build
 COPY "$LNTOP_SRC_PATH/go.mod" .
 COPY "$LNTOP_SRC_PATH/go.sum" .
 
-# pre-cache deps
-# see https://container-solutions.com/faster-builds-in-docker-with-go-1-11/
-RUN go mod download
-
 WORKDIR $GOPATH/src/github.com/edouardparis/lntop
 COPY "$LNTOP_SRC_PATH" .
 
