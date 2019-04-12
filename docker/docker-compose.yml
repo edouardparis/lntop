@@ -1,0 +1,25 @@
+# we have a really simple setup here
+# we use docker-compose only as a convenient way to specify docker build parameters via a yaml file
+# you could as well use Dockerfile directly with `docker build` and config passed via command-line args
+#
+# tips:
+#   - to run lntop from docker, you can use our wrapper script ./lntop.sh
+#   - see other scripts in this folder, also check the docker section in the main readme
+
+version: '3.7'
+
+services:
+
+  lntop:
+    image: lntop
+    container_name: lntop
+    command: ["run"]
+    network_mode: host
+    build:
+      context: ./lntop
+      dockerfile: Dockerfile
+      args:
+        - LNTOP_SRC_PATH=_src
+        - LNTOP_CONF_PATH=config.toml
+    volumes:
+      - $LND_HOME:/root/.lnd
