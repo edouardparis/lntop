@@ -2,6 +2,7 @@ package lightningd
 
 import (
 	"context"
+	"time"
 
 	"github.com/fiatjaf/lightningd-gjson-rpc"
 	"github.com/tidwall/gjson"
@@ -33,7 +34,8 @@ func (l Backend) NodeName() string {
 }
 
 func (l Backend) Ping() error {
-	return nil
+	_, err := l.client.Call("help")
+	return err
 }
 
 func (l Backend) Info(ctx context.Context) (*models.Info, error) {
@@ -123,9 +125,9 @@ func (l Backend) ListChannels(ctx context.Context, opt ...options.Channel) ([]*m
 			Status:              models.ChannelActive,
 			RemotePubKey:        peer.Get("id").String(),
 			ChannelPoint:        ch.Get("short_channel_id").String(),
-			Capacity:            ch.Get("msatoshi_total").Int() / 1000,
-			LocalBalance:        ch.Get("msatoshi_to_us").Int() / 1000,
-			RemoteBalance:       (ch.Get("msatoshi_total").Int() - ch.Get("msatoshi_to_us").Int()) / 1000,
+			Capacity:            ch.Get("msatoshi_total").Int(),
+			LocalBalance:        ch.Get("msatoshi_to_us").Int(),
+			RemoteBalance:       (ch.Get("msatoshi_total").Int() - ch.Get("msatoshi_to_us").Int()),
 			CommitFee:           0,
 			CommitWeight:        0,
 			FeePerKiloWeight:    0,
@@ -139,8 +141,12 @@ func (l Backend) ListChannels(ctx context.Context, opt ...options.Channel) ([]*m
 			PendingHTLC:         []*models.HTLC{},
 			LastUpdate:          nil,
 			Node:                nil,
-			Policy1:             nil,
-			Policy2:             nil,
+			Policy1: &models.RoutingPolicy{
+				MinHtlc: ch.Get("htlc_minimum_msat").Int(),
+			},
+			Policy2: &models.RoutingPolicy{
+				MinHtlc: ch.Get("htlc_minimum_msat").Int(),
+			},
 		})
 
 		i++
@@ -151,11 +157,79 @@ func (l Backend) ListChannels(ctx context.Context, opt ...options.Channel) ([]*m
 }
 
 func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) error {
+	res, err := l.client.Call("listchannels", channel.ChannelPoint)
+	if err != nil {
+		return err
+	}
+
+	// the channel is represented as if it was two
+	fromUs := res.Get(`channels.#[destination=="` + channel.RemotePubKey + `"]`)
+	toUs := res.Get(`channels.#[source=="` + channel.RemotePubKey + `"]`)
+
+	// last update
+	lastUpdate := fromUs.Get("last_update").Int()
+	if toUs.Get("last_update").Int() > lastUpdate {
+		lastUpdate = toUs.Get("last_update").Int()
+	}
+	t := time.Unix(lastUpdate, 0)
+	channel.LastUpdate = &t
+
+	// routing policies
+	channel.Policy1.TimeLockDelta = uint32(fromUs.Get("delay").Int())
+	channel.Policy1.FeeBaseMsat = fromUs.Get("base_fee_millisatoshi").Int()
+	channel.Policy1.FeeRateMilliMsat = fromUs.Get("fee_per_millionth").Int()
+	channel.Policy1.Disabled = !fromUs.Get("active").Bool()
+	channel.Policy2.TimeLockDelta = uint32(toUs.Get("delay").Int())
+	channel.Policy2.FeeBaseMsat = toUs.Get("base_fee_millisatoshi").Int()
+	channel.Policy2.FeeRateMilliMsat = toUs.Get("fee_per_millionth").Int()
+	channel.Policy2.Disabled = !toUs.Get("active").Bool()
+
 	return nil
 }
 
 func (l Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, error) {
-	return nil, nil
+	nodeinfo := models.Node{
+		PubKey: pubkey,
+	}
+
+	if res, err := l.client.Call("listnodes", pubkey); err == nil {
+		node := res.Get("nodes.0")
+		nodeinfo.Alias = node.Get("alias").String()
+		addresses := make([]*models.NodeAddress, node.Get("addresses.#").Int())
+		i := 0
+		node.Get("addresses").ForEach(func(_, addr gjson.Result) bool {
+			addresses[i] = &models.NodeAddress{
+				Network: addr.Get("type").String(),
+				Addr:    addr.Get("addr").String() + ":" + addr.Get("port").String(),
+			}
+			i++
+			return true
+		})
+		nodeinfo.Addresses = addresses
+	} else {
+		return nil, err
+	}
+
+	if res, err := l.client.CallNamed("listchannels", "source", pubkey); err == nil {
+		nodeinfo.NumChannels = uint32(res.Get("channels.#").Int())
+
+		var lastUpdate int64
+		res.Get("channels").ForEach(func(_, ch gjson.Result) bool {
+			nodeinfo.TotalCapacity += ch.Get("satoshis").Int()
+
+			thisLastUpdate := ch.Get("last_update").Int()
+			if lastUpdate < thisLastUpdate {
+				lastUpdate = thisLastUpdate
+			}
+			return true
+		})
+		t := time.Unix(lastUpdate, 0)
+		nodeinfo.LastUpdate = t
+	} else {
+		return nil, err
+	}
+
+	return &nodeinfo, nil
 }
 
 func (l Backend) CreateInvoice(ctx context.Context, amount int64, desc string) (*models.Invoice, error) {
