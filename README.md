@@ -47,7 +47,7 @@ If you prefer to run `lntop` from a docker container:
 ```sh
 cd docker
 
-# now you should review ./lntop/config.toml
+# now you should review ./lntop/home/initial-config.toml
 
 # point LND_HOME to your actual lnd directory
 # we recommend using .envrc with direnv
@@ -58,6 +58,8 @@ export LND_HOME=~/.lnd
 
 # run lntop from the container
 ./lntop.sh
+
+# lntop data will be mapped to host folder at ./_volumes/lntop-data 
 ```
 
 To see `lntop` logs, you can tail them in another terminal session via:

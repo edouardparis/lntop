@@ -36,6 +36,3 @@ COPY --from=builder /go/bin/lntop /bin/
 WORKDIR /root
 
 COPY "home" .
-
-RUN mkdir ".lntop"
-COPY "$LNTOP_CONF_PATH" ".lntop/"
