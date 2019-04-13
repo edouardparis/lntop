@@ -225,8 +225,8 @@ func (l Backend) ListChannels(ctx context.Context, opt ...options.Channel) ([]*m
 func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) error {
 	l.logger.Debug("GetChannelInfo")
 
-	// If channel is opening node information cannot be retrieved.
-	if channel.Status == models.ChannelOpening {
+	// If channel does not have ID (pending), information cannot be retrieved
+	if channel.ID == 0 {
 		return nil
 	}
 
