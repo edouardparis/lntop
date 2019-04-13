@@ -13,13 +13,16 @@ services:
   lntop:
     image: lntop
     container_name: lntop
-    command: ["run"]
+    command: ["run-service"]
     network_mode: host
     build:
       context: ./lntop
       dockerfile: Dockerfile
       args:
         - LNTOP_SRC_PATH=_src
-        - LNTOP_CONF_PATH=config.toml
     volumes:
       - $LND_HOME:/root/.lnd
+      - $LNTOP_HOME:/root/.lntop
+    environment:
+      - LNTOP_HOST_UID
+      - LNTOP_HOST_GID

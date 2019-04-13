@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
-LND_HOME=${LND_HOME:?required}
+. _settings.sh
 
 exec docker exec lntop tail /root/.lntop/lntop.log "$@"

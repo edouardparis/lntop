@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+LNTOP_HOME_DIR=.lntop
+LNTOP_CONFIG="$LNTOP_HOME_DIR/config.toml"
+LNTOP_HOST_GID=${LNTOP_HOST_GID:?required}
+LNTOP_HOST_UID=${LNTOP_HOST_UID:?required}
+
+# make sure lntop's home dir exists (should be mapped to host via a volume)
+if [[ ! -d "$LNTOP_HOME_DIR" ]]; then
+  mkdir -p "$LNTOP_HOME_DIR"
+  chown ${LNTOP_HOST_UID}:${LNTOP_HOST_GID} "$LNTOP_HOME_DIR"
+fi
+
+# prepare config file only if it does not already exist
+if [[ ! -e "$LNTOP_CONFIG" ]]; then
+  cp initial-config.toml "$LNTOP_CONFIG"
+  chown ${LNTOP_HOST_UID}:${LNTOP_HOST_GID} "$LNTOP_CONFIG"
+fi
+
+exec lntop
