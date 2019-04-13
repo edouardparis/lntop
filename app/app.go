@@ -13,7 +13,10 @@ type App struct {
 }
 
 func New(cfg *config.Config) (*App, error) {
-	logger := logging.New(cfg.Logger)
+	logger, err := logging.New(cfg.Logger)
+	if err != nil {
+		return nil, err
+	}
 
 	network, err := network.New(&cfg.Network, logger)
 	if err != nil {

@@ -43,17 +43,15 @@ func Object(key string, val zapcore.ObjectMarshaler) Field {
 	return zap.Object(key, val)
 }
 
-func New(cfg config.Logger) Logger {
-	var logger Logger
-	if cfg.Type == "development" {
-		logger, _ = NewDevelopmentLogger(cfg.Dest)
-	} else if cfg.Type == "noop" {
-		logger, _ = NewNopLogger()
-	} else {
-		logger, _ = NewProductionLogger(cfg.Dest)
+func New(cfg config.Logger) (Logger, error) {
+	switch cfg.Type {
+	case "development":
+		return NewDevelopmentLogger(cfg.Dest)
+	case "production":
+		return NewProductionLogger(cfg.Dest)
+	default:
+		return NewDevelopmentLogger(cfg.Dest)
 	}
-
-	return logger
 }
 
 func NewProductionLogger(dest string) (Logger, error) {
