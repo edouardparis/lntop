@@ -14,7 +14,7 @@
 
 Require the [go programming language](https://golang.org/) (version >= 1.11)
 ```
-git clone git@github.com:edouardparis/lntop.git
+git clone https://github.com/edouardparis/lntop.git
 cd lntop && export GO111MODULE=on && go install -mod=vendor ./...
 ```
 
@@ -49,7 +49,7 @@ cd docker
 
 # now you should review ./lntop/config.toml
 
-# point LND_HOME to your actual lnd directory 
+# point LND_HOME to your actual lnd directory
 # we recommend using .envrc with direnv
 export LND_HOME=~/.lnd
 
@@ -57,7 +57,7 @@ export LND_HOME=~/.lnd
 ./build.sh
 
 # run lntop from the container
-./lntop.sh 
+./lntop.sh
 ```
 
 To see `lntop` logs, you can tail them in another terminal session via:
