@@ -124,8 +124,6 @@ func (l Backend) Client(ctx context.Context) (*Client, error) {
 		return nil, err
 	}
 
-	l.logger.Debug("Client connection retrieved", logging.String("target", conn.Target()))
-
 	return &Client{
 		LightningClient: lnrpc.NewLightningClient(conn.ClientConn),
 		conn:            conn,
