@@ -2,27 +2,24 @@ package pubsub
 
 import (
 	"context"
-	"os"
-	"os/signal"
 	"sync"
 	"time"
 
-	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/events"
 	"github.com/edouardparis/lntop/logging"
 	"github.com/edouardparis/lntop/network"
 	"github.com/edouardparis/lntop/network/models"
 )
 
-type pubSub struct {
+type PubSub struct {
 	stop    chan bool
 	logger  logging.Logger
 	network *network.Network
 	wg      *sync.WaitGroup
 }
 
-func newPubSub(logger logging.Logger, network *network.Network) *pubSub {
-	return &pubSub{
+func New(logger logging.Logger, network *network.Network) *PubSub {
+	return &PubSub{
 		logger:  logger.With(logging.String("logger", "pubsub")),
 		network: network,
 		wg:      &sync.WaitGroup{},
@@ -30,7 +27,7 @@ func newPubSub(logger logging.Logger, network *network.Network) *pubSub {
 	}
 }
 
-func (p *pubSub) ticker(ctx context.Context, sub chan *events.Event) {
+func (p *PubSub) ticker(ctx context.Context, sub chan *events.Event) {
 	p.wg.Add(1)
 	ticker := time.NewTicker(3 * time.Second)
 	go func() {
@@ -73,7 +70,7 @@ func (p *pubSub) ticker(ctx context.Context, sub chan *events.Event) {
 	}()
 }
 
-func (p *pubSub) invoices(ctx context.Context, sub chan *events.Event) {
+func (p *PubSub) invoices(ctx context.Context, sub chan *events.Event) {
 	p.wg.Add(3)
 	invoices := make(chan *models.Invoice)
 	ctx, cancel := context.WithCancel(ctx)
@@ -106,25 +103,18 @@ func (p *pubSub) invoices(ctx context.Context, sub chan *events.Event) {
 	}()
 }
 
-func (p *pubSub) wait() {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	p.wg.Add(1)
-	go func() {
-		sig := <-c
-		p.logger.Debug("Received signal, gracefully stopping", logging.String("sig", sig.String()))
-		p.stop <- true
-		close(p.stop)
-		p.wg.Done()
-	}()
-	p.wg.Wait()
+func (p *PubSub) Stop() {
+	p.stop <- true
+	close(p.stop)
+	p.logger.Debug("Received signal, gracefully stopping")
 }
 
-func Run(ctx context.Context, app *app.App, sub chan *events.Event) {
-	pubSub := newPubSub(app.Logger, app.Network)
-	pubSub.logger.Debug("Starting...")
+func (p *PubSub) Run(ctx context.Context, sub chan *events.Event) {
+	p.logger.Debug("Starting...")
 
-	pubSub.invoices(ctx, sub)
-	pubSub.ticker(ctx, sub)
-	pubSub.wait()
+	p.invoices(ctx, sub)
+	p.ticker(ctx, sub)
+
+	<-p.stop
+	p.wg.Wait()
 }

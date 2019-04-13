@@ -2,6 +2,8 @@ package cli
 
 import (
 	"context"
+	"os"
+	"os/signal"
 
 	cli "gopkg.in/urfave/cli.v2"
 
@@ -53,16 +55,20 @@ func run(c *cli.Context) error {
 		return err
 	}
 
+	ctx := context.Background()
+
 	events := make(chan *events.Event)
+	ps := pubsub.New(app.Logger, app.Network)
 
 	go func() {
-		err := ui.Run(context.Background(), app, events)
+		err := ui.Run(ctx, app, events)
 		if err != nil {
 			app.Logger.Debug("ui", logging.String("error", err.Error()))
 		}
+		ps.Stop()
 	}()
 
-	pubsub.Run(context.Background(), app, events)
+	ps.Run(ctx, events)
 	return nil
 }
 
@@ -78,9 +84,15 @@ func pubsubRun(c *cli.Context) error {
 	}
 
 	events := make(chan *events.Event)
-	pubsub.Run(context.Background(), app, events)
-	//ev := <-events
-	//app.Logger.Info("events quit ", logging.String("type", ev.Type))
+	ps := pubsub.New(app.Logger, app.Network)
+	ps.Run(context.Background(), events)
+
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, os.Interrupt)
+	go func() {
+		<-sig
+		ps.Stop()
+	}()
 
 	return nil
 }
