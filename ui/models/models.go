@@ -4,12 +4,15 @@ import (
 	"context"
 
 	"github.com/edouardparis/lntop/app"
+	"github.com/edouardparis/lntop/logging"
+	"github.com/edouardparis/lntop/network"
 	"github.com/edouardparis/lntop/network/models"
 	"github.com/edouardparis/lntop/network/options"
 )
 
 type Models struct {
-	App             *app.App
+	logger          logging.Logger
+	network         *network.Network
 	Info            *Info
 	Channels        *Channels
 	CurrentChannel  *Channel
@@ -19,7 +22,8 @@ type Models struct {
 
 func New(app *app.App) *Models {
 	return &Models{
-		App:             app,
+		logger:          app.Logger.With(logging.String("logger", "models")),
+		network:         app.Network,
 		Info:            &Info{},
 		Channels:        NewChannels(),
 		WalletBalance:   &WalletBalance{},
@@ -33,7 +37,7 @@ type Info struct {
 }
 
 func (m *Models) RefreshInfo(ctx context.Context) error {
-	info, err := m.App.Network.Info(ctx)
+	info, err := m.network.Info(ctx)
 	if err != nil {
 		return err
 	}
@@ -42,7 +46,7 @@ func (m *Models) RefreshInfo(ctx context.Context) error {
 }
 
 func (m *Models) RefreshChannels(ctx context.Context) error {
-	channels, err := m.App.Network.ListChannels(ctx, options.WithChannelPending)
+	channels, err := m.network.ListChannels(ctx, options.WithChannelPending)
 	if err != nil {
 		return err
 	}
@@ -54,16 +58,17 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 		if channel != nil &&
 			(channel.UpdatesCount < channels[i].UpdatesCount ||
 				channel.LastUpdate == nil) {
-			err := m.App.Network.GetChannelInfo(ctx, channels[i])
+			err := m.network.GetChannelInfo(ctx, channels[i])
 			if err != nil {
 				return err
 			}
 
 			if channels[i].Node == nil {
-				channels[i].Node, err = m.App.Network.GetNode(ctx,
+				channels[i].Node, err = m.network.GetNode(ctx,
 					channels[i].RemotePubKey)
 				if err != nil {
-					return err
+					m.logger.Error("refreshChannels: cannot find Node",
+						logging.String("pubkey", channels[i].RemotePubKey))
 				}
 			}
 		}
@@ -87,7 +92,7 @@ type WalletBalance struct {
 }
 
 func (m *Models) RefreshWalletBalance(ctx context.Context) error {
-	balance, err := m.App.Network.GetWalletBalance(ctx)
+	balance, err := m.network.GetWalletBalance(ctx)
 	if err != nil {
 		return err
 	}
@@ -100,7 +105,7 @@ type ChannelsBalance struct {
 }
 
 func (m *Models) RefreshChannelsBalance(ctx context.Context) error {
-	balance, err := m.App.Network.GetChannelsBalance(ctx)
+	balance, err := m.network.GetChannelsBalance(ctx)
 	if err != nil {
 		return err
 	}
