@@ -91,6 +91,17 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 		switch event.Type {
 		case events.BlockReceived:
 			refresh(c.models.RefreshInfo)
+		case events.WalletBalanceUpdated:
+			refresh(
+				c.models.RefreshInfo,
+				c.models.RefreshWalletBalance,
+			)
+		case events.ChannelBalanceUpdated:
+			refresh(
+				c.models.RefreshInfo,
+				c.models.RefreshChannelsBalance,
+				c.models.RefreshChannels,
+			)
 		case events.ChannelPending:
 			refresh(
 				c.models.RefreshInfo,
