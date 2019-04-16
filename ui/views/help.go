@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	HELP = "help"
+	version = "v0.0.1"
+	HELP    = "help"
 )
 
 type Help struct {
@@ -50,7 +51,7 @@ func (h Help) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		}
 	}
 	h.view.Frame = false
-	fmt.Fprintln(h.view, "lntop 0.0.0 - (C) 2019 Edouard Paris")
+	fmt.Fprintln(h.view, fmt.Sprintf("lntop %s - (C) 2019 Edouard Paris", version))
 	fmt.Fprintln(h.view, "Released under the MIT License")
 	fmt.Fprintln(h.view, "")
 	fmt.Fprintln(h.view, fmt.Sprintf("%5s %s",

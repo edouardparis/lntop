@@ -15,6 +15,8 @@ import (
 	"github.com/edouardparis/lntop/ui"
 )
 
+const version = "v0.0.1"
+
 // New creates a new cli app.
 func New() *cli.App {
 	cli.VersionFlag = &cli.BoolFlag{
@@ -24,6 +26,7 @@ func New() *cli.App {
 
 	return &cli.App{
 		Name:                  "lntop",
+		Version:               version,
 		EnableShellCompletion: true,
 		Action:                run,
 		Flags: []cli.Flag{
