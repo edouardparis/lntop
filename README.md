@@ -75,3 +75,9 @@ To start from scratch:
 ./clean.sh
 ./build.sh --no-cache
 ```
+
+## Compatibility
+
+| lntop  | lightningnetwork/lnd |
+|--------|----------------------|
+| v0.0.1 | v0.5.1               |
