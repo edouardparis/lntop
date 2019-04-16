@@ -86,6 +86,11 @@ func gaugeTotal(balance int64, channels []*netmodels.Channel) string {
 	for i := range channels {
 		capacity += channels[i].Capacity
 	}
+
+	if capacity == 0 {
+		return fmt.Sprintf("[%20s]  0%%", "")
+	}
+
 	index := int(balance * int64(20) / capacity)
 	var buffer bytes.Buffer
 	for i := 0; i < 20; i++ {
