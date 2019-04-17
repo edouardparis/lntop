@@ -20,12 +20,34 @@ const (
 	CHANNELS_FOOTER  = "channels_footer"
 )
 
+var DefaultChannelsColumns = []string{
+	"STATUS",
+	"ALIAS",
+	"GAUGE",
+	"LOCAL",
+	"CAP",
+	"HTLC",
+	"UNSETTLED",
+	"CFEE",
+	"LAST UPDATE",
+	"PRIVATE",
+	"ID",
+}
+
 type Channels struct {
-	index    int
-	cfg      *config.View
-	columns  *gocui.View
-	view     *gocui.View
-	channels *models.Channels
+	cfg *config.View
+
+	index   int
+	columns []channelsColumn
+
+	columnsView *gocui.View
+	view        *gocui.View
+	channels    *models.Channels
+}
+
+type channelsColumn struct {
+	name    string
+	display func(*netmodels.Channel) string
 }
 
 func (c Channels) Index() int {
@@ -57,7 +79,7 @@ func (c *Channels) CursorUp() error {
 }
 
 func (c *Channels) CursorRight() error {
-	err := cursorRight(c.columns, 2)
+	err := cursorRight(c.columnsView, 2)
 	if err != nil {
 		return err
 	}
@@ -66,7 +88,7 @@ func (c *Channels) CursorRight() error {
 }
 
 func (c *Channels) CursorLeft() error {
-	err := cursorLeft(c.columns, 2)
+	err := cursorLeft(c.columnsView, 2)
 	if err != nil {
 		return err
 	}
@@ -76,16 +98,15 @@ func (c *Channels) CursorLeft() error {
 
 func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	var err error
-	c.columns, err = g.SetView(CHANNELS_COLUMNS, x0-1, y0, x1+2, y0+2)
+	c.columnsView, err = g.SetView(CHANNELS_COLUMNS, x0-1, y0, x1+2, y0+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 	}
-	c.columns.Frame = false
-	c.columns.BgColor = gocui.ColorGreen
-	c.columns.FgColor = gocui.ColorBlack
-	displayChannelsColumns(c.columns)
+	c.columnsView.Frame = false
+	c.columnsView.BgColor = gocui.ColorGreen
+	c.columnsView.FgColor = gocui.ColorBlack
 
 	c.view, err = g.SetView(CHANNELS, x0-1, y0+1, x1+2, y1-1)
 	if err != nil {
@@ -123,83 +144,157 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	return nil
 }
 
-func displayChannelsColumns(v *gocui.View) {
-	v.Clear()
-	fmt.Fprintln(v, fmt.Sprintf("%-13s %-25s %-21s %12s %12s %5s %-10s %-6s %-15s %s %-19s",
-		"STATUS",
-		"ALIAS",
-		"GAUGE",
-		"LOCAL",
-		"CAP",
-		"HTLC",
-		"UNSETTLED",
-		"CFEE",
-		"Last Update",
-		"PRIVATE",
-		"ID",
-	))
-}
-
 func (c *Channels) display() {
-	p := message.NewPrinter(language.English)
+	c.columnsView.Clear()
+	var buffer bytes.Buffer
+	for i := range c.columns {
+		buffer.WriteString(c.columns[i].name)
+		buffer.WriteString(" ")
+	}
+	fmt.Fprintln(c.columnsView, buffer.String())
+
 	c.view.Clear()
 	for _, item := range c.channels.List() {
-		line := fmt.Sprintf("%s %-25s %s %s %s %5d %s %s %s %s %19s %500s",
-			status(item),
-			alias(item),
-			gauge(item),
-			color.Cyan(p.Sprintf("%12d", item.LocalBalance)),
-			p.Sprintf("%12d", item.Capacity),
-			len(item.PendingHTLC),
-			color.Yellow(p.Sprintf("%10d", item.UnsettledBalance)),
-			p.Sprintf("%6d", item.CommitFee),
-			lastUpdate(item),
-			channelPrivate(item),
-			channelID(item),
-			"",
-		)
-		fmt.Fprintln(c.view, line)
+		var buffer bytes.Buffer
+		for i := range c.columns {
+			buffer.WriteString(c.columns[i].display(item))
+			buffer.WriteString(" ")
+		}
+		fmt.Fprintln(c.view, buffer.String())
 	}
 }
 
-func NewChannels(cfg *config.View, channels *models.Channels) *Channels {
-	return &Channels{cfg: cfg, channels: channels}
-}
-
-func channelPrivate(c *netmodels.Channel) string {
-	if c.Private {
-		return color.Red("private")
+func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
+	channels := &Channels{
+		cfg:      cfg,
+		channels: chans,
 	}
 
-	return color.Green("public ")
-}
+	printer := message.NewPrinter(language.English)
 
-func channelID(c *netmodels.Channel) string {
-	if c.ID == 0 {
-		return ""
+	columns := DefaultChannelsColumns
+	if cfg != nil && len(cfg.Columns) != 0 {
+		columns = cfg.Columns
 	}
 
-	return fmt.Sprintf("%d", c.ID)
-}
+	channels.columns = make([]channelsColumn, len(columns))
 
-func alias(c *netmodels.Channel) string {
-	if c.Node == nil || c.Node.Alias == "" {
-		return c.RemotePubKey[:24]
-	} else if len(c.Node.Alias) > 25 {
-		return c.Node.Alias[:24]
+	for i := range columns {
+		switch columns[i] {
+		case "STATUS":
+			channels.columns[i] = channelsColumn{
+				name:    fmt.Sprintf("%-13s", columns[i]),
+				display: status,
+			}
+		case "ALIAS":
+			channels.columns[i] = channelsColumn{
+				name: fmt.Sprintf("%-25s", columns[i]),
+				display: func(c *netmodels.Channel) string {
+					var alias string
+					if c.Node == nil || c.Node.Alias == "" {
+						alias = c.RemotePubKey[:24]
+					} else if len(c.Node.Alias) > 25 {
+						alias = c.Node.Alias[:24]
+					} else {
+						alias = c.Node.Alias
+					}
+					return fmt.Sprintf("%-25s", alias)
+				},
+			}
+		case "GAUGE":
+			channels.columns[i] = channelsColumn{
+				name: fmt.Sprintf("%-21s", columns[i]),
+				display: func(c *netmodels.Channel) string {
+					index := int(c.LocalBalance * int64(15) / c.Capacity)
+					var buffer bytes.Buffer
+					for i := 0; i < 15; i++ {
+						if i < index {
+							buffer.WriteString(color.Cyan("|"))
+							continue
+						}
+						buffer.WriteString(" ")
+					}
+					return fmt.Sprintf("[%s] %2d%%", buffer.String(), c.LocalBalance*100/c.Capacity)
+				},
+			}
+		case "LOCAL":
+			channels.columns[i] = channelsColumn{
+				name: fmt.Sprintf("%12s", columns[i]),
+				display: func(c *netmodels.Channel) string {
+					return color.Cyan(printer.Sprintf("%12d", c.LocalBalance))
+				},
+			}
+		case "CAP":
+			channels.columns[i] = channelsColumn{
+				name: fmt.Sprintf("%12s", columns[i]),
+				display: func(c *netmodels.Channel) string {
+					return printer.Sprintf("%12d", c.Capacity)
+				},
+			}
+		case "HTLC":
+			channels.columns[i] = channelsColumn{
+				name: fmt.Sprintf("%5s", columns[i]),
+				display: func(c *netmodels.Channel) string {
+					return color.Yellow(fmt.Sprintf("%5d", len(c.PendingHTLC)))
+				},
+			}
+		case "UNSETTLED":
+			channels.columns[i] = channelsColumn{
+				name: fmt.Sprintf("%-10s", columns[i]),
+				display: func(c *netmodels.Channel) string {
+					return color.Yellow(printer.Sprintf("%10d", c.UnsettledBalance))
+				},
+			}
+		case "CFEE":
+			channels.columns[i] = channelsColumn{
+				name: fmt.Sprintf("%-6s", columns[i]),
+				display: func(c *netmodels.Channel) string {
+					return printer.Sprintf("%6d", c.CommitFee)
+				},
+			}
+		case "LAST UPDATE":
+			channels.columns[i] = channelsColumn{
+				name: fmt.Sprintf("%-15s", columns[i]),
+				display: func(c *netmodels.Channel) string {
+					if c.LastUpdate != nil {
+						return color.Cyan(
+							fmt.Sprintf("%15s", c.LastUpdate.Format("15:04:05 Jan _2")),
+						)
+					}
+					return fmt.Sprintf("%15s", "")
+				},
+			}
+		case "PRIVATE":
+			channels.columns[i] = channelsColumn{
+				name: fmt.Sprintf("%-7s", columns[i]),
+				display: func(c *netmodels.Channel) string {
+					if c.Private {
+						return color.Red("private")
+					}
+					return color.Green("public ")
+				},
+			}
+		case "ID":
+			channels.columns[i] = channelsColumn{
+				name: fmt.Sprintf("%-19s", columns[i]),
+				display: func(c *netmodels.Channel) string {
+					if c.ID == 0 {
+						return fmt.Sprintf("%-19s", "")
+					}
+					return fmt.Sprintf("%d", c.ID)
+				},
+			}
+		default:
+			channels.columns[i] = channelsColumn{
+				name: fmt.Sprintf("%-21s", columns[i]),
+				display: func(c *netmodels.Channel) string {
+					return "column does not exist"
+				},
+			}
+		}
+
 	}
-
-	return c.Node.Alias
-}
-
-func lastUpdate(c *netmodels.Channel) string {
-	if c.LastUpdate != nil {
-		return color.Cyan(
-			fmt.Sprintf("%15s", c.LastUpdate.Format("15:04:05 Jan _2")),
-		)
-	}
-
-	return fmt.Sprintf("%15s", "")
+	return channels
 }
 
 func status(c *netmodels.Channel) string {
@@ -218,17 +313,4 @@ func status(c *netmodels.Channel) string {
 		return color.Yellow(fmt.Sprintf("%-13s", "waiting close"))
 	}
 	return ""
-}
-
-func gauge(c *netmodels.Channel) string {
-	index := int(c.LocalBalance * int64(15) / c.Capacity)
-	var buffer bytes.Buffer
-	for i := 0; i < 15; i++ {
-		if i < index {
-			buffer.WriteString(color.Cyan("|"))
-			continue
-		}
-		buffer.WriteString(" ")
-	}
-	return fmt.Sprintf("[%s] %2d%%", buffer.String(), c.LocalBalance*100/c.Capacity)
 }

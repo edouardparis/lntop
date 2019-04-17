@@ -127,11 +127,11 @@ func (c *Channel) display() {
 	fmt.Fprintln(v, "")
 	fmt.Fprintln(v, color.Green(" [ Node ]"))
 	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		color.Cyan("          Alias:"), alias(channel)))
-	fmt.Fprintln(v, fmt.Sprintf("%s %s",
 		color.Cyan("         PubKey:"), channel.RemotePubKey))
 
 	if channel.Node != nil {
+		fmt.Fprintln(v, fmt.Sprintf("%s %s",
+			color.Cyan("          Alias:"), channel.Node.Alias))
 		fmt.Fprintln(v, p.Sprintf("%s %d",
 			color.Cyan(" Total Capacity:"), channel.Node.TotalCapacity))
 		fmt.Fprintln(v, p.Sprintf("%s %d",
