@@ -23,6 +23,23 @@ macaroon_timeout = %[8]d
 max_msg_recv_size = %[9]d
 conn_timeout = %[10]d
 pool_capacity = %[11]d
+
+[views]
+
+[views.channels]
+columns = [
+	"STATUS",
+	"ALIAS",
+	"GAUGE",
+	"LOCAL",
+	"CAP",
+	"HTLC",
+	"UNSETTLED",
+	"CFEE",
+	"LAST UPDATE",
+	"PRIVATE",
+	"ID",
+]
 `,
 		cfg.Logger.Type,
 		cfg.Logger.Dest,
