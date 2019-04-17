@@ -8,6 +8,7 @@ import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
+	"github.com/edouardparis/lntop/config"
 	netmodels "github.com/edouardparis/lntop/network/models"
 	"github.com/edouardparis/lntop/ui/color"
 	"github.com/edouardparis/lntop/ui/models"
@@ -21,6 +22,7 @@ const (
 
 type Channels struct {
 	index    int
+	cfg      *config.View
 	columns  *gocui.View
 	view     *gocui.View
 	channels *models.Channels
@@ -160,6 +162,10 @@ func (c *Channels) display() {
 	}
 }
 
+func NewChannels(cfg *config.View, channels *models.Channels) *Channels {
+	return &Channels{cfg: cfg, channels: channels}
+}
+
 func channelPrivate(c *netmodels.Channel) string {
 	if c.Private {
 		return color.Red("private")
@@ -225,8 +231,4 @@ func gauge(c *netmodels.Channel) string {
 		buffer.WriteString(" ")
 	}
 	return fmt.Sprintf("[%s] %2d%%", buffer.String(), c.LocalBalance*100/c.Capacity)
-}
-
-func NewChannels(channels *models.Channels) *Channels {
-	return &Channels{channels: channels}
 }

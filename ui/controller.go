@@ -262,6 +262,6 @@ func newController(app *app.App) *controller {
 	return &controller{
 		logger: app.Logger.With(logging.String("logger", "controller")),
 		models: m,
-		views:  views.New(m),
+		views:  views.New(app.Config.Views, m),
 	}
 }

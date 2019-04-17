@@ -1,6 +1,7 @@
 package views
 
 import (
+	"github.com/edouardparis/lntop/config"
 	"github.com/edouardparis/lntop/ui/models"
 	"github.com/jroimartin/gocui"
 )
@@ -58,12 +59,12 @@ func (v *Views) Layout(g *gocui.Gui, maxX, maxY int) error {
 	return v.Channels.Set(g, 0, 6, maxX-1, maxY)
 }
 
-func New(m *models.Models) *Views {
+func New(cfg config.Views, m *models.Models) *Views {
 	return &Views{
 		Header:   NewHeader(m.Info),
 		Help:     NewHelp(),
 		Summary:  NewSummary(m.Info, m.ChannelsBalance, m.WalletBalance, m.Channels),
-		Channels: NewChannels(m.Channels),
+		Channels: NewChannels(cfg.Channels, m.Channels),
 		Channel:  NewChannel(m.CurrentChannel),
 	}
 }

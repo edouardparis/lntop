@@ -14,6 +14,7 @@ import (
 type Config struct {
 	Logger  Logger  `toml:"logger"`
 	Network Network `toml:"network"`
+	Views   Views   `toml:"views"`
 }
 
 type Logger struct {
@@ -32,6 +33,14 @@ type Network struct {
 	MaxMsgRecvSize  int    `toml:"max_msg_recv_size"`
 	ConnTimeout     int    `toml:"conn_timeout"`
 	PoolCapacity    int    `toml:"pool_capacity"`
+}
+
+type Views struct {
+	Channels *View `toml:"channels"`
+}
+
+type View struct {
+	Columns []string `toml:"columns"`
 }
 
 func Load(path string) (*Config, error) {
