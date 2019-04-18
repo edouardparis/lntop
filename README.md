@@ -37,6 +37,40 @@ macaroon_timeout = 60
 max_msg_recv_size = 52428800
 conn_timeout = 1000000
 pool_capacity = 3
+
+[views]
+# views.channels is the view displaying channel list.
+[views.channels]
+# It is possible to add, remove and order columns of
+# the table with the array columns. The default value
+# is:
+# columns = [
+# "STATUS",
+# "ALIAS",
+# "GAUGE",
+# "LOCAL",
+# "CAP",
+# "HTLC",
+# "UNSETTLED",
+# "CFEE",
+# "LAST UPDATE",
+# "PRIVATE",
+# "ID",
+# ]
+columns = [
+	"STATUS",
+	"ALIAS",
+	"GAUGE",
+	"LOCAL",
+	"CAP",
+	"HTLC",
+	"UNSETTLED",
+	"CFEE",
+	"LAST UPDATE",
+	"PRIVATE",
+	"ID",
+]
+`
 ```
 Change macaroon path according to your network.
 
