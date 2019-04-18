@@ -18,8 +18,11 @@ type view interface {
 
 type Views struct {
 	Previous view
+	Main     view
+
 	Help     *Help
 	Header   *Header
+	Menu     *Menu
 	Summary  *Summary
 	Channels *Channels
 	Channel  *Channel
@@ -34,6 +37,8 @@ func (v Views) Get(vi *gocui.View) view {
 		return v.Channels.Wrap(vi)
 	case HELP:
 		return v.Help.Wrap(vi)
+	case MENU:
+		return v.Menu.Wrap(vi)
 	case CHANNEL:
 		return v.Channel.Wrap(vi)
 	default:
@@ -56,15 +61,37 @@ func (v *Views) Layout(g *gocui.Gui, maxX, maxY int) error {
 		return err
 	}
 
-	return v.Channels.Set(g, 0, 6, maxX-1, maxY)
+	current := g.CurrentView()
+	if current != nil && current.Name() == v.Menu.Name() {
+		err = v.Menu.Set(g, 0, 6, 10, maxY)
+		if err != nil {
+			return err
+		}
+
+		err = v.Main.Set(g, 11, 6, maxX-1, maxY)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	err = v.Main.Set(g, 0, 6, maxX-1, maxY)
+	if err != nil && err != gocui.ErrUnknownView {
+		return err
+	}
+
+	return nil
 }
 
 func New(cfg config.Views, m *models.Models) *Views {
+	main := NewChannels(cfg.Channels, m.Channels)
 	return &Views{
 		Header:   NewHeader(m.Info),
 		Help:     NewHelp(),
+		Menu:     NewMenu(),
 		Summary:  NewSummary(m.Info, m.ChannelsBalance, m.WalletBalance, m.Channels),
-		Channels: NewChannels(cfg.Channels, m.Channels),
+		Channels: main,
 		Channel:  NewChannel(m.CurrentChannel),
+		Main:     main,
 	}
 }

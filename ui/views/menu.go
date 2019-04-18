@@ -4,13 +4,17 @@ import (
 	"fmt"
 
 	"github.com/jroimartin/gocui"
-
-	"github.com/edouardparis/lntop/ui/color"
 )
 
 const (
-	MENU = "menu"
+	MENU        = "menu"
+	MENU_HEADER = "menu_header"
 )
+
+var menu = []string{
+	"CHAN",
+	"TX",
+}
 
 type Menu struct {
 	view *gocui.View
@@ -41,20 +45,45 @@ func (h *Menu) CursorLeft() error {
 	return nil
 }
 
+func (c Menu) Delete(g *gocui.Gui) error {
+	err := g.DeleteView(MENU_HEADER)
+	if err != nil {
+		return err
+	}
+
+	return g.DeleteView(MENU)
+}
+
 func (h Menu) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
-	var err error
-	h.view, err = g.SetView(MENU, x0-1, y0, x1, y1)
+	header, err := g.SetView(MENU_HEADER, x0-1, y0, x1, y0+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 	}
+	header.Frame = false
+	header.BgColor = gocui.ColorGreen
+	header.FgColor = gocui.ColorBlack
+
+	header.Clear()
+	fmt.Fprintln(header, " MENU")
+
+	h.view, err = g.SetView(MENU, x0, y0+1, x1, y1-2)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+	}
+
 	h.view.Frame = false
-	fmt.Fprintln(h.view, fmt.Sprintf("lntop %s - (C) 2019 Edouard Paris", version))
-	fmt.Fprintln(h.view, "Released under the MIT License")
-	fmt.Fprintln(h.view, "")
-	fmt.Fprintln(h.view, fmt.Sprintf("%5s %s",
-		color.Cyan("F1 h:"), "show this menu screen"))
+	h.view.Highlight = true
+	h.view.SelBgColor = gocui.ColorCyan
+	h.view.SelFgColor = gocui.ColorBlack
+
+	h.view.Clear()
+	for i := range menu {
+		fmt.Fprintln(h.view, menu[i])
+	}
 	_, err = g.SetCurrentView(MENU)
 	return err
 }

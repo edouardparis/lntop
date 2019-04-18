@@ -161,6 +161,40 @@ func (c *controller) Help(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
+func (c *controller) Menu(g *gocui.Gui, v *gocui.View) error {
+	maxX, maxY := g.Size()
+	if v.Name() == c.views.Help.Name() {
+		return nil
+	}
+
+	if v.Name() != c.views.Menu.Name() {
+		err := c.views.Menu.Set(g, 0, 6, 10, maxY)
+		if err != nil {
+			return err
+		}
+
+		err = c.views.Main.Set(g, 11, 6, maxX-1, maxY)
+		if err != nil {
+			return err
+		}
+
+		_, err = g.SetCurrentView(c.views.Menu.Name())
+		return err
+	}
+
+	err := c.views.Menu.Delete(g)
+	if err != nil {
+		return err
+	}
+
+	if c.views.Main != nil {
+		_, err := g.SetCurrentView(c.views.Main.Name())
+		return err
+	}
+
+	return nil
+}
+
 func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 	maxX, maxY := g.Size()
 	view := c.views.Get(v)
@@ -170,19 +204,23 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 
 	switch view.Name() {
 	case views.CHANNELS:
-		c.views.SetPrevious(view)
 		index := c.views.Channels.Index()
 		err := c.models.SetCurrentChannel(context.Background(), index)
 		if err != nil {
 			return err
 		}
 
+		c.views.SetPrevious(view)
 		err = c.views.Channel.Set(g, 0, 6, maxX-1, maxY)
 		if err != nil {
 			return err
 		}
+
+		c.views.Main = c.views.Channel
 		_, err = g.SetCurrentView(c.views.Channel.Name())
-		return err
+		if err != nil {
+			return err
+		}
 
 	case views.CHANNEL:
 		err := c.views.Channel.Delete(g)
@@ -191,7 +229,13 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 		}
 
 		if c.views.Previous != nil {
-			_, err := g.SetCurrentView(c.views.Previous.Name())
+			c.views.Main = c.views.Previous
+			err := c.views.Previous.Set(g, 0, 6, maxX-1, maxY)
+			if err != nil {
+				return err
+			}
+
+			_, err = g.SetCurrentView(c.views.Previous.Name())
 			return err
 		}
 
@@ -250,6 +294,11 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 	}
 
 	err = g.SetKeybinding("", 'h', gocui.ModNone, c.Help)
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", gocui.KeyF2, gocui.ModNone, c.Menu)
 	if err != nil {
 		return err
 	}

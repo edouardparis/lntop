@@ -96,6 +96,20 @@ func (c *Channels) CursorLeft() error {
 	return cursorLeft(c.view, 2)
 }
 
+func (c Channels) Delete(g *gocui.Gui) error {
+	err := g.DeleteView(CHANNELS_COLUMNS)
+	if err != nil {
+		return err
+	}
+
+	err = g.DeleteView(CHANNELS)
+	if err != nil {
+		return err
+	}
+
+	return g.DeleteView(CHANNELS_FOOTER)
+}
+
 func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	var err error
 	c.columnsView, err = g.SetView(CHANNELS_COLUMNS, x0-1, y0, x1+2, y0+2)
@@ -136,8 +150,9 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.BgColor = gocui.ColorCyan
 	footer.FgColor = gocui.ColorBlack
 	footer.Clear()
-	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s",
+	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s %s%s",
 		color.BlackBg("F1"), "Help",
+		color.BlackBg("F2"), "Menu",
 		color.BlackBg("Enter"), "Channel",
 		color.BlackBg("F10"), "Quit",
 	))
