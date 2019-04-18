@@ -134,6 +134,23 @@ func (l Backend) NewClientConn() (*grpc.ClientConn, error) {
 	return newClientConn(l.cfg)
 }
 
+func (l Backend) GetTransactions(ctx context.Context) ([]*models.Transaction, error) {
+	l.logger.Debug("Get transactions...")
+	clt, err := l.Client(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer clt.Close()
+
+	req := &lnrpc.GetTransactionsRequest{}
+	resp, err := clt.GetTransactions(ctx, req)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return protoToTransactions(resp), nil
+}
+
 func (l Backend) GetWalletBalance(ctx context.Context) (*models.WalletBalance, error) {
 	l.logger.Debug("Retrieve wallet balance...")
 

@@ -54,6 +54,10 @@ func (b *Backend) GetWalletBalance(ctx context.Context) (*models.WalletBalance, 
 	return &models.WalletBalance{}, nil
 }
 
+func (b *Backend) GetTransactions(ctx context.Context) ([]*models.Transaction, error) {
+	return []*models.Transaction{}, nil
+}
+
 func (b *Backend) GetChannelsBalance(ctx context.Context) (*models.ChannelsBalance, error) {
 	return &models.ChannelsBalance{}, nil
 }

@@ -243,6 +243,17 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 		if err != nil {
 			return err
 		}
+	case views.MENU:
+		err := c.models.RefreshTransactions(context.Background())
+		if err != nil {
+			return err
+		}
+
+		c.views.Main = c.views.Transactions
+		err = c.views.Transactions.Set(g, 11, 6, maxX-1, maxY)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

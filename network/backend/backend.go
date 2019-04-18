@@ -35,4 +35,6 @@ type Backend interface {
 	DecodePayReq(context.Context, string) (*models.PayReq, error)
 
 	SendPayment(context.Context, *models.PayReq) (*models.Payment, error)
+
+	GetTransactions(context.Context) ([]*models.Transaction, error)
 }

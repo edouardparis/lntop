@@ -20,12 +20,13 @@ type Views struct {
 	Previous view
 	Main     view
 
-	Help     *Help
-	Header   *Header
-	Menu     *Menu
-	Summary  *Summary
-	Channels *Channels
-	Channel  *Channel
+	Help         *Help
+	Header       *Header
+	Menu         *Menu
+	Summary      *Summary
+	Channels     *Channels
+	Channel      *Channel
+	Transactions *Transactions
 }
 
 func (v Views) Get(vi *gocui.View) view {
@@ -41,6 +42,8 @@ func (v Views) Get(vi *gocui.View) view {
 		return v.Menu.Wrap(vi)
 	case CHANNEL:
 		return v.Channel.Wrap(vi)
+	case TRANSACTIONS:
+		return v.Transactions.Wrap(vi)
 	default:
 		return nil
 	}
@@ -86,12 +89,13 @@ func (v *Views) Layout(g *gocui.Gui, maxX, maxY int) error {
 func New(cfg config.Views, m *models.Models) *Views {
 	main := NewChannels(cfg.Channels, m.Channels)
 	return &Views{
-		Header:   NewHeader(m.Info),
-		Help:     NewHelp(),
-		Menu:     NewMenu(),
-		Summary:  NewSummary(m.Info, m.ChannelsBalance, m.WalletBalance, m.Channels),
-		Channels: main,
-		Channel:  NewChannel(m.CurrentChannel),
-		Main:     main,
+		Header:       NewHeader(m.Info),
+		Help:         NewHelp(),
+		Menu:         NewMenu(),
+		Summary:      NewSummary(m.Info, m.ChannelsBalance, m.WalletBalance, m.Channels),
+		Channels:     main,
+		Channel:      NewChannel(m.CurrentChannel),
+		Transactions: NewTransactions(m.Transactions),
+		Main:         main,
 	}
 }

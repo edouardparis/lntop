@@ -18,6 +18,7 @@ type Models struct {
 	CurrentChannel  *Channel
 	WalletBalance   *WalletBalance
 	ChannelsBalance *ChannelsBalance
+	Transactions    *Transactions
 }
 
 func New(app *app.App) *Models {
@@ -29,6 +30,7 @@ func New(app *app.App) *Models {
 		WalletBalance:   &WalletBalance{},
 		ChannelsBalance: &ChannelsBalance{},
 		CurrentChannel:  &Channel{},
+		Transactions:    &Transactions{},
 	}
 }
 
