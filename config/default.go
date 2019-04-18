@@ -24,10 +24,12 @@ max_msg_recv_size = %[9]d
 conn_timeout = %[10]d
 pool_capacity = %[11]d
 
+[views]
 # views.channels is the view displaying channel list.
 [views.channels]
 # It is possible to add, remove and order columns of
-# the array. The default value is:
+# the table with the array columns. The default value
+# is:
 # columns = [
 # "STATUS",
 # "ALIAS",
