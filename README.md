@@ -70,7 +70,6 @@ columns = [
 	"PRIVATE",
 	"ID",
 ]
-`
 ```
 Change macaroon path according to your network.
 
