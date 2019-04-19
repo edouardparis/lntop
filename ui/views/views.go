@@ -15,6 +15,7 @@ type view interface {
 	CursorUp() error
 	CursorDown() error
 	Name() string
+	Delete(*gocui.Gui) error
 }
 
 type Views struct {
@@ -66,17 +67,22 @@ func (v *Views) Layout(g *gocui.Gui, maxX, maxY int) error {
 	}
 
 	current := g.CurrentView()
-	if current != nil && current.Name() == v.Menu.Name() {
-		err = v.Menu.Set(g, 0, 6, 10, maxY)
-		if err != nil {
-			return err
-		}
+	if current != nil {
+		switch current.Name() {
+		case v.Help.Name():
+			return nil
+		case v.Menu.Name():
+			err = v.Menu.Set(g, 0, 6, 10, maxY)
+			if err != nil {
+				return err
+			}
 
-		err = v.Main.Set(g, 11, 6, maxX-1, maxY)
-		if err != nil {
-			return err
+			err = v.Main.Set(g, 11, 6, maxX-1, maxY)
+			if err != nil {
+				return err
+			}
+			return nil
 		}
-		return nil
 	}
 
 	err = v.Main.Set(g, 0, 6, maxX-1, maxY)

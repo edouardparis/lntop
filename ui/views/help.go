@@ -26,6 +26,10 @@ func (h *Help) Wrap(v *gocui.View) view {
 	return h
 }
 
+func (h Help) Delete(g *gocui.Gui) error {
+	return g.DeleteView(HELP)
+}
+
 func (h *Help) CursorDown() error {
 	return cursorDown(h.view, 1)
 }
