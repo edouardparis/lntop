@@ -298,7 +298,7 @@ func protoToTransactions(resp *lnrpc.TransactionDetails) []*models.Transaction {
 			NumConfirmations: resp.Transactions[i].NumConfirmations,
 			BlockHash:        resp.Transactions[i].BlockHash,
 			BlockHeight:      resp.Transactions[i].BlockHeight,
-			TimeStamp:        resp.Transactions[i].TimeStamp,
+			Date:             time.Unix(int64(resp.Transactions[i].TimeStamp), 0),
 			TotalFees:        resp.Transactions[i].TotalFees,
 			DestAddresses:    resp.Transactions[i].DestAddresses,
 		}

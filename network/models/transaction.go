@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type Transaction struct {
 	// / The transaction hash
 	TxHash string
@@ -12,7 +14,7 @@ type Transaction struct {
 	// / The height of the block this transaction was included in
 	BlockHeight int32
 	// / Timestamp of this transaction
-	TimeStamp int64
+	Date time.Time
 	// / Fees paid for this transaction
 	TotalFees int64
 	// / Addresses that received funds for this transaction

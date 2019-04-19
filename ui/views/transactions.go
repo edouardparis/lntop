@@ -20,8 +20,12 @@ const (
 )
 
 var DefaultTransactionsColumns = []string{
-	"TXHASH",
+	"TIME",
+	"HEIGHT",
+	"CONFIR",
 	"AMOUNT",
+	"FEE",
+	"ADDRESSES",
 }
 
 type Transactions struct {
@@ -162,16 +166,64 @@ func NewTransactions(txs *models.Transactions) *Transactions {
 
 	for i := range columns {
 		switch columns[i] {
+		case "TIME":
+			transactions.columns[i] = transactionsColumn{
+				name: fmt.Sprintf("%-15s", columns[i]),
+				display: func(tx *netmodels.Transaction) string {
+					return color.Cyan(
+						fmt.Sprintf("%15s", tx.Date.Format("15:04:05 Jan _2")),
+					)
+				},
+			}
+		case "HEIGHT":
+			transactions.columns[i] = transactionsColumn{
+				name: fmt.Sprintf("%8s", columns[i]),
+				display: func(tx *netmodels.Transaction) string {
+					return fmt.Sprintf("%8d", tx.BlockHeight)
+				},
+			}
+		case "ADDRESSES":
+			transactions.columns[i] = transactionsColumn{
+				name: fmt.Sprintf("%10s", columns[i]),
+				display: func(tx *netmodels.Transaction) string {
+					return fmt.Sprintf("%10d", len(tx.DestAddresses))
+				},
+			}
+		case "FEE":
+			transactions.columns[i] = transactionsColumn{
+				name: fmt.Sprintf("%8s", columns[i]),
+				display: func(tx *netmodels.Transaction) string {
+					return fmt.Sprintf("%8d", tx.TotalFees)
+				},
+			}
+		case "CONFIR":
+			transactions.columns[i] = transactionsColumn{
+				name: fmt.Sprintf("%8s", columns[i]),
+				display: func(tx *netmodels.Transaction) string {
+					n := fmt.Sprintf("%8d", tx.NumConfirmations)
+					if tx.NumConfirmations < 6 {
+						return color.Yellow(n)
+					}
+					return color.Green(n)
+				},
+			}
 		case "TXHASH":
 			transactions.columns[i] = transactionsColumn{
-				name: fmt.Sprintf("%-13s", columns[i]),
+				name: fmt.Sprintf("%-64s", columns[i]),
+				display: func(tx *netmodels.Transaction) string {
+					return fmt.Sprintf("%13s", tx.TxHash)
+				},
+			}
+		case "BLOCKHASH":
+			transactions.columns[i] = transactionsColumn{
+				name: fmt.Sprintf("%-64s", columns[i]),
 				display: func(tx *netmodels.Transaction) string {
 					return fmt.Sprintf("%13s", tx.TxHash)
 				},
 			}
 		case "AMOUNT":
 			transactions.columns[i] = transactionsColumn{
-				name: fmt.Sprintf("%-13s", columns[i]),
+				name: fmt.Sprintf("%13s", columns[i]),
 				display: func(tx *netmodels.Transaction) string {
 					return printer.Sprintf("%13d", tx.Amount)
 				},
