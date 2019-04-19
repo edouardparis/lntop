@@ -249,7 +249,12 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 	case views.MENU:
-		switch c.views.Menu.Current() {
+		current := c.views.Menu.Current()
+		if c.views.Main.Name() == current {
+			return nil
+		}
+
+		switch current {
 		case views.TRANSACTIONS:
 			c.views.Main = c.views.Transactions
 			err := c.views.Transactions.Set(g, 11, 6, maxX-1, maxY)
