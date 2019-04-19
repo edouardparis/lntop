@@ -71,6 +71,11 @@ func (c *controller) SetModels(ctx context.Context) error {
 		return err
 	}
 
+	err = c.models.RefreshTransactions(ctx)
+	if err != nil {
+		return err
+	}
+
 	return c.models.RefreshChannels(ctx)
 }
 
@@ -244,16 +249,26 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 	case views.MENU:
-		err := c.models.RefreshTransactions(context.Background())
-		if err != nil {
-			return err
+		switch c.views.Menu.Current() {
+		case views.TRANSACTIONS:
+			c.views.Main = c.views.Transactions
+			err := c.views.Transactions.Set(g, 11, 6, maxX-1, maxY)
+			if err != nil {
+				return err
+			}
+		case views.CHANNELS:
+			err := c.views.Transactions.Delete(g)
+			if err != nil {
+				return err
+			}
+
+			c.views.Main = c.views.Channels
+			err = c.views.Channels.Set(g, 11, 6, maxX-1, maxY)
+			if err != nil {
+				return err
+			}
 		}
 
-		c.views.Main = c.views.Transactions
-		err = c.views.Transactions.Set(g, 11, 6, maxX-1, maxY)
-		if err != nil {
-			return err
-		}
 	}
 	return nil
 }

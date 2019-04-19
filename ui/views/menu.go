@@ -45,6 +45,19 @@ func (h *Menu) CursorLeft() error {
 	return nil
 }
 
+func (h Menu) Current() string {
+	_, y := h.view.Cursor()
+	if y < len(menu) {
+		switch menu[y] {
+		case "CHAN":
+			return CHANNELS
+		case "TX":
+			return TRANSACTIONS
+		}
+	}
+	return ""
+}
+
 func (c Menu) Delete(g *gocui.Gui) error {
 	err := g.DeleteView(MENU_HEADER)
 	if err != nil {
