@@ -4,6 +4,7 @@ import (
 	"github.com/edouardparis/lntop/config"
 	"github.com/edouardparis/lntop/ui/models"
 	"github.com/jroimartin/gocui"
+	"github.com/pkg/errors"
 )
 
 type view interface {
@@ -81,6 +82,11 @@ func (v *Views) Layout(g *gocui.Gui, maxX, maxY int) error {
 	err = v.Main.Set(g, 0, 6, maxX-1, maxY)
 	if err != nil && err != gocui.ErrUnknownView {
 		return err
+	}
+
+	_, err = g.SetCurrentView(v.Main.Name())
+	if err != nil {
+		return errors.WithStack(err)
 	}
 
 	return nil

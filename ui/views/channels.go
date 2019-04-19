@@ -127,10 +127,6 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		_, err = g.SetCurrentView(CHANNELS)
-		if err != nil {
-			return err
-		}
 	}
 	c.view.Frame = false
 	c.view.Autoscroll = false
