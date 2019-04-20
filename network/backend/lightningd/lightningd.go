@@ -2,6 +2,7 @@ package lightningd
 
 import (
 	"context"
+	"encoding/hex"
 	"time"
 
 	"github.com/fiatjaf/lightningd-gjson-rpc"
@@ -242,7 +243,49 @@ func (l Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, erro
 }
 
 func (l Backend) CreateInvoice(ctx context.Context, amount int64, desc string) (*models.Invoice, error) {
-	return nil, nil
+	preimage, err := randomHex(64)
+	if err != nil {
+		return nil, err
+	}
+
+	label, err := randomHex(16)
+	if err != nil {
+		return nil, err
+	}
+
+	invoiceDuration := time.Hour * 24
+
+	inv, err := l.client.Call("invoice", map[string]interface{}{
+		"msatoshi":    amount * 1000,
+		"label":       label,
+		"description": desc,
+		"expiry":      invoiceDuration / time.Second,
+		"preimage":    preimage,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	preimageBytes, err := hex.DecodeString(preimage)
+	if err != nil {
+		return nil, err
+	}
+
+	hashBytes, err := hex.DecodeString(inv.Get("payment_hash").String())
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.Invoice{
+		Amount:         amount,
+		Description:    desc,
+		RPreImage:      preimageBytes,
+		RHash:          hashBytes,
+		PaymentRequest: inv.Get("bolt11").String(),
+		CreationDate:   time.Now().Unix(),
+		Expiry:         time.Now().Add(invoiceDuration).Unix(),
+		Private:        true,
+	}, nil
 }
 
 func (l Backend) GetInvoice(ctx context.Context, RHash string) (*models.Invoice, error) {
@@ -250,9 +293,46 @@ func (l Backend) GetInvoice(ctx context.Context, RHash string) (*models.Invoice,
 }
 
 func (l Backend) SendPayment(ctx context.Context, payreq *models.PayReq) (*models.Payment, error) {
-	return nil, nil
+	success, payment, err := l.client.PayAndWaitUntilResolution(payreq.String)
+	if err != nil {
+		return nil, err
+	}
+
+	details, err := l.client.Call("paystatus", payreq.String)
+	if err != nil {
+		return nil, err
+	}
+
+	if success {
+		preimageBytes, _ := hex.DecodeString(payment.Get("payment_preimage").String())
+
+		return &models.Payment{
+			PaymentPreimage: preimageBytes,
+			PayReq:          payreq,
+			Route:           routeFromPayStatus(details),
+		}, nil
+	} else {
+		return &models.Payment{
+			PaymentError: errorMessageFromPayStatus(details),
+			PayReq:       payreq,
+		}, nil
+	}
 }
 
 func (l Backend) DecodePayReq(ctx context.Context, payreq string) (*models.PayReq, error) {
-	return nil, nil
+	inv, err := l.client.Call("decodepay", payreq)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.PayReq{
+		Destination: inv.Get("payee").String(),
+		PaymentHash: inv.Get("payment_hash").String(),
+		Amount:      inv.Get("msatoshi").Int() / 1000,
+		Timestamp:   inv.Get("created_at").Int(),
+		Expiry:      inv.Get("expiry").Int(),
+		Description: inv.Get("description").String(),
+		CltvExpiry:  inv.Get("min_final_cltv_expiry").Int(),
+		String:      payreq,
+	}, nil
 }
