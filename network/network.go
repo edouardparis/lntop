@@ -18,14 +18,16 @@ func New(c *config.Network, logger logging.Logger) (*Network, error) {
 		err error
 		b   backend.Backend
 	)
-	if c.Type == "mock" {
+
+	switch c.Type {
+	case "mock":
 		b = mock.New(c)
-	} else if c.Type == "lightningd" {
+	case "lightningd", "c-lightning":
 		b, err = lightningd.New(c, logger.With(logging.String("network", "lightningd")))
 		if err != nil {
 			return nil, err
 		}
-	} else {
+	default:
 		b, err = lnd.New(c, logger.With(logging.String("network", "lnd")))
 		if err != nil {
 			return nil, err

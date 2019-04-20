@@ -175,6 +175,13 @@ func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) er
 	channel.LastUpdate = &t
 
 	// routing policies
+	if channel.Policy1 == nil {
+		channel.Policy1 = &models.RoutingPolicy{}
+	}
+	if channel.Policy2 == nil {
+		channel.Policy2 = &models.RoutingPolicy{}
+	}
+
 	channel.Policy1.TimeLockDelta = uint32(fromUs.Get("delay").Int())
 	channel.Policy1.FeeBaseMsat = fromUs.Get("base_fee_millisatoshi").Int()
 	channel.Policy1.FeeRateMilliMsat = fromUs.Get("fee_per_millionth").Int()
@@ -192,42 +199,44 @@ func (l Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, erro
 		PubKey: pubkey,
 	}
 
-	if res, err := l.client.Call("listnodes", pubkey); err == nil {
-		node := res.Get("nodes.0")
-		nodeinfo.Alias = node.Get("alias").String()
-		addresses := make([]*models.NodeAddress, node.Get("addresses.#").Int())
-		i := 0
-		node.Get("addresses").ForEach(func(_, addr gjson.Result) bool {
-			addresses[i] = &models.NodeAddress{
-				Network: addr.Get("type").String(),
-				Addr:    addr.Get("addr").String() + ":" + addr.Get("port").String(),
-			}
-			i++
-			return true
-		})
-		nodeinfo.Addresses = addresses
-	} else {
+	res, err := l.client.Call("listnodes", pubkey)
+	if err != nil {
 		return nil, err
 	}
 
-	if res, err := l.client.CallNamed("listchannels", "source", pubkey); err == nil {
-		nodeinfo.NumChannels = uint32(res.Get("channels.#").Int())
+	node := res.Get("nodes.0")
+	nodeinfo.Alias = node.Get("alias").String()
+	addresses := make([]*models.NodeAddress, node.Get("addresses.#").Int())
+	i := 0
+	node.Get("addresses").ForEach(func(_, addr gjson.Result) bool {
+		addresses[i] = &models.NodeAddress{
+			Network: addr.Get("type").String(),
+			Addr:    addr.Get("addr").String() + ":" + addr.Get("port").String(),
+		}
+		i++
+		return true
+	})
+	nodeinfo.Addresses = addresses
 
-		var lastUpdate int64
-		res.Get("channels").ForEach(func(_, ch gjson.Result) bool {
-			nodeinfo.TotalCapacity += ch.Get("satoshis").Int()
-
-			thisLastUpdate := ch.Get("last_update").Int()
-			if lastUpdate < thisLastUpdate {
-				lastUpdate = thisLastUpdate
-			}
-			return true
-		})
-		t := time.Unix(lastUpdate, 0)
-		nodeinfo.LastUpdate = t
-	} else {
+	res, err = l.client.CallNamed("listchannels", "source", pubkey)
+	if err != nil {
 		return nil, err
 	}
+
+	nodeinfo.NumChannels = uint32(res.Get("channels.#").Int())
+
+	var lastUpdate int64
+	res.Get("channels").ForEach(func(_, ch gjson.Result) bool {
+		nodeinfo.TotalCapacity += ch.Get("satoshis").Int()
+
+		thisLastUpdate := ch.Get("last_update").Int()
+		if lastUpdate < thisLastUpdate {
+			lastUpdate = thisLastUpdate
+		}
+		return true
+	})
+	t := time.Unix(lastUpdate, 0)
+	nodeinfo.LastUpdate = t
 
 	return &nodeinfo, nil
 }
