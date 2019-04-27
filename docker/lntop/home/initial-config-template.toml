@@ -5,9 +5,9 @@ dest = "/root/.lntop/lntop.log"
 [network]
 name = "lnd"
 type = "lnd"
-address = "//127.0.0.1:10009"
-cert = "/root/.lnd/tls.cert"
-macaroon = "/root/.lnd/data/chain/bitcoin/mainnet/admin.macaroon"
+address = "${LND_GRPC_HOST}"
+cert = "/root/aux/tls.cert"
+macaroon = "/root/aux/admin.macaroon"
 macaroon_timeout = 60
 max_msg_recv_size = 52428800
 conn_timeout = 1000000

@@ -4,4 +4,8 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 . _settings.sh
 
-exec docker exec -ti lntop fish
+if [[ $# -eq 0 ]]; then
+  exec ./lntop.sh inspect ${PREFERRED_SHELL}
+else
+  exec ./lntop.sh inspect "$@"
+fi

@@ -42,39 +42,7 @@ Change macaroon path according to your network.
 
 ## Docker
 
-If you prefer to run `lntop` from a docker container:
-
-```sh
-cd docker
-
-# now you should review ./lntop/home/initial-config.toml
-# if you have an existing .lntop directory, you can export it
-# export LNTOP_HOME=~/.lntop
-# ! change path to files in .lntop/config with user current directory /root !
-
-# point LND_HOME to your actual lnd directory
-# we recommend using .envrc with direnv
-export LND_HOME=~/.lnd
-
-# build the container
-./build.sh
-
-# run lntop from the container
-./lntop.sh
-
-# lntop data will be mapped to host folder at ./_volumes/lntop-data
-```
-
-To see `lntop` logs, you can tail them in another terminal session via:
-```sh
-./logs.sh -f
-```
-
-To start from scratch:
-```sh
-./clean.sh
-./build.sh --no-cache
-```
+If you prefer to run `lntop` from a docker container, `cd docker` and follow [`README`](docker/README.md) there.
 
 ## Compatibility
 
