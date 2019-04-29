@@ -16,5 +16,14 @@ rsync -a \
   "$LNTOP_SRC_DIR" \
   lntop/_src
 
+cd lntop
+
 echo "Building lntop docker container..."
-exec docker-compose build "$@" lntop
+if [[ -n "$LNTOP_VERBOSE" ]]; then
+  set -x
+fi
+exec docker build \
+  --build-arg LNTOP_SRC_PATH=_src \
+  -t lntop:local \
+  "$@" \
+  .

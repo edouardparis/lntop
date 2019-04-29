@@ -12,3 +12,6 @@ fi
 
 # clean source code stage
 rm -rf lntop/_src
+
+# clean volumes
+rm -rf _volumes

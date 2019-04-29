@@ -26,6 +26,8 @@ RUN apk add --no-cache \
     ca-certificates \
     tini
 
+ENTRYPOINT ["/sbin/tini", "--"]
+
 ENV PATH $PATH:/root
 
 ARG LNTOP_CONF_PATH
