@@ -171,8 +171,8 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 	switch view.Name() {
 	case views.CHANNELS:
 		c.views.SetPrevious(view)
-		_, cy := v.Cursor()
-		err := c.models.SetCurrentChannel(context.Background(), cy)
+		index := c.views.Channels.Index()
+		err := c.models.SetCurrentChannel(context.Background(), index)
 		if err != nil {
 			return err
 		}
