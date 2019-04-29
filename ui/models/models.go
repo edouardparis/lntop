@@ -67,7 +67,7 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 				channels[i].Node, err = m.network.GetNode(ctx,
 					channels[i].RemotePubKey)
 				if err != nil {
-					m.logger.Error("refreshChannels: cannot find Node",
+					m.logger.Debug("refreshChannels: cannot find Node",
 						logging.String("pubkey", channels[i].RemotePubKey))
 				}
 			}
