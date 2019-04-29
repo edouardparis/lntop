@@ -15,7 +15,7 @@ import (
 	"github.com/edouardparis/lntop/ui"
 )
 
-const version = "v0.0.1"
+const version = "v0.0.2"
 
 // New creates a new cli app.
 func New() *cli.App {
