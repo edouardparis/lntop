@@ -16,6 +16,10 @@ func (c *Channels) List() []*models.Channel {
 	return c.list
 }
 
+func (c *Channels) Len() int {
+	return len(c.list)
+}
+
 func (c *Channels) Get(index int) *models.Channel {
 	if index < 0 || index > len(c.list)-1 {
 		return nil

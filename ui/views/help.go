@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	version = "v0.0.1"
+	version = "v0.0.2"
 	HELP    = "help"
 )
 
@@ -54,8 +54,10 @@ func (h Help) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	fmt.Fprintln(h.view, fmt.Sprintf("lntop %s - (C) 2019 Edouard Paris", version))
 	fmt.Fprintln(h.view, "Released under the MIT License")
 	fmt.Fprintln(h.view, "")
-	fmt.Fprintln(h.view, fmt.Sprintf("%5s %s",
-		color.Cyan("F1 h:"), "show this help screen"))
+	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",
+		color.Cyan("F1  h:"), "show/close this help screen"))
+	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",
+		color.Cyan("F10 q:"), "quit"))
 	_, err = g.SetCurrentView(HELP)
 	return err
 }

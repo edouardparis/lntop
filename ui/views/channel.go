@@ -64,7 +64,7 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	header.Clear()
 	fmt.Fprintln(header, "Channel")
 
-	v, err := g.SetView(CHANNEL, x0-1, y0+1, x1+2, y1-2)
+	v, err := g.SetView(CHANNEL, x0-1, y0+1, x1+2, y1-1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err

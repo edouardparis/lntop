@@ -171,8 +171,8 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 	switch view.Name() {
 	case views.CHANNELS:
 		c.views.SetPrevious(view)
-		_, cy := v.Cursor()
-		err := c.models.SetCurrentChannel(context.Background(), cy)
+		index := c.views.Channels.Index()
+		err := c.models.SetCurrentChannel(context.Background(), index)
 		if err != nil {
 			return err
 		}
@@ -214,6 +214,11 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 		return err
 	}
 
+	err = g.SetKeybinding("", 'q', gocui.ModNone, quit)
+	if err != nil {
+		return err
+	}
+
 	err = g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, c.cursorUp)
 	if err != nil {
 		return err
@@ -240,6 +245,11 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 	}
 
 	err = g.SetKeybinding("", gocui.KeyF1, gocui.ModNone, c.Help)
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", 'h', gocui.ModNone, c.Help)
 	if err != nil {
 		return err
 	}

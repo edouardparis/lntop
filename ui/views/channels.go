@@ -20,9 +20,14 @@ const (
 )
 
 type Channels struct {
+	index    int
 	columns  *gocui.View
 	view     *gocui.View
 	channels *models.Channels
+}
+
+func (c Channels) Index() int {
+	return c.index
 }
 
 func (c Channels) Name() string {
@@ -35,10 +40,17 @@ func (c *Channels) Wrap(v *gocui.View) view {
 }
 
 func (c *Channels) CursorDown() error {
+	if c.channels.Len() <= c.index+1 {
+		return nil
+	}
+	c.index++
 	return cursorDown(c.view, 1)
 }
 
 func (c *Channels) CursorUp() error {
+	if c.index > 0 {
+		c.index--
+	}
 	return cursorUp(c.view, 1)
 }
 
@@ -166,7 +178,9 @@ func channelID(c *netmodels.Channel) string {
 
 func alias(c *netmodels.Channel) string {
 	if c.Node == nil || c.Node.Alias == "" {
-		return c.RemotePubKey[:19]
+		return c.RemotePubKey[:24]
+	} else if len(c.Node.Alias) > 25 {
+		return c.Node.Alias[:24]
 	}
 
 	return c.Node.Alias
