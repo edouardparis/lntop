@@ -166,7 +166,9 @@ func channelID(c *netmodels.Channel) string {
 
 func alias(c *netmodels.Channel) string {
 	if c.Node == nil || c.Node.Alias == "" {
-		return c.RemotePubKey[:19]
+		return c.RemotePubKey[:24]
+	} else if len(c.Node.Alias) > 25 {
+		return c.Node.Alias[:24]
 	}
 
 	return c.Node.Alias
