@@ -37,7 +37,6 @@ var DefaultChannelsColumns = []string{
 type Channels struct {
 	cfg *config.View
 
-	index   int
 	columns []channelsColumn
 
 	columnsView *gocui.View
@@ -51,7 +50,9 @@ type channelsColumn struct {
 }
 
 func (c Channels) Index() int {
-	return c.index
+	_, oy := c.view.Origin()
+	_, cy := c.view.Cursor()
+	return cy + oy
 }
 
 func (c Channels) Name() string {
@@ -64,17 +65,10 @@ func (c *Channels) Wrap(v *gocui.View) view {
 }
 
 func (c *Channels) CursorDown() error {
-	if c.channels.Len() <= c.index+1 {
-		return nil
-	}
-	c.index++
 	return cursorDown(c.view, 1)
 }
 
 func (c *Channels) CursorUp() error {
-	if c.index > 0 {
-		c.index--
-	}
 	return cursorUp(c.view, 1)
 }
 
