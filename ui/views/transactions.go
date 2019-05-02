@@ -40,6 +40,12 @@ type transactionsColumn struct {
 	display func(*netmodels.Transaction) string
 }
 
+func (c Transactions) Index() int {
+	_, oy := c.view.Origin()
+	_, cy := c.view.Cursor()
+	return cy + oy
+}
+
 func (c Transactions) Name() string {
 	return TRANSACTIONS
 }

@@ -273,7 +273,46 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 				return err
 			}
 		}
+	case views.TRANSACTIONS:
+		index := c.views.Transactions.Index()
+		err := c.models.SetCurrentTransaction(context.Background(), index)
+		if err != nil {
+			return err
+		}
 
+		c.views.SetPrevious(view)
+		err = c.views.Transaction.Set(g, 0, 6, maxX-1, maxY)
+		if err != nil {
+			return err
+		}
+
+		c.views.Main = c.views.Transaction
+		_, err = g.SetCurrentView(c.views.Transaction.Name())
+		if err != nil {
+			return err
+		}
+
+	case views.TRANSACTION:
+		err := c.views.Transaction.Delete(g)
+		if err != nil {
+			return err
+		}
+
+		if c.views.Previous != nil {
+			c.views.Main = c.views.Previous
+			err := c.views.Previous.Set(g, 0, 6, maxX-1, maxY)
+			if err != nil {
+				return err
+			}
+
+			_, err = g.SetCurrentView(c.views.Previous.Name())
+			return err
+		}
+
+		err = c.views.Transactions.Set(g, 0, 6, maxX-1, maxY)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

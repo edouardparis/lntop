@@ -11,26 +11,28 @@ import (
 )
 
 type Models struct {
-	logger          logging.Logger
-	network         *network.Network
-	Info            *Info
-	Channels        *Channels
-	CurrentChannel  *Channel
-	WalletBalance   *WalletBalance
-	ChannelsBalance *ChannelsBalance
-	Transactions    *Transactions
+	logger             logging.Logger
+	network            *network.Network
+	Info               *Info
+	Channels           *Channels
+	CurrentChannel     *Channel
+	WalletBalance      *WalletBalance
+	ChannelsBalance    *ChannelsBalance
+	Transactions       *Transactions
+	CurrentTransaction *Transaction
 }
 
 func New(app *app.App) *Models {
 	return &Models{
-		logger:          app.Logger.With(logging.String("logger", "models")),
-		network:         app.Network,
-		Info:            &Info{},
-		Channels:        NewChannels(),
-		WalletBalance:   &WalletBalance{},
-		ChannelsBalance: &ChannelsBalance{},
-		CurrentChannel:  &Channel{},
-		Transactions:    &Transactions{},
+		logger:             app.Logger.With(logging.String("logger", "models")),
+		network:            app.Network,
+		Info:               &Info{},
+		Channels:           NewChannels(),
+		WalletBalance:      &WalletBalance{},
+		ChannelsBalance:    &ChannelsBalance{},
+		CurrentChannel:     &Channel{},
+		Transactions:       &Transactions{},
+		CurrentTransaction: &Transaction{},
 	}
 }
 
@@ -86,6 +88,15 @@ func (m *Models) SetCurrentChannel(ctx context.Context, index int) error {
 		return nil
 	}
 	*m.CurrentChannel = Channel{Item: channel}
+	return nil
+}
+
+func (m *Models) SetCurrentTransaction(ctx context.Context, index int) error {
+	transaction := m.Transactions.Get(index)
+	if transaction == nil {
+		return nil
+	}
+	*m.CurrentTransaction = Transaction{Item: transaction}
 	return nil
 }
 

@@ -29,6 +29,7 @@ type Views struct {
 	Channels     *Channels
 	Channel      *Channel
 	Transactions *Transactions
+	Transaction  *Transaction
 }
 
 func (v Views) Get(vi *gocui.View) view {
@@ -108,6 +109,7 @@ func New(cfg config.Views, m *models.Models) *Views {
 		Channels:     main,
 		Channel:      NewChannel(m.CurrentChannel),
 		Transactions: NewTransactions(m.Transactions),
+		Transaction:  NewTransaction(m.CurrentTransaction),
 		Main:         main,
 	}
 }

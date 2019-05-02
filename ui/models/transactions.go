@@ -14,6 +14,18 @@ func (t Transactions) List() []*models.Transaction {
 	return t.list
 }
 
+func (t *Transactions) Len() int {
+	return len(t.list)
+}
+
+func (t *Transactions) Get(index int) *models.Transaction {
+	if index < 0 || index > len(t.list)-1 {
+		return nil
+	}
+
+	return t.list[index]
+}
+
 func (m *Models) RefreshTransactions(ctx context.Context) error {
 	transactions, err := m.network.GetTransactions(ctx)
 	if err != nil {
@@ -21,4 +33,8 @@ func (m *Models) RefreshTransactions(ctx context.Context) error {
 	}
 	*m.Transactions = Transactions{list: transactions}
 	return nil
+}
+
+type Transaction struct {
+	Item *models.Transaction
 }
