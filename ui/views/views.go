@@ -47,6 +47,8 @@ func (v Views) Get(vi *gocui.View) view {
 		return v.Channel.Wrap(vi)
 	case TRANSACTIONS:
 		return v.Transactions.Wrap(vi)
+	case TRANSACTION:
+		return v.Transaction.Wrap(vi)
 	default:
 		return nil
 	}

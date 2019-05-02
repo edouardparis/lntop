@@ -81,7 +81,7 @@ func (h Menu) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	header.Clear()
 	fmt.Fprintln(header, " MENU")
 
-	h.view, err = g.SetView(MENU, x0, y0+1, x1, y1-2)
+	h.view, err = g.SetView(MENU, x0-1, y0+1, x1, y1-2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err

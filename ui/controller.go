@@ -256,13 +256,18 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 
 		switch current {
 		case views.TRANSACTIONS:
+			err := c.views.Main.Delete(g)
+			if err != nil {
+				return err
+			}
+
 			c.views.Main = c.views.Transactions
-			err := c.views.Transactions.Set(g, 11, 6, maxX-1, maxY)
+			err = c.views.Transactions.Set(g, 11, 6, maxX-1, maxY)
 			if err != nil {
 				return err
 			}
 		case views.CHANNELS:
-			err := c.views.Transactions.Delete(g)
+			err := c.views.Main.Delete(g)
 			if err != nil {
 				return err
 			}
