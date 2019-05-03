@@ -57,10 +57,17 @@ func cursorLeft(v *gocui.View, speed int) error {
 	ox, oy := v.Origin()
 	cx, cy := v.Cursor()
 	err := v.SetCursor(cx-speed, cy)
-	if err != nil && ox >= speed {
-		err := v.SetOrigin(ox-speed, oy)
+	if err != nil {
+		err := v.SetCursor(0, cy)
 		if err != nil {
 			return err
+		}
+
+		if ox >= speed-cx {
+			err := v.SetOrigin(ox-speed+cx, oy)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
