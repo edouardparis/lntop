@@ -178,6 +178,13 @@ func (c *controller) Menu(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 
+		if c.views.Previous != nil {
+			err = c.views.Previous.Set(g, 11, 6, maxX-1, maxY)
+			if err != nil {
+				return err
+			}
+		}
+
 		err = c.views.Main.Set(g, 11, 6, maxX-1, maxY)
 		if err != nil {
 			return err
