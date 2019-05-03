@@ -37,6 +37,7 @@ var DefaultChannelsColumns = []string{
 type Channels struct {
 	cfg *config.View
 
+	col     int
 	columns []channelsColumn
 
 	columnsView *gocui.View
@@ -46,6 +47,7 @@ type Channels struct {
 
 type channelsColumn struct {
 	name    string
+	width   int
 	display func(*netmodels.Channel) string
 }
 
@@ -73,21 +75,31 @@ func (c *Channels) CursorUp() error {
 }
 
 func (c *Channels) CursorRight() error {
-	err := cursorRight(c.columnsView, 2)
+	if c.col >= len(c.columns)-1 {
+		return nil
+	}
+	speed := c.columns[c.col].width + 1
+	c.col++
+	err := cursorRight(c.columnsView, speed)
 	if err != nil {
 		return err
 	}
 
-	return cursorRight(c.view, 2)
+	return cursorRight(c.view, speed)
 }
 
 func (c *Channels) CursorLeft() error {
-	err := cursorLeft(c.columnsView, 2)
+	if c.col == 0 {
+		return nil
+	}
+	speed := c.columns[c.col-1].width + 1
+	c.col--
+	err := cursorLeft(c.columnsView, speed)
 	if err != nil {
 		return err
 	}
 
-	return cursorLeft(c.view, 2)
+	return cursorLeft(c.view, speed)
 }
 
 func (c Channels) Delete(g *gocui.Gui) error {
@@ -153,6 +165,11 @@ func (c *Channels) display() {
 	c.columnsView.Clear()
 	var buffer bytes.Buffer
 	for i := range c.columns {
+		if c.col == i {
+			buffer.WriteString(color.Bold(c.columns[i].name))
+			buffer.WriteString(" ")
+			continue
+		}
 		buffer.WriteString(c.columns[i].name)
 		buffer.WriteString(" ")
 	}
@@ -162,6 +179,11 @@ func (c *Channels) display() {
 	for _, item := range c.channels.List() {
 		var buffer bytes.Buffer
 		for i := range c.columns {
+			if c.col == i {
+				buffer.WriteString(color.Bold(c.columns[i].display(item)))
+				buffer.WriteString(" ")
+				continue
+			}
 			buffer.WriteString(c.columns[i].display(item))
 			buffer.WriteString(" ")
 		}
@@ -188,12 +210,14 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 		switch columns[i] {
 		case "STATUS":
 			channels.columns[i] = channelsColumn{
+				width:   13,
 				name:    fmt.Sprintf("%-13s", columns[i]),
 				display: status,
 			}
 		case "ALIAS":
 			channels.columns[i] = channelsColumn{
-				name: fmt.Sprintf("%-25s", columns[i]),
+				width: 25,
+				name:  fmt.Sprintf("%-25s", columns[i]),
 				display: func(c *netmodels.Channel) string {
 					var alias string
 					if c.Node == nil || c.Node.Alias == "" {
@@ -208,7 +232,8 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			}
 		case "GAUGE":
 			channels.columns[i] = channelsColumn{
-				name: fmt.Sprintf("%-21s", columns[i]),
+				width: 21,
+				name:  fmt.Sprintf("%-21s", columns[i]),
 				display: func(c *netmodels.Channel) string {
 					index := int(c.LocalBalance * int64(15) / c.Capacity)
 					var buffer bytes.Buffer
@@ -224,42 +249,48 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			}
 		case "LOCAL":
 			channels.columns[i] = channelsColumn{
-				name: fmt.Sprintf("%12s", columns[i]),
+				width: 12,
+				name:  fmt.Sprintf("%12s", columns[i]),
 				display: func(c *netmodels.Channel) string {
 					return color.Cyan(printer.Sprintf("%12d", c.LocalBalance))
 				},
 			}
 		case "CAP":
 			channels.columns[i] = channelsColumn{
-				name: fmt.Sprintf("%12s", columns[i]),
+				width: 12,
+				name:  fmt.Sprintf("%12s", columns[i]),
 				display: func(c *netmodels.Channel) string {
 					return printer.Sprintf("%12d", c.Capacity)
 				},
 			}
 		case "HTLC":
 			channels.columns[i] = channelsColumn{
-				name: fmt.Sprintf("%5s", columns[i]),
+				width: 5,
+				name:  fmt.Sprintf("%5s", columns[i]),
 				display: func(c *netmodels.Channel) string {
 					return color.Yellow(fmt.Sprintf("%5d", len(c.PendingHTLC)))
 				},
 			}
 		case "UNSETTLED":
 			channels.columns[i] = channelsColumn{
-				name: fmt.Sprintf("%-10s", columns[i]),
+				width: 10,
+				name:  fmt.Sprintf("%-10s", columns[i]),
 				display: func(c *netmodels.Channel) string {
 					return color.Yellow(printer.Sprintf("%10d", c.UnsettledBalance))
 				},
 			}
 		case "CFEE":
 			channels.columns[i] = channelsColumn{
-				name: fmt.Sprintf("%-6s", columns[i]),
+				width: 6,
+				name:  fmt.Sprintf("%-6s", columns[i]),
 				display: func(c *netmodels.Channel) string {
 					return printer.Sprintf("%6d", c.CommitFee)
 				},
 			}
 		case "LAST UPDATE":
 			channels.columns[i] = channelsColumn{
-				name: fmt.Sprintf("%-15s", columns[i]),
+				width: 15,
+				name:  fmt.Sprintf("%-15s", columns[i]),
 				display: func(c *netmodels.Channel) string {
 					if c.LastUpdate != nil {
 						return color.Cyan(
@@ -271,7 +302,8 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			}
 		case "PRIVATE":
 			channels.columns[i] = channelsColumn{
-				name: fmt.Sprintf("%-7s", columns[i]),
+				width: 7,
+				name:  fmt.Sprintf("%-7s", columns[i]),
 				display: func(c *netmodels.Channel) string {
 					if c.Private {
 						return color.Red("private")
@@ -281,7 +313,8 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			}
 		case "ID":
 			channels.columns[i] = channelsColumn{
-				name: fmt.Sprintf("%-19s", columns[i]),
+				width: 19,
+				name:  fmt.Sprintf("%-19s", columns[i]),
 				display: func(c *netmodels.Channel) string {
 					if c.ID == 0 {
 						return fmt.Sprintf("%-19s", "")
@@ -291,7 +324,8 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			}
 		default:
 			channels.columns[i] = channelsColumn{
-				name: fmt.Sprintf("%-21s", columns[i]),
+				width: 21,
+				name:  fmt.Sprintf("%-21s", columns[i]),
 				display: func(c *netmodels.Channel) string {
 					return "column does not exist"
 				},
