@@ -78,18 +78,6 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 	return nil
 }
 
-func (m *Models) SetCurrentChannel(index int) {
-	if index < m.Channels.Len()-1 {
-		m.Channels.current = index
-	}
-}
-
-func (m *Models) SetCurrentTransaction(index int) {
-	if index < m.Transactions.Len()-1 {
-		m.Transactions.current = index
-	}
-}
-
 type WalletBalance struct {
 	*models.WalletBalance
 }

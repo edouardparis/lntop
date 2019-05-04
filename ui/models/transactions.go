@@ -6,13 +6,20 @@ import (
 	"github.com/edouardparis/lntop/network/models"
 )
 
+type TransactionsSort func(*models.Transaction, *models.Transaction) bool
+
 type Transactions struct {
-	current int
+	current *models.Transaction
 	list    []*models.Transaction
+	sort    TransactionsSort
 }
 
 func (t Transactions) Current() *models.Transaction {
-	return t.Get(t.current)
+	return t.current
+}
+
+func (t *Transactions) SetCurrent(index int) {
+	t.current = t.Get(index)
 }
 
 func (t Transactions) List() []*models.Transaction {
@@ -21,6 +28,18 @@ func (t Transactions) List() []*models.Transaction {
 
 func (t *Transactions) Len() int {
 	return len(t.list)
+}
+
+func (t *Transactions) Swap(i, j int) {
+	t.list[i], t.list[j] = t.list[j], t.list[i]
+}
+
+func (t *Transactions) Less(i, j int) bool {
+	return t.sort(t.list[i], t.list[j])
+}
+
+func (t *Transactions) WithSort(s TransactionsSort) {
+	t.sort = s
 }
 
 func (t *Transactions) Get(index int) *models.Transaction {

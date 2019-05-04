@@ -1,15 +1,19 @@
 package models
 
 import (
+	"sort"
 	"sync"
 
 	"github.com/edouardparis/lntop/network/models"
 )
 
+type ChannelsSort func(*models.Channel, *models.Channel) bool
+
 type Channels struct {
-	current int
+	current *models.Channel
 	index   map[string]*models.Channel
 	list    []*models.Channel
+	sort    ChannelsSort
 	mu      sync.RWMutex
 }
 
@@ -21,8 +25,24 @@ func (c *Channels) Len() int {
 	return len(c.list)
 }
 
+func (c *Channels) Swap(i, j int) {
+	c.list[i], c.list[j] = c.list[j], c.list[i]
+}
+
+func (c *Channels) Less(i, j int) bool {
+	return c.sort(c.list[i], c.list[j])
+}
+
+func (c *Channels) WithSort(s ChannelsSort) {
+	c.sort = s
+}
+
 func (c *Channels) Current() *models.Channel {
-	return c.Get(c.current)
+	return c.current
+}
+
+func (c *Channels) SetCurrent(index int) {
+	c.current = c.Get(index)
 }
 
 func (c *Channels) Get(index int) *models.Channel {
@@ -59,6 +79,9 @@ func (c *Channels) Update(newChannel *models.Channel) {
 	oldChannel, ok := c.index[newChannel.ChannelPoint]
 	if !ok {
 		c.Add(newChannel)
+		if c.sort != nil {
+			sort.Sort(c)
+		}
 		return
 	}
 
