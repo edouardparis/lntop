@@ -385,6 +385,11 @@ func (c *controller) setKeyBinding(g *gocui.Gui) error {
 		return err
 	}
 
+	err = g.SetKeybinding("", 'm', gocui.ModNone, c.Menu)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
