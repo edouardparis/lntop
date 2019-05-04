@@ -187,7 +187,7 @@ func (c *Channels) display() {
 	var buffer bytes.Buffer
 	for i := range c.columns {
 		if c.col == i {
-			buffer.WriteString(color.White(color.Bold)(c.columns[i].name))
+			buffer.WriteString(color.Cyan(color.Background)(c.columns[i].name))
 			buffer.WriteString(" ")
 			continue
 		}

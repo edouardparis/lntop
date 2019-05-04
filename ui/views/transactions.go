@@ -175,6 +175,11 @@ func (c *Transactions) display() {
 	c.columnsView.Clear()
 	var buffer bytes.Buffer
 	for i := range c.columns {
+		if c.col == i {
+			buffer.WriteString(color.Cyan(color.Background)(c.columns[i].name))
+			buffer.WriteString(" ")
+			continue
+		}
 		buffer.WriteString(c.columns[i].name)
 		buffer.WriteString(" ")
 	}
