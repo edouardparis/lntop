@@ -29,6 +29,7 @@ var DefaultTransactionsColumns = []string{
 }
 
 type Transactions struct {
+	col          int
 	columns      []transactionsColumn
 	columnsView  *gocui.View
 	view         *gocui.View
@@ -37,6 +38,7 @@ type Transactions struct {
 
 type transactionsColumn struct {
 	name    string
+	width   int
 	display func(*netmodels.Transaction, ...color.Option) string
 }
 
@@ -64,21 +66,31 @@ func (c *Transactions) CursorUp() error {
 }
 
 func (c *Transactions) CursorRight() error {
-	err := cursorRight(c.columnsView, 2)
+	if c.col >= len(c.columns)-1 {
+		return nil
+	}
+	speed := c.columns[c.col].width + 1
+	c.col++
+	err := cursorRight(c.columnsView, speed)
 	if err != nil {
 		return err
 	}
 
-	return cursorRight(c.view, 2)
+	return cursorRight(c.view, speed)
 }
 
 func (c *Transactions) CursorLeft() error {
-	err := cursorLeft(c.columnsView, 2)
+	if c.col == 0 {
+		return nil
+	}
+	speed := c.columns[c.col-1].width + 1
+	c.col--
+	err := cursorLeft(c.columnsView, speed)
 	if err != nil {
 		return err
 	}
 
-	return cursorLeft(c.view, 2)
+	return cursorLeft(c.view, speed)
 }
 
 func (c Transactions) Delete(g *gocui.Gui) error {
@@ -154,7 +166,11 @@ func (c *Transactions) display() {
 	for _, item := range c.transactions.List() {
 		var buffer bytes.Buffer
 		for i := range c.columns {
-			buffer.WriteString(c.columns[i].display(item))
+			var opt color.Option
+			if c.col == i {
+				opt = color.Bold
+			}
+			buffer.WriteString(c.columns[i].display(item, opt))
 			buffer.WriteString(" ")
 		}
 		fmt.Fprintln(c.view, buffer.String())
@@ -175,7 +191,8 @@ func NewTransactions(txs *models.Transactions) *Transactions {
 		switch columns[i] {
 		case "TIME":
 			transactions.columns[i] = transactionsColumn{
-				name: fmt.Sprintf("%-15s", columns[i]),
+				name:  fmt.Sprintf("%-15s", columns[i]),
+				width: 15,
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return color.Cyan(opts...)(
 						fmt.Sprintf("%15s", tx.Date.Format("15:04:05 Jan _2")),
@@ -184,28 +201,32 @@ func NewTransactions(txs *models.Transactions) *Transactions {
 			}
 		case "HEIGHT":
 			transactions.columns[i] = transactionsColumn{
-				name: fmt.Sprintf("%8s", columns[i]),
+				name:  fmt.Sprintf("%8s", columns[i]),
+				width: 8,
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return color.White(opts...)(fmt.Sprintf("%8d", tx.BlockHeight))
 				},
 			}
 		case "ADDRESSES":
 			transactions.columns[i] = transactionsColumn{
-				name: fmt.Sprintf("%10s", columns[i]),
+				name:  fmt.Sprintf("%10s", columns[i]),
+				width: 10,
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return color.White(opts...)(fmt.Sprintf("%10d", len(tx.DestAddresses)))
 				},
 			}
 		case "FEE":
 			transactions.columns[i] = transactionsColumn{
-				name: fmt.Sprintf("%8s", columns[i]),
+				name:  fmt.Sprintf("%8s", columns[i]),
+				width: 8,
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return color.White(opts...)(fmt.Sprintf("%8d", tx.TotalFees))
 				},
 			}
 		case "CONFIR":
 			transactions.columns[i] = transactionsColumn{
-				name: fmt.Sprintf("%8s", columns[i]),
+				name:  fmt.Sprintf("%8s", columns[i]),
+				width: 8,
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					n := fmt.Sprintf("%8d", tx.NumConfirmations)
 					if tx.NumConfirmations < 6 {
@@ -216,7 +237,8 @@ func NewTransactions(txs *models.Transactions) *Transactions {
 			}
 		case "TXHASH":
 			transactions.columns[i] = transactionsColumn{
-				name: fmt.Sprintf("%-64s", columns[i]),
+				name:  fmt.Sprintf("%-64s", columns[i]),
+				width: 64,
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return color.White(opts...)(fmt.Sprintf("%13s", tx.TxHash))
 				},
@@ -230,14 +252,16 @@ func NewTransactions(txs *models.Transactions) *Transactions {
 			}
 		case "AMOUNT":
 			transactions.columns[i] = transactionsColumn{
-				name: fmt.Sprintf("%13s", columns[i]),
+				name:  fmt.Sprintf("%13s", columns[i]),
+				width: 13,
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return color.White(opts...)(printer.Sprintf("%13d", tx.Amount))
 				},
 			}
 		default:
 			transactions.columns[i] = transactionsColumn{
-				name: fmt.Sprintf("%-21s", columns[i]),
+				name:  fmt.Sprintf("%-21s", columns[i]),
+				width: 21,
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return "column does not exist"
 				},
