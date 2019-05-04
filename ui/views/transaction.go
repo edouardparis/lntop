@@ -84,11 +84,12 @@ func (c *Transaction) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.BgColor = gocui.ColorCyan
 	footer.FgColor = gocui.ColorBlack
 	footer.Clear()
+	blackBg := color.Black(color.Background)
 	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s %s%s",
-		color.BlackBg("F1"), "Help",
-		color.BlackBg("F2"), "Menu",
-		color.BlackBg("Enter"), "Transactions",
-		color.BlackBg("F10"), "Quit",
+		blackBg("F1"), "Help",
+		blackBg("F2"), "Menu",
+		blackBg("Enter"), "Transactions",
+		blackBg("F10"), "Quit",
 	))
 	return nil
 }
@@ -112,22 +113,24 @@ func (c *Transaction) display() {
 	v := c.view
 	v.Clear()
 	transaction := c.transaction.Item
-	fmt.Fprintln(v, color.Green(" [ Transaction ]"))
+	green := color.Green()
+	cyan := color.Cyan()
+	fmt.Fprintln(v, green(" [ Transaction ]"))
 	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		color.Cyan("           Date:"), transaction.Date.Format("15:04:05 Jan _2")))
+		cyan("           Date:"), transaction.Date.Format("15:04:05 Jan _2")))
 	fmt.Fprintln(v, p.Sprintf("%s %d",
-		color.Cyan("         Amount:"), transaction.Amount))
+		cyan("         Amount:"), transaction.Amount))
 	fmt.Fprintln(v, p.Sprintf("%s %d",
-		color.Cyan("            Fee:"), transaction.TotalFees))
+		cyan("            Fee:"), transaction.TotalFees))
 	fmt.Fprintln(v, p.Sprintf("%s %d",
-		color.Cyan("    BlockHeight:"), transaction.BlockHeight))
+		cyan("    BlockHeight:"), transaction.BlockHeight))
 	fmt.Fprintln(v, p.Sprintf("%s %d",
-		color.Cyan("NumConfirmations:"), transaction.NumConfirmations))
+		cyan("NumConfirmations:"), transaction.NumConfirmations))
 	fmt.Fprintln(v, p.Sprintf("%s %s",
-		color.Cyan("       BlockHash:"), transaction.BlockHash))
+		cyan("       BlockHash:"), transaction.BlockHash))
 	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		color.Cyan("         TxHash:"), transaction.TxHash))
-	fmt.Fprintln(v, "[addresses]")
+		cyan("         TxHash:"), transaction.TxHash))
+	fmt.Fprintln(v, green("[ addresses ]"))
 }
 
 func NewTransaction(transaction *models.Transaction) *Transaction {

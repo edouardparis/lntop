@@ -48,7 +48,7 @@ type Channels struct {
 type channelsColumn struct {
 	name    string
 	width   int
-	display func(*netmodels.Channel) string
+	display func(*netmodels.Channel, ...color.Option) string
 }
 
 func (c Channels) Index() int {
@@ -152,11 +152,12 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.BgColor = gocui.ColorCyan
 	footer.FgColor = gocui.ColorBlack
 	footer.Clear()
+	blackBg := color.Black(color.Background)
 	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s %s%s",
-		color.BlackBg("F1"), "Help",
-		color.BlackBg("F2"), "Menu",
-		color.BlackBg("Enter"), "Channel",
-		color.BlackBg("F10"), "Quit",
+		blackBg("F1"), "Help",
+		blackBg("F2"), "Menu",
+		blackBg("Enter"), "Channel",
+		blackBg("F10"), "Quit",
 	))
 	return nil
 }
@@ -166,7 +167,7 @@ func (c *Channels) display() {
 	var buffer bytes.Buffer
 	for i := range c.columns {
 		if c.col == i {
-			buffer.WriteString(color.Bold(c.columns[i].name))
+			buffer.WriteString(color.White(color.Bold)(c.columns[i].name))
 			buffer.WriteString(" ")
 			continue
 		}
@@ -179,12 +180,11 @@ func (c *Channels) display() {
 	for _, item := range c.channels.List() {
 		var buffer bytes.Buffer
 		for i := range c.columns {
+			var opt color.Option
 			if c.col == i {
-				buffer.WriteString(color.Bold(c.columns[i].display(item)))
-				buffer.WriteString(" ")
-				continue
+				opt = color.Bold
 			}
-			buffer.WriteString(c.columns[i].display(item))
+			buffer.WriteString(c.columns[i].display(item, opt))
 			buffer.WriteString(" ")
 		}
 		fmt.Fprintln(c.view, buffer.String())
@@ -218,7 +218,7 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 25,
 				name:  fmt.Sprintf("%-25s", columns[i]),
-				display: func(c *netmodels.Channel) string {
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					var alias string
 					if c.Node == nil || c.Node.Alias == "" {
 						alias = c.RemotePubKey[:24]
@@ -227,73 +227,78 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 					} else {
 						alias = c.Node.Alias
 					}
-					return fmt.Sprintf("%-25s", alias)
+					return color.White(opts...)(fmt.Sprintf("%-25s", alias))
 				},
 			}
 		case "GAUGE":
 			channels.columns[i] = channelsColumn{
 				width: 21,
 				name:  fmt.Sprintf("%-21s", columns[i]),
-				display: func(c *netmodels.Channel) string {
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					index := int(c.LocalBalance * int64(15) / c.Capacity)
 					var buffer bytes.Buffer
+					cyan := color.Cyan(opts...)
+					white := color.White(opts...)
 					for i := 0; i < 15; i++ {
 						if i < index {
-							buffer.WriteString(color.Cyan("|"))
+							buffer.WriteString(cyan("|"))
 							continue
 						}
 						buffer.WriteString(" ")
 					}
-					return fmt.Sprintf("[%s] %2d%%", buffer.String(), c.LocalBalance*100/c.Capacity)
+					return fmt.Sprintf("%s%s%s",
+						white("["),
+						buffer.String(),
+						white(fmt.Sprintf("] %2d%%", c.LocalBalance*100/c.Capacity)))
 				},
 			}
 		case "LOCAL":
 			channels.columns[i] = channelsColumn{
 				width: 12,
 				name:  fmt.Sprintf("%12s", columns[i]),
-				display: func(c *netmodels.Channel) string {
-					return color.Cyan(printer.Sprintf("%12d", c.LocalBalance))
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.Cyan(opts...)(printer.Sprintf("%12d", c.LocalBalance))
 				},
 			}
 		case "CAP":
 			channels.columns[i] = channelsColumn{
 				width: 12,
 				name:  fmt.Sprintf("%12s", columns[i]),
-				display: func(c *netmodels.Channel) string {
-					return printer.Sprintf("%12d", c.Capacity)
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.White(opts...)(printer.Sprintf("%12d", c.Capacity))
 				},
 			}
 		case "HTLC":
 			channels.columns[i] = channelsColumn{
 				width: 5,
 				name:  fmt.Sprintf("%5s", columns[i]),
-				display: func(c *netmodels.Channel) string {
-					return color.Yellow(fmt.Sprintf("%5d", len(c.PendingHTLC)))
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.Yellow(opts...)(fmt.Sprintf("%5d", len(c.PendingHTLC)))
 				},
 			}
 		case "UNSETTLED":
 			channels.columns[i] = channelsColumn{
 				width: 10,
 				name:  fmt.Sprintf("%-10s", columns[i]),
-				display: func(c *netmodels.Channel) string {
-					return color.Yellow(printer.Sprintf("%10d", c.UnsettledBalance))
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.Yellow(opts...)(printer.Sprintf("%10d", c.UnsettledBalance))
 				},
 			}
 		case "CFEE":
 			channels.columns[i] = channelsColumn{
 				width: 6,
 				name:  fmt.Sprintf("%-6s", columns[i]),
-				display: func(c *netmodels.Channel) string {
-					return printer.Sprintf("%6d", c.CommitFee)
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.White(opts...)(printer.Sprintf("%6d", c.CommitFee))
 				},
 			}
 		case "LAST UPDATE":
 			channels.columns[i] = channelsColumn{
 				width: 15,
 				name:  fmt.Sprintf("%-15s", columns[i]),
-				display: func(c *netmodels.Channel) string {
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					if c.LastUpdate != nil {
-						return color.Cyan(
+						return color.Cyan(opts...)(
 							fmt.Sprintf("%15s", c.LastUpdate.Format("15:04:05 Jan _2")),
 						)
 					}
@@ -304,29 +309,29 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 7,
 				name:  fmt.Sprintf("%-7s", columns[i]),
-				display: func(c *netmodels.Channel) string {
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					if c.Private {
-						return color.Red("private")
+						return color.Red(opts...)("private")
 					}
-					return color.Green("public ")
+					return color.Green(opts...)("public ")
 				},
 			}
 		case "ID":
 			channels.columns[i] = channelsColumn{
 				width: 19,
 				name:  fmt.Sprintf("%-19s", columns[i]),
-				display: func(c *netmodels.Channel) string {
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					if c.ID == 0 {
 						return fmt.Sprintf("%-19s", "")
 					}
-					return fmt.Sprintf("%d", c.ID)
+					return color.White(opts...)(fmt.Sprintf("%d", c.ID))
 				},
 			}
 		default:
 			channels.columns[i] = channelsColumn{
 				width: 21,
 				name:  fmt.Sprintf("%-21s", columns[i]),
-				display: func(c *netmodels.Channel) string {
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					return "column does not exist"
 				},
 			}
@@ -336,20 +341,20 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 	return channels
 }
 
-func status(c *netmodels.Channel) string {
+func status(c *netmodels.Channel, opts ...color.Option) string {
 	switch c.Status {
 	case netmodels.ChannelActive:
-		return color.Green(fmt.Sprintf("%-13s", "active"))
+		return color.Green(opts...)(fmt.Sprintf("%-13s", "active"))
 	case netmodels.ChannelInactive:
-		return color.Red(fmt.Sprintf("%-13s", "inactive"))
+		return color.Red(opts...)(fmt.Sprintf("%-13s", "inactive"))
 	case netmodels.ChannelOpening:
-		return color.Yellow(fmt.Sprintf("%-13s", "opening"))
+		return color.Yellow(opts...)(fmt.Sprintf("%-13s", "opening"))
 	case netmodels.ChannelClosing:
-		return color.Yellow(fmt.Sprintf("%-13s", "closing"))
+		return color.Yellow(opts...)(fmt.Sprintf("%-13s", "closing"))
 	case netmodels.ChannelForceClosing:
-		return color.Yellow(fmt.Sprintf("%-13s", "force closing"))
+		return color.Yellow(opts...)(fmt.Sprintf("%-13s", "force closing"))
 	case netmodels.ChannelWaitingClose:
-		return color.Yellow(fmt.Sprintf("%-13s", "waiting close"))
+		return color.Yellow(opts...)(fmt.Sprintf("%-13s", "waiting close"))
 	}
 	return ""
 }

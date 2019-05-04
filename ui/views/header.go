@@ -44,19 +44,20 @@ func (h *Header) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		network = "mainnet"
 	}
 
-	sync := color.Yellow("[syncing]")
+	sync := color.Yellow()("[syncing]")
 	if h.Info.Synced {
-		sync = color.Green("[synced]")
+		sync = color.Green()("[synced]")
 	}
 
 	v.Clear()
+	cyan := color.Cyan()
 	fmt.Fprintln(v, fmt.Sprintf("%s %s %s %s %s %s",
-		color.CyanBg(h.Info.Alias),
-		color.Cyan(fmt.Sprintf("%s-v%s", "lnd", version)),
+		color.Cyan(color.Background)(h.Info.Alias),
+		cyan(fmt.Sprintf("%s-v%s", "lnd", version)),
 		fmt.Sprintf("%s %s", chain, network),
 		sync,
-		fmt.Sprintf("%s %d", color.Cyan("height:"), h.Info.BlockHeight),
-		fmt.Sprintf("%s %d", color.Cyan("peers:"), h.Info.NumPeers),
+		fmt.Sprintf("%s %d", cyan("height:"), h.Info.BlockHeight),
+		fmt.Sprintf("%s %d", cyan("peers:"), h.Info.NumPeers),
 	))
 	return nil
 }

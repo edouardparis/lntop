@@ -37,7 +37,7 @@ type Transactions struct {
 
 type transactionsColumn struct {
 	name    string
-	display func(*netmodels.Transaction) string
+	display func(*netmodels.Transaction, ...color.Option) string
 }
 
 func (c Transactions) Index() int {
@@ -131,11 +131,12 @@ func (c *Transactions) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.BgColor = gocui.ColorCyan
 	footer.FgColor = gocui.ColorBlack
 	footer.Clear()
+	blackBg := color.Black(color.Background)
 	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s %s%s",
-		color.BlackBg("F1"), "Help",
-		color.BlackBg("F2"), "Menu",
-		color.BlackBg("Enter"), "Transaction",
-		color.BlackBg("F10"), "Quit",
+		blackBg("F1"), "Help",
+		blackBg("F2"), "Menu",
+		blackBg("Enter"), "Transaction",
+		blackBg("F10"), "Quit",
 	))
 	return nil
 }
@@ -175,8 +176,8 @@ func NewTransactions(txs *models.Transactions) *Transactions {
 		case "TIME":
 			transactions.columns[i] = transactionsColumn{
 				name: fmt.Sprintf("%-15s", columns[i]),
-				display: func(tx *netmodels.Transaction) string {
-					return color.Cyan(
+				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
+					return color.Cyan(opts...)(
 						fmt.Sprintf("%15s", tx.Date.Format("15:04:05 Jan _2")),
 					)
 				},
@@ -184,60 +185,60 @@ func NewTransactions(txs *models.Transactions) *Transactions {
 		case "HEIGHT":
 			transactions.columns[i] = transactionsColumn{
 				name: fmt.Sprintf("%8s", columns[i]),
-				display: func(tx *netmodels.Transaction) string {
-					return fmt.Sprintf("%8d", tx.BlockHeight)
+				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
+					return color.White(opts...)(fmt.Sprintf("%8d", tx.BlockHeight))
 				},
 			}
 		case "ADDRESSES":
 			transactions.columns[i] = transactionsColumn{
 				name: fmt.Sprintf("%10s", columns[i]),
-				display: func(tx *netmodels.Transaction) string {
-					return fmt.Sprintf("%10d", len(tx.DestAddresses))
+				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
+					return color.White(opts...)(fmt.Sprintf("%10d", len(tx.DestAddresses)))
 				},
 			}
 		case "FEE":
 			transactions.columns[i] = transactionsColumn{
 				name: fmt.Sprintf("%8s", columns[i]),
-				display: func(tx *netmodels.Transaction) string {
-					return fmt.Sprintf("%8d", tx.TotalFees)
+				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
+					return color.White(opts...)(fmt.Sprintf("%8d", tx.TotalFees))
 				},
 			}
 		case "CONFIR":
 			transactions.columns[i] = transactionsColumn{
 				name: fmt.Sprintf("%8s", columns[i]),
-				display: func(tx *netmodels.Transaction) string {
+				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					n := fmt.Sprintf("%8d", tx.NumConfirmations)
 					if tx.NumConfirmations < 6 {
-						return color.Yellow(n)
+						return color.Yellow(opts...)(n)
 					}
-					return color.Green(n)
+					return color.Green(opts...)(n)
 				},
 			}
 		case "TXHASH":
 			transactions.columns[i] = transactionsColumn{
 				name: fmt.Sprintf("%-64s", columns[i]),
-				display: func(tx *netmodels.Transaction) string {
-					return fmt.Sprintf("%13s", tx.TxHash)
+				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
+					return color.White(opts...)(fmt.Sprintf("%13s", tx.TxHash))
 				},
 			}
 		case "BLOCKHASH":
 			transactions.columns[i] = transactionsColumn{
 				name: fmt.Sprintf("%-64s", columns[i]),
-				display: func(tx *netmodels.Transaction) string {
-					return fmt.Sprintf("%13s", tx.TxHash)
+				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
+					return color.White(opts...)(fmt.Sprintf("%13s", tx.TxHash))
 				},
 			}
 		case "AMOUNT":
 			transactions.columns[i] = transactionsColumn{
 				name: fmt.Sprintf("%13s", columns[i]),
-				display: func(tx *netmodels.Transaction) string {
-					return printer.Sprintf("%13d", tx.Amount)
+				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
+					return color.White(opts...)(printer.Sprintf("%13d", tx.Amount))
 				},
 			}
 		default:
 			transactions.columns[i] = transactionsColumn{
 				name: fmt.Sprintf("%-21s", columns[i]),
-				display: func(tx *netmodels.Transaction) string {
+				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return "column does not exist"
 				},
 			}
