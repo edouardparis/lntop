@@ -62,6 +62,8 @@ func (h Help) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",
 		cyan("F1  h:"), "show/close this help screen"))
 	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",
+		cyan("F2  m:"), "show/close the menu sidebar"))
+	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",
 		cyan("F10 q:"), "quit"))
 	_, err = g.SetCurrentView(HELP)
 	return err
