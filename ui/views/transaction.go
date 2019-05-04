@@ -18,8 +18,8 @@ const (
 )
 
 type Transaction struct {
-	view        *gocui.View
-	transaction *models.Transaction
+	view         *gocui.View
+	transactions *models.Transactions
 }
 
 func (c Transaction) Name() string {
@@ -27,7 +27,7 @@ func (c Transaction) Name() string {
 }
 
 func (c Transaction) Empty() bool {
-	return c.transaction == nil
+	return c.transactions == nil
 }
 
 func (c *Transaction) Wrap(v *gocui.View) view {
@@ -112,7 +112,7 @@ func (c *Transaction) display() {
 	p := message.NewPrinter(language.English)
 	v := c.view
 	v.Clear()
-	transaction := c.transaction.Item
+	transaction := c.transactions.Current()
 	green := color.Green()
 	cyan := color.Cyan()
 	fmt.Fprintln(v, green(" [ Transaction ]"))
@@ -133,6 +133,6 @@ func (c *Transaction) display() {
 	fmt.Fprintln(v, green("[ addresses ]"))
 }
 
-func NewTransaction(transaction *models.Transaction) *Transaction {
-	return &Transaction{transaction: transaction}
+func NewTransaction(transactions *models.Transactions) *Transaction {
+	return &Transaction{transactions: transactions}
 }

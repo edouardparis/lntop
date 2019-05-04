@@ -109,9 +109,9 @@ func New(cfg config.Views, m *models.Models) *Views {
 		Menu:         NewMenu(),
 		Summary:      NewSummary(m.Info, m.ChannelsBalance, m.WalletBalance, m.Channels),
 		Channels:     main,
-		Channel:      NewChannel(m.CurrentChannel),
+		Channel:      NewChannel(m.Channels),
 		Transactions: NewTransactions(m.Transactions),
-		Transaction:  NewTransaction(m.CurrentTransaction),
+		Transaction:  NewTransaction(m.Transactions),
 		Main:         main,
 	}
 }

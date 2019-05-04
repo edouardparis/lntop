@@ -7,9 +7,10 @@ import (
 )
 
 type Channels struct {
-	index map[string]*models.Channel
-	list  []*models.Channel
-	mu    sync.RWMutex
+	current int
+	index   map[string]*models.Channel
+	list    []*models.Channel
+	mu      sync.RWMutex
 }
 
 func (c *Channels) List() []*models.Channel {
@@ -18,6 +19,10 @@ func (c *Channels) List() []*models.Channel {
 
 func (c *Channels) Len() int {
 	return len(c.list)
+}
+
+func (c *Channels) Current() *models.Channel {
+	return c.Get(c.current)
 }
 
 func (c *Channels) Get(index int) *models.Channel {
@@ -90,8 +95,4 @@ func NewChannels() *Channels {
 		list:  []*models.Channel{},
 		index: make(map[string]*models.Channel),
 	}
-}
-
-type Channel struct {
-	Item *models.Channel
 }

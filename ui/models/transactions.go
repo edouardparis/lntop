@@ -7,7 +7,12 @@ import (
 )
 
 type Transactions struct {
-	list []*models.Transaction
+	current int
+	list    []*models.Transaction
+}
+
+func (t Transactions) Current() *models.Transaction {
+	return t.Get(t.current)
 }
 
 func (t Transactions) List() []*models.Transaction {
@@ -33,8 +38,4 @@ func (m *Models) RefreshTransactions(ctx context.Context) error {
 	}
 	*m.Transactions = Transactions{list: transactions}
 	return nil
-}
-
-type Transaction struct {
-	Item *models.Transaction
 }

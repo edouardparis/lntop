@@ -217,13 +217,9 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 	switch view.Name() {
 	case views.CHANNELS:
 		index := c.views.Channels.Index()
-		err := c.models.SetCurrentChannel(context.Background(), index)
-		if err != nil {
-			return err
-		}
-
+		c.models.SetCurrentChannel(index)
 		c.views.SetPrevious(view)
-		err = c.views.Channel.Set(g, 0, 6, maxX-1, maxY)
+		err := c.views.Channel.Set(g, 0, 6, maxX-1, maxY)
 		if err != nil {
 			return err
 		}
@@ -287,13 +283,9 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 		}
 	case views.TRANSACTIONS:
 		index := c.views.Transactions.Index()
-		err := c.models.SetCurrentTransaction(context.Background(), index)
-		if err != nil {
-			return err
-		}
-
+		c.models.SetCurrentTransaction(index)
 		c.views.SetPrevious(view)
-		err = c.views.Transaction.Set(g, 0, 6, maxX-1, maxY)
+		err := c.views.Transaction.Set(g, 0, 6, maxX-1, maxY)
 		if err != nil {
 			return err
 		}

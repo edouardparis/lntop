@@ -11,28 +11,24 @@ import (
 )
 
 type Models struct {
-	logger             logging.Logger
-	network            *network.Network
-	Info               *Info
-	Channels           *Channels
-	CurrentChannel     *Channel
-	WalletBalance      *WalletBalance
-	ChannelsBalance    *ChannelsBalance
-	Transactions       *Transactions
-	CurrentTransaction *Transaction
+	logger          logging.Logger
+	network         *network.Network
+	Info            *Info
+	Channels        *Channels
+	WalletBalance   *WalletBalance
+	ChannelsBalance *ChannelsBalance
+	Transactions    *Transactions
 }
 
 func New(app *app.App) *Models {
 	return &Models{
-		logger:             app.Logger.With(logging.String("logger", "models")),
-		network:            app.Network,
-		Info:               &Info{},
-		Channels:           NewChannels(),
-		WalletBalance:      &WalletBalance{},
-		ChannelsBalance:    &ChannelsBalance{},
-		CurrentChannel:     &Channel{},
-		Transactions:       &Transactions{},
-		CurrentTransaction: &Transaction{},
+		logger:          app.Logger.With(logging.String("logger", "models")),
+		network:         app.Network,
+		Info:            &Info{},
+		Channels:        NewChannels(),
+		WalletBalance:   &WalletBalance{},
+		ChannelsBalance: &ChannelsBalance{},
+		Transactions:    &Transactions{},
 	}
 }
 
@@ -82,22 +78,16 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 	return nil
 }
 
-func (m *Models) SetCurrentChannel(ctx context.Context, index int) error {
-	channel := m.Channels.Get(index)
-	if channel == nil {
-		return nil
+func (m *Models) SetCurrentChannel(index int) {
+	if index < m.Channels.Len()-1 {
+		m.Channels.current = index
 	}
-	*m.CurrentChannel = Channel{Item: channel}
-	return nil
 }
 
-func (m *Models) SetCurrentTransaction(ctx context.Context, index int) error {
-	transaction := m.Transactions.Get(index)
-	if transaction == nil {
-		return nil
+func (m *Models) SetCurrentTransaction(index int) {
+	if index < m.Transactions.Len()-1 {
+		m.Transactions.current = index
 	}
-	*m.CurrentTransaction = Transaction{Item: transaction}
-	return nil
 }
 
 type WalletBalance struct {

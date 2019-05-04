@@ -18,8 +18,8 @@ const (
 )
 
 type Channel struct {
-	view    *gocui.View
-	channel *models.Channel
+	view     *gocui.View
+	channels *models.Channels
 }
 
 func (c Channel) Name() string {
@@ -27,7 +27,7 @@ func (c Channel) Name() string {
 }
 
 func (c Channel) Empty() bool {
-	return c.channel == nil
+	return c.channels == nil
 }
 
 func (c *Channel) Wrap(v *gocui.View) view {
@@ -112,7 +112,7 @@ func (c *Channel) display() {
 	p := message.NewPrinter(language.English)
 	v := c.view
 	v.Clear()
-	channel := c.channel.Item
+	channel := c.channels.Current()
 	green := color.Green()
 	cyan := color.Cyan()
 	red := color.Red()
@@ -176,6 +176,6 @@ func (c *Channel) display() {
 	}
 }
 
-func NewChannel(channel *models.Channel) *Channel {
-	return &Channel{channel: channel}
+func NewChannel(channels *models.Channels) *Channel {
+	return &Channel{channels: channels}
 }
