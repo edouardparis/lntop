@@ -75,10 +75,30 @@ func (c *Channels) CursorUp() error {
 }
 
 func (c *Channels) CursorRight() error {
-	if c.col >= len(c.columns)-1 {
+	if c.col > len(c.columns)-1 {
 		return nil
 	}
+
 	speed := c.columns[c.col].width + 1
+	if c.col == len(c.columns)-1 {
+		speed := c.columns[c.col].width + 1
+		err := cursorRight(c.columnsView, speed)
+		if err != nil {
+			return err
+		}
+
+		err = cursorRight(c.view, speed)
+		if err != nil {
+			return err
+		}
+		err = cursorLeft(c.columnsView, speed)
+		if err != nil {
+			return err
+		}
+
+		return cursorLeft(c.view, speed)
+	}
+
 	c.col++
 	err := cursorRight(c.columnsView, speed)
 	if err != nil {
@@ -336,8 +356,8 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 				},
 			}
 		}
-
 	}
+
 	return channels
 }
 
