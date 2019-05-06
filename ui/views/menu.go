@@ -12,8 +12,8 @@ const (
 )
 
 var menu = []string{
-	"CHAN",
-	"TX",
+	"CHANNEL",
+	"TRANSAC",
 }
 
 type Menu struct {
@@ -49,9 +49,9 @@ func (h Menu) Current() string {
 	_, y := h.view.Cursor()
 	if y < len(menu) {
 		switch menu[y] {
-		case "CHAN":
+		case "CHANNEL":
 			return CHANNELS
-		case "TX":
+		case "TRANSAC":
 			return TRANSACTIONS
 		}
 	}
@@ -95,7 +95,7 @@ func (h Menu) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 	h.view.Clear()
 	for i := range menu {
-		fmt.Fprintln(h.view, menu[i])
+		fmt.Fprintln(h.view, fmt.Sprintf(" %-9s", menu[i]))
 	}
 	_, err = g.SetCurrentView(MENU)
 	return err
