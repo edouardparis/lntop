@@ -130,7 +130,13 @@ func (c *Transaction) display() {
 		cyan("       BlockHash:"), transaction.BlockHash))
 	fmt.Fprintln(v, fmt.Sprintf("%s %s",
 		cyan("         TxHash:"), transaction.TxHash))
+	fmt.Fprintln(v, "")
 	fmt.Fprintln(v, green("[ addresses ]"))
+	for i := range transaction.DestAddresses {
+		fmt.Fprintln(v, fmt.Sprintf("%s %s",
+			cyan("               -"), transaction.DestAddresses[i]))
+	}
+
 }
 
 func NewTransaction(transactions *models.Transactions) *Transaction {
