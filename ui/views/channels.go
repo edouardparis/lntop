@@ -48,6 +48,7 @@ type Channels struct {
 type channelsColumn struct {
 	name    string
 	width   int
+	sort    func(*netmodels.Channel, *netmodels.Channel, models.Order) bool
 	display func(*netmodels.Channel, ...color.Option) string
 }
 
@@ -276,6 +277,9 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 12,
 				name:  fmt.Sprintf("%12s", columns[i]),
+				sort: func(c1, c2 *netmodels.Channel, order models.Order) bool {
+					return models.Int64Sort(c1.LocalBalance, c2.LocalBalance, order)
+				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					return color.Cyan(opts...)(printer.Sprintf("%12d", c.LocalBalance))
 				},
