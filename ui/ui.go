@@ -26,7 +26,7 @@ func Run(ctx context.Context, app *app.App, sub chan *events.Event) error {
 
 	g.SetManagerFunc(ctrl.layout)
 
-	err = ctrl.setKeyBinding(g)
+	err = setKeyBinding(ctrl, g)
 	if err != nil {
 		return err
 	}
