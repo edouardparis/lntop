@@ -37,7 +37,7 @@ var DefaultChannelsColumns = []string{
 type Channels struct {
 	cfg *config.View
 
-	col     int
+	current int
 	columns []channelsColumn
 
 	columnsView *gocui.View
@@ -76,13 +76,13 @@ func (c *Channels) CursorUp() error {
 }
 
 func (c *Channels) CursorRight() error {
-	if c.col > len(c.columns)-1 {
+	if c.current > len(c.columns)-1 {
 		return nil
 	}
 
-	speed := c.columns[c.col].width + 1
-	if c.col == len(c.columns)-1 {
-		speed := c.columns[c.col].width + 1
+	speed := c.columns[c.current].width + 1
+	if c.current == len(c.columns)-1 {
+		speed := c.columns[c.current].width + 1
 		err := cursorRight(c.columnsView, speed)
 		if err != nil {
 			return err
@@ -100,7 +100,7 @@ func (c *Channels) CursorRight() error {
 		return cursorLeft(c.view, speed)
 	}
 
-	c.col++
+	c.current++
 	err := cursorRight(c.columnsView, speed)
 	if err != nil {
 		return err
@@ -110,11 +110,11 @@ func (c *Channels) CursorRight() error {
 }
 
 func (c *Channels) CursorLeft() error {
-	if c.col == 0 {
+	if c.current == 0 {
 		return nil
 	}
-	speed := c.columns[c.col-1].width + 1
-	c.col--
+	speed := c.columns[c.current-1].width + 1
+	c.current--
 	err := cursorLeft(c.columnsView, speed)
 	if err != nil {
 		return err
@@ -187,7 +187,7 @@ func (c *Channels) display() {
 	c.columnsView.Clear()
 	var buffer bytes.Buffer
 	for i := range c.columns {
-		if c.col == i {
+		if c.current == i {
 			buffer.WriteString(color.Cyan(color.Background)(c.columns[i].name))
 			buffer.WriteString(" ")
 			continue
@@ -202,7 +202,7 @@ func (c *Channels) display() {
 		var buffer bytes.Buffer
 		for i := range c.columns {
 			var opt color.Option
-			if c.col == i {
+			if c.current == i {
 				opt = color.Bold
 			}
 			buffer.WriteString(c.columns[i].display(item, opt))
