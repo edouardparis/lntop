@@ -35,20 +35,24 @@ func (c *Channel) Wrap(v *gocui.View) view {
 	return c
 }
 
-func (c *Channel) CursorDown() error {
-	return cursorDown(c.view, 1)
+func (c Channel) Origin() (int, int) {
+	return c.view.Origin()
 }
 
-func (c *Channel) CursorUp() error {
-	return cursorUp(c.view, 1)
+func (c Channel) Cursor() (int, int) {
+	return c.view.Cursor()
 }
 
-func (c *Channel) CursorRight() error {
-	return cursorRight(c.view, 1)
+func (c Channel) Speed() (int, int, int, int) {
+	return 1, 1, 1, 1
 }
 
-func (c *Channel) CursorLeft() error {
-	return cursorLeft(c.view, 1)
+func (c *Channel) SetCursor(x, y int) error {
+	return c.view.SetCursor(x, y)
+}
+
+func (c *Channel) SetOrigin(x, y int) error {
+	return c.view.SetOrigin(x, y)
 }
 
 func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {

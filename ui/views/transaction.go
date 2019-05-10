@@ -35,20 +35,24 @@ func (c *Transaction) Wrap(v *gocui.View) view {
 	return c
 }
 
-func (c *Transaction) CursorDown() error {
-	return cursorDown(c.view, 1)
+func (c Transaction) Origin() (int, int) {
+	return c.view.Origin()
 }
 
-func (c *Transaction) CursorUp() error {
-	return cursorUp(c.view, 1)
+func (c Transaction) Cursor() (int, int) {
+	return c.view.Cursor()
 }
 
-func (c *Transaction) CursorRight() error {
-	return cursorRight(c.view, 1)
+func (c Transaction) Speed() (int, int, int, int) {
+	return 1, 1, 1, 1
 }
 
-func (c *Transaction) CursorLeft() error {
-	return cursorLeft(c.view, 1)
+func (c *Transaction) SetCursor(x, y int) error {
+	return c.view.SetCursor(x, y)
+}
+
+func (c *Transaction) SetOrigin(x, y int) error {
+	return c.view.SetOrigin(x, y)
 }
 
 func (c *Transaction) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {

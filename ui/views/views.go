@@ -10,10 +10,11 @@ import (
 type view interface {
 	Set(*gocui.Gui, int, int, int, int) error
 	Wrap(*gocui.View) view
-	CursorLeft() error
-	CursorRight() error
-	CursorUp() error
-	CursorDown() error
+	SetCursor(int, int) error
+	SetOrigin(int, int) error
+	Origin() (int, int)
+	Speed() (int, int, int, int)
+	Cursor() (int, int)
 	Name() string
 	Delete(*gocui.Gui) error
 }

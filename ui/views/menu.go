@@ -29,20 +29,24 @@ func (h *Menu) Wrap(v *gocui.View) view {
 	return h
 }
 
-func (h *Menu) CursorDown() error {
-	return cursorDown(h.view, 1)
+func (h Menu) Origin() (int, int) {
+	return h.view.Origin()
 }
 
-func (h *Menu) CursorUp() error {
-	return cursorUp(h.view, 1)
+func (h Menu) Cursor() (int, int) {
+	return h.view.Cursor()
 }
 
-func (h *Menu) CursorRight() error {
-	return nil
+func (h Menu) Speed() (int, int, int, int) {
+	return 1, 1, 1, 1
 }
 
-func (h *Menu) CursorLeft() error {
-	return nil
+func (h *Menu) SetCursor(x, y int) error {
+	return h.view.SetCursor(x, y)
+}
+
+func (h *Menu) SetOrigin(x, y int) error {
+	return h.view.SetOrigin(x, y)
 }
 
 func (h Menu) Current() string {

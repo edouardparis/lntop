@@ -8,6 +8,7 @@ import (
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/events"
 	"github.com/edouardparis/lntop/logging"
+	"github.com/edouardparis/lntop/ui/cursor"
 	"github.com/edouardparis/lntop/ui/models"
 	"github.com/edouardparis/lntop/ui/views"
 )
@@ -26,7 +27,7 @@ func (c *controller) layout(g *gocui.Gui) error {
 func (c *controller) cursorDown(g *gocui.Gui, v *gocui.View) error {
 	view := c.views.Get(v)
 	if view != nil {
-		return view.CursorDown()
+		return cursor.Down(view)
 	}
 	return nil
 }
@@ -34,7 +35,7 @@ func (c *controller) cursorDown(g *gocui.Gui, v *gocui.View) error {
 func (c *controller) cursorUp(g *gocui.Gui, v *gocui.View) error {
 	view := c.views.Get(v)
 	if view != nil {
-		return view.CursorUp()
+		return cursor.Up(view)
 	}
 	return nil
 }
@@ -42,7 +43,7 @@ func (c *controller) cursorUp(g *gocui.Gui, v *gocui.View) error {
 func (c *controller) cursorRight(g *gocui.Gui, v *gocui.View) error {
 	view := c.views.Get(v)
 	if view != nil {
-		return view.CursorRight()
+		return cursor.Right(view)
 	}
 	return nil
 }
@@ -50,7 +51,7 @@ func (c *controller) cursorRight(g *gocui.Gui, v *gocui.View) error {
 func (c *controller) cursorLeft(g *gocui.Gui, v *gocui.View) error {
 	view := c.views.Get(v)
 	if view != nil {
-		return view.CursorLeft()
+		return cursor.Left(view)
 	}
 	return nil
 }

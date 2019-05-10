@@ -43,6 +43,9 @@ type Channels struct {
 	columnsView *gocui.View
 	view        *gocui.View
 	channels    *models.Channels
+
+	ox, oy int
+	cx, cy int
 }
 
 type channelsColumn struct {
@@ -50,12 +53,6 @@ type channelsColumn struct {
 	width   int
 	sort    func(*netmodels.Channel, *netmodels.Channel, models.Order) bool
 	display func(*netmodels.Channel, ...color.Option) string
-}
-
-func (c Channels) Index() int {
-	_, oy := c.view.Origin()
-	_, cy := c.view.Cursor()
-	return cy + oy
 }
 
 func (c Channels) Name() string {
@@ -67,60 +64,69 @@ func (c *Channels) Wrap(v *gocui.View) view {
 	return c
 }
 
-func (c *Channels) CursorDown() error {
-	return cursorDown(c.view, 1)
+func (c Channels) Origin() (int, int) {
+	return c.ox, c.oy
 }
 
-func (c *Channels) CursorUp() error {
-	return cursorUp(c.view, 1)
+func (c Channels) Cursor() (int, int) {
+	return c.cx, c.cy
 }
 
-func (c *Channels) CursorRight() error {
+func (c *Channels) SetCursor(cx, cy int) error {
+	err := c.columnsView.SetCursor(cx, 0)
+	if err != nil {
+		return err
+	}
+
+	err = c.view.SetCursor(cx, cy)
+	if err != nil {
+		return err
+	}
+
+	if cx > c.cx && c.current < len(c.columns) {
+		c.current++
+	} else if cx <= c.cx && c.current != 0 {
+		c.current--
+	}
+
+	c.cx, c.cy = cx, cy
+	return nil
+}
+
+func (c *Channels) SetOrigin(ox, oy int) error {
+	err := c.columnsView.SetOrigin(ox, 0)
+	if err != nil {
+		return err
+	}
+	err = c.view.SetOrigin(ox, oy)
+	if err != nil {
+		return err
+	}
+
+	if ox > c.ox && c.current < len(c.columns) {
+		c.current++
+	}
+
+	c.ox, c.oy = ox, oy
+	return nil
+}
+
+func (c *Channels) Speed() (int, int, int, int) {
 	if c.current > len(c.columns)-1 {
-		return nil
+		return 0, c.columns[c.current-1].width + 1, 1, 1
 	}
-
-	speed := c.columns[c.current].width + 1
-	if c.current == len(c.columns)-1 {
-		speed := c.columns[c.current].width + 1
-		err := cursorRight(c.columnsView, speed)
-		if err != nil {
-			return err
-		}
-
-		err = cursorRight(c.view, speed)
-		if err != nil {
-			return err
-		}
-		err = cursorLeft(c.columnsView, speed)
-		if err != nil {
-			return err
-		}
-
-		return cursorLeft(c.view, speed)
+	if c.current == 0 {
+		return c.columns[0].width + 1, 0, 1, 1
 	}
-
-	c.current++
-	err := cursorRight(c.columnsView, speed)
-	if err != nil {
-		return err
-	}
-
-	return cursorRight(c.view, speed)
+	return c.columns[c.current].width + 1,
+		c.columns[c.current-1].width + 1,
+		1, 1
 }
 
-func (c *Channels) CursorLeft() error {
-	if c.current == 0 {
-		return nil
-	}
-	speed := c.columns[c.current-1].width + 1
-	c.current--
-	err := cursorLeft(c.columnsView, speed)
-	if err != nil {
-		return err
-	}
-
-	return cursorLeft(c.view, speed)
+func (c Channels) Index() int {
+	_, oy := c.Origin()
+	_, cy := c.Cursor()
+	return cy + oy
 }
 
 func (c Channels) Delete(g *gocui.Gui) error {

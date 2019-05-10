@@ -34,6 +34,9 @@ type Transactions struct {
 	columnsView  *gocui.View
 	view         *gocui.View
 	transactions *models.Transactions
+
+	ox, oy int
+	cx, cy int
 }
 
 type transactionsColumn struct {
@@ -57,58 +60,63 @@ func (c *Transactions) Wrap(v *gocui.View) view {
 	return c
 }
 
-func (c *Transactions) CursorDown() error {
-	return cursorDown(c.view, 1)
+func (c Transactions) Origin() (int, int) {
+	return c.ox, c.oy
 }
 
-func (c *Transactions) CursorUp() error {
-	return cursorUp(c.view, 1)
+func (c Transactions) Cursor() (int, int) {
+	return c.cx, c.cy
 }
 
-func (c *Transactions) CursorRight() error {
+func (c *Transactions) SetCursor(cx, cy int) error {
+	err := c.columnsView.SetCursor(cx, 0)
+	if err != nil {
+		return err
+	}
+
+	err = c.view.SetCursor(cx, cy)
+	if err != nil {
+		return err
+	}
+
+	if cx > c.cx && c.current < len(c.columns) {
+		c.current++
+	} else if cx <= c.cx && c.current != 0 {
+		c.current--
+	}
+
+	c.cx, c.cy = cx, cy
+	return nil
+}
+
+func (c *Transactions) SetOrigin(ox, oy int) error {
+	err := c.columnsView.SetOrigin(ox, 0)
+	if err != nil {
+		return err
+	}
+	err = c.view.SetOrigin(ox, oy)
+	if err != nil {
+		return err
+	}
+
+	if ox > c.ox && c.current < len(c.columns) {
+		c.current++
+	}
+
+	c.ox, c.oy = ox, oy
+	return nil
+}
+
+func (c *Transactions) Speed() (int, int, int, int) {
 	if c.current > len(c.columns)-1 {
-		return nil
+		return 0, c.columns[c.current-1].width + 1, 1, 1
 	}
-	speed := c.columns[c.current].width + 1
-	if c.current == len(c.columns)-1 {
-		speed := c.columns[c.current].width + 1
-		err := cursorRight(c.columnsView, speed)
-		if err != nil {
-			return err
-		}
-
-		err = cursorRight(c.view, speed)
-		if err != nil {
-			return err
-		}
-		err = cursorLeft(c.columnsView, speed)
-		if err != nil {
-			return err
-		}
-
-		return cursorLeft(c.view, speed)
-	}
-	c.current++
-	err := cursorRight(c.columnsView, speed)
-	if err != nil {
-		return err
-	}
-
-	return cursorRight(c.view, speed)
-}
-
-func (c *Transactions) CursorLeft() error {
 	if c.current == 0 {
-		return nil
+		return c.columns[0].width + 1, 0, 1, 1
 	}
-	speed := c.columns[c.current-1].width + 1
-	c.current--
-	err := cursorLeft(c.columnsView, speed)
-	if err != nil {
-		return err
-	}
-
-	return cursorLeft(c.view, speed)
+	return c.columns[c.current].width + 1,
+		c.columns[c.current-1].width + 1,
+		1, 1
 }
 
 func (c Transactions) Delete(g *gocui.Gui) error {

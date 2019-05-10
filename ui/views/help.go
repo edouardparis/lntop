@@ -30,20 +30,24 @@ func (h Help) Delete(g *gocui.Gui) error {
 	return g.DeleteView(HELP)
 }
 
-func (h *Help) CursorDown() error {
-	return cursorDown(h.view, 1)
+func (h Help) Origin() (int, int) {
+	return h.view.Origin()
 }
 
-func (h *Help) CursorUp() error {
-	return cursorUp(h.view, 1)
+func (h Help) Cursor() (int, int) {
+	return h.view.Cursor()
 }
 
-func (h *Help) CursorRight() error {
-	return cursorRight(h.view, 1)
+func (h Help) Speed() (int, int, int, int) {
+	return 1, 1, 1, 1
 }
 
-func (h *Help) CursorLeft() error {
-	return cursorLeft(h.view, 1)
+func (h *Help) SetCursor(x, y int) error {
+	return h.view.SetCursor(x, y)
+}
+
+func (h *Help) SetOrigin(x, y int) error {
+	return h.view.SetOrigin(x, y)
 }
 
 func (h Help) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
