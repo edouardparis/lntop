@@ -146,7 +146,7 @@ func (c *controller) Help(g *gocui.Gui, v *gocui.View) error {
 	}
 
 	if view.Name() != views.HELP {
-		c.views.SetPrevious(view)
+		c.views.Main = view
 		return c.views.Help.Set(g, 0, -1, maxX, maxY)
 	}
 
@@ -155,8 +155,8 @@ func (c *controller) Help(g *gocui.Gui, v *gocui.View) error {
 		return err
 	}
 
-	if c.views.Previous != nil {
-		_, err := g.SetCurrentView(c.views.Previous.Name())
+	if c.views.Main != nil {
+		_, err := g.SetCurrentView(c.views.Main.Name())
 		return err
 	}
 
@@ -173,13 +173,6 @@ func (c *controller) Menu(g *gocui.Gui, v *gocui.View) error {
 		err := c.views.Menu.Set(g, 0, 6, 10, maxY)
 		if err != nil {
 			return err
-		}
-
-		if c.views.Previous != nil {
-			err = c.views.Previous.Set(g, 11, 6, maxX-1, maxY)
-			if err != nil {
-				return err
-			}
 		}
 
 		err = c.views.Main.Set(g, 11, 6, maxX-1, maxY)
@@ -215,8 +208,13 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 	case views.CHANNELS:
 		index := c.views.Channels.Index()
 		c.models.Channels.SetCurrent(index)
-		c.views.SetPrevious(view)
-		err := c.views.Channel.Set(g, 0, 6, maxX-1, maxY)
+
+		err := view.Delete(g)
+		if err != nil {
+			return err
+		}
+
+		err = c.views.Channel.Set(g, 0, 6, maxX-1, maxY)
 		if err != nil {
 			return err
 		}
@@ -228,19 +226,8 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 		}
 
 	case views.CHANNEL:
-		err := c.views.Channel.Delete(g)
+		err := view.Delete(g)
 		if err != nil {
-			return err
-		}
-
-		if c.views.Previous != nil {
-			c.views.Main = c.views.Previous
-			err := c.views.Previous.Set(g, 0, 6, maxX-1, maxY)
-			if err != nil {
-				return err
-			}
-
-			_, err = g.SetCurrentView(c.views.Previous.Name())
 			return err
 		}
 
@@ -248,6 +235,13 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 		if err != nil {
 			return err
 		}
+
+		c.views.Main = c.views.Channels
+		_, err = g.SetCurrentView(c.views.Channels.Name())
+		if err != nil {
+			return err
+		}
+
 	case views.MENU:
 		current := c.views.Menu.Current()
 		if c.views.Main.Name() == current {
@@ -279,10 +273,15 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 			}
 		}
 	case views.TRANSACTIONS:
+		err := view.Delete(g)
+		if err != nil {
+			return err
+		}
+
 		index := c.views.Transactions.Index()
 		c.models.Transactions.SetCurrent(index)
-		c.views.SetPrevious(view)
-		err := c.views.Transaction.Set(g, 0, 6, maxX-1, maxY)
+
+		err = c.views.Transaction.Set(g, 0, 6, maxX-1, maxY)
 		if err != nil {
 			return err
 		}
@@ -294,19 +293,8 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 		}
 
 	case views.TRANSACTION:
-		err := c.views.Transaction.Delete(g)
+		err := view.Delete(g)
 		if err != nil {
-			return err
-		}
-
-		if c.views.Previous != nil {
-			c.views.Main = c.views.Previous
-			err := c.views.Previous.Set(g, 0, 6, maxX-1, maxY)
-			if err != nil {
-				return err
-			}
-
-			_, err = g.SetCurrentView(c.views.Previous.Name())
 			return err
 		}
 
@@ -314,6 +302,13 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 		if err != nil {
 			return err
 		}
+
+		_, err = g.SetCurrentView(c.views.Transactions.Name())
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 	return nil
 }

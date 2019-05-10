@@ -20,8 +20,7 @@ type view interface {
 }
 
 type Views struct {
-	Previous view
-	Main     view
+	Main view
 
 	Help         *Help
 	Header       *Header
@@ -53,10 +52,6 @@ func (v Views) Get(vi *gocui.View) view {
 	default:
 		return nil
 	}
-}
-
-func (v *Views) SetPrevious(p view) {
-	v.Previous = p
 }
 
 func (v *Views) Layout(g *gocui.Gui, maxX, maxY int) error {
