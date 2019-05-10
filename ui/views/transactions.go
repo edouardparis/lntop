@@ -140,11 +140,13 @@ func (c Transactions) Delete(g *gocui.Gui) error {
 
 func (c *Transactions) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	var err error
+	setCursor := false
 	c.columnsView, err = g.SetView(TRANSACTIONS_COLUMNS, x0-1, y0, x1+2, y0+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
+		setCursor = true
 	}
 	c.columnsView.Frame = false
 	c.columnsView.BgColor = gocui.ColorGreen
@@ -155,12 +157,26 @@ func (c *Transactions) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
+		setCursor = true
 	}
 	c.view.Frame = false
 	c.view.Autoscroll = false
 	c.view.SelBgColor = gocui.ColorCyan
 	c.view.SelFgColor = gocui.ColorBlack
 	c.view.Highlight = true
+	if setCursor {
+		ox, oy := c.Origin()
+		err := c.SetOrigin(ox, oy)
+		if err != nil {
+			return err
+		}
+
+		cx, cy := c.Cursor()
+		err = c.SetCursor(cx, cy)
+		if err != nil {
+			return err
+		}
+	}
 
 	c.display()
 
