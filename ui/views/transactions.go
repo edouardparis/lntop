@@ -8,6 +8,7 @@ import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
+	"github.com/edouardparis/lntop/config"
 	netmodels "github.com/edouardparis/lntop/network/models"
 	"github.com/edouardparis/lntop/ui/color"
 	"github.com/edouardparis/lntop/ui/models"
@@ -20,7 +21,7 @@ const (
 )
 
 var DefaultTransactionsColumns = []string{
-	"TIME",
+	"DATE",
 	"HEIGHT",
 	"CONFIR",
 	"AMOUNT",
@@ -29,6 +30,8 @@ var DefaultTransactionsColumns = []string{
 }
 
 type Transactions struct {
+	cfg *config.View
+
 	columns      []transactionsColumn
 	columnsView  *gocui.View
 	view         *gocui.View
@@ -229,19 +232,24 @@ func (c *Transactions) display() {
 	}
 }
 
-func NewTransactions(txs *models.Transactions) *Transactions {
+func NewTransactions(cfg *config.View, txs *models.Transactions) *Transactions {
 	transactions := &Transactions{
+		cfg:          cfg,
 		transactions: txs,
 	}
 
 	printer := message.NewPrinter(language.English)
 
 	columns := DefaultTransactionsColumns
+	if cfg != nil && len(cfg.Columns) != 0 {
+		columns = cfg.Columns
+	}
+
 	transactions.columns = make([]transactionsColumn, len(columns))
 
 	for i := range columns {
 		switch columns[i] {
-		case "TIME":
+		case "DATE":
 			transactions.columns[i] = transactionsColumn{
 				name:  fmt.Sprintf("%-15s", columns[i]),
 				width: 15,

@@ -104,7 +104,7 @@ func New(cfg config.Views, m *models.Models) *Views {
 		Summary:      NewSummary(m.Info, m.ChannelsBalance, m.WalletBalance, m.Channels),
 		Channels:     main,
 		Channel:      NewChannel(m.Channels),
-		Transactions: NewTransactions(m.Transactions),
+		Transactions: NewTransactions(cfg.Transactions, m.Transactions),
 		Transaction:  NewTransaction(m.Transactions),
 		Main:         main,
 	}

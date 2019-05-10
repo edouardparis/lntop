@@ -27,22 +27,19 @@ pool_capacity = %[11]d
 [views]
 # views.channels is the view displaying channel list.
 [views.channels]
-# It is possible to add, remove and order columns of
-# the table with the array columns. The default value
-# is:
-# columns = [
-# "STATUS",
-# "ALIAS",
-# "GAUGE",
-# "LOCAL",
-# "CAP",
-# "HTLC",
-# "UNSETTLED",
-# "CFEE",
-# "LAST UPDATE",
-# "PRIVATE",
-# "ID",
-# ]
+# It is possible to add, remove and order columns of the
+# table with the array columns. The available values are:
+# STATUS      status of the channel
+# ALIAS       alias of the channel node
+# GAUGE       ascii bar with percent local/capacity
+# LOCAL       the local amount of the channel
+# CAP         the total capacity of the channel
+# HTLC        the number of pending HTLC
+# UNSETTLED   the amount unsettled in the channel
+# CFEE        the commit fee
+# LAST UPDATE last update of the channel
+# PRIVATE     true if channel is private
+# ID          the id of the channel
 
 columns = [
 	"STATUS",
@@ -56,6 +53,25 @@ columns = [
 	"LAST UPDATE",
 	"PRIVATE",
 	"ID",
+]
+
+[views.transactions]
+# It is possible to add, remove and order columns of the
+# table with the array columns. The available values are:
+# DATE      date of the transaction
+# HEIGHT    block height of the transaction
+# CONFIR    number of confirmations
+# AMOUNT    amount moved by the transaction
+# FEE       fee of the transaction
+# ADDRESSES number of transaction output addresses
+
+columns = [
+	"TIME",
+	"HEIGHT",
+	"CONFIR",
+	"AMOUNT",
+	"FEE",
+	"ADDRESSES",
 ]
 `,
 		cfg.Logger.Type,

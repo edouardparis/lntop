@@ -36,7 +36,8 @@ type Network struct {
 }
 
 type Views struct {
-	Channels *View `toml:"channels"`
+	Channels     *View `toml:"channels"`
+	Transactions *View `toml:"transactions"`
 }
 
 type View struct {
