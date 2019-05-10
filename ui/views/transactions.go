@@ -60,6 +60,20 @@ func (c *Transactions) Wrap(v *gocui.View) view {
 	return c
 }
 
+func (c Transactions) currentColumnIndex() int {
+	x := c.ox + c.cx
+	index := 0
+	sum := 0
+	for i := range c.columns {
+		sum += c.columns[i].width + 1
+		if x < sum {
+			return index
+		}
+		index++
+	}
+	return index
+}
+
 func (c Transactions) Origin() (int, int) {
 	return c.ox, c.oy
 }
@@ -79,12 +93,6 @@ func (c *Transactions) SetCursor(cx, cy int) error {
 		return err
 	}
 
-	if cx > c.cx && c.current < len(c.columns) {
-		c.current++
-	} else if cx <= c.cx && c.current != 0 {
-		c.current--
-	}
-
 	c.cx, c.cy = cx, cy
 	return nil
 }
@@ -99,23 +107,20 @@ func (c *Transactions) SetOrigin(ox, oy int) error {
 		return err
 	}
 
-	if ox > c.ox && c.current < len(c.columns) {
-		c.current++
-	}
-
 	c.ox, c.oy = ox, oy
 	return nil
 }
 
 func (c *Transactions) Speed() (int, int, int, int) {
-	if c.current > len(c.columns)-1 {
-		return 0, c.columns[c.current-1].width + 1, 1, 1
+	current := c.currentColumnIndex()
+	if current > len(c.columns)-1 {
+		return 0, c.columns[current-1].width + 1, 1, 1
 	}
-	if c.current == 0 {
+	if current == 0 {
 		return c.columns[0].width + 1, 0, 1, 1
 	}
-	return c.columns[c.current].width + 1,
-		c.columns[c.current-1].width + 1,
+	return c.columns[current].width + 1,
+		c.columns[current-1].width + 1,
 		1, 1
 }
 
@@ -182,8 +187,9 @@ func (c *Transactions) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 func (c *Transactions) display() {
 	c.columnsView.Clear()
 	var buffer bytes.Buffer
+	current := c.currentColumnIndex()
 	for i := range c.columns {
-		if c.current == i {
+		if current == i {
 			buffer.WriteString(color.Cyan(color.Background)(c.columns[i].name))
 			buffer.WriteString(" ")
 			continue
@@ -198,7 +204,7 @@ func (c *Transactions) display() {
 		var buffer bytes.Buffer
 		for i := range c.columns {
 			var opt color.Option
-			if c.current == i {
+			if current == i {
 				opt = color.Bold
 			}
 			buffer.WriteString(c.columns[i].display(item, opt))
