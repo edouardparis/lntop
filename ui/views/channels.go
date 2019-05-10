@@ -58,7 +58,7 @@ func (c Channels) Name() string {
 	return CHANNELS
 }
 
-func (c *Channels) Wrap(v *gocui.View) view {
+func (c *Channels) Wrap(v *gocui.View) View {
 	c.view = v
 	return c
 }

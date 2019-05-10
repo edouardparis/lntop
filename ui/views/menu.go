@@ -24,7 +24,7 @@ func (h Menu) Name() string {
 	return MENU
 }
 
-func (h *Menu) Wrap(v *gocui.View) view {
+func (h *Menu) Wrap(v *gocui.View) View {
 	h.view = v
 	return h
 }

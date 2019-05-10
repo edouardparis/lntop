@@ -208,39 +208,12 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 	case views.CHANNELS:
 		index := c.views.Channels.Index()
 		c.models.Channels.SetCurrent(index)
-
-		err := view.Delete(g)
-		if err != nil {
-			return err
-		}
-
-		err = c.views.Channel.Set(g, 0, 6, maxX-1, maxY)
-		if err != nil {
-			return err
-		}
-
 		c.views.Main = c.views.Channel
-		_, err = g.SetCurrentView(c.views.Channel.Name())
-		if err != nil {
-			return err
-		}
+		return ToggleView(g, view, c.views.Channels)
 
 	case views.CHANNEL:
-		err := view.Delete(g)
-		if err != nil {
-			return err
-		}
-
-		err = c.views.Channels.Set(g, 0, 6, maxX-1, maxY)
-		if err != nil {
-			return err
-		}
-
 		c.views.Main = c.views.Channels
-		_, err = g.SetCurrentView(c.views.Channels.Name())
-		if err != nil {
-			return err
-		}
+		return ToggleView(g, view, c.views.Channels)
 
 	case views.MENU:
 		current := c.views.Menu.Current()
@@ -273,44 +246,32 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 			}
 		}
 	case views.TRANSACTIONS:
-		err := view.Delete(g)
-		if err != nil {
-			return err
-		}
-
 		index := c.views.Transactions.Index()
 		c.models.Transactions.SetCurrent(index)
-
-		err = c.views.Transaction.Set(g, 0, 6, maxX-1, maxY)
-		if err != nil {
-			return err
-		}
-
 		c.views.Main = c.views.Transaction
-		_, err = g.SetCurrentView(c.views.Transaction.Name())
-		if err != nil {
-			return err
-		}
+		return ToggleView(g, view, c.views.Transaction)
 
 	case views.TRANSACTION:
-		err := view.Delete(g)
-		if err != nil {
-			return err
-		}
-
-		err = c.views.Transactions.Set(g, 0, 6, maxX-1, maxY)
-		if err != nil {
-			return err
-		}
-
-		_, err = g.SetCurrentView(c.views.Transactions.Name())
-		if err != nil {
-			return err
-		}
-
-		return nil
+		c.views.Main = c.views.Transactions
+		return ToggleView(g, view, c.views.Transactions)
 	}
 	return nil
+}
+
+func ToggleView(g *gocui.Gui, v1, v2 views.View) error {
+	maxX, maxY := g.Size()
+	err := v1.Delete(g)
+	if err != nil {
+		return err
+	}
+
+	err = v2.Set(g, 0, 6, maxX-1, maxY)
+	if err != nil {
+		return err
+	}
+
+	_, err = g.SetCurrentView(v2.Name())
+	return err
 }
 
 func newController(app *app.App) *controller {

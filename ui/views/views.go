@@ -9,16 +9,16 @@ import (
 	"github.com/edouardparis/lntop/ui/models"
 )
 
-type view interface {
+type View interface {
 	Set(*gocui.Gui, int, int, int, int) error
 	Delete(*gocui.Gui) error
-	Wrap(*gocui.View) view
+	Wrap(*gocui.View) View
 	Name() string
 	cursor.View
 }
 
 type Views struct {
-	Main view
+	Main View
 
 	Help         *Help
 	Header       *Header
@@ -30,7 +30,7 @@ type Views struct {
 	Transaction  *Transaction
 }
 
-func (v Views) Get(vi *gocui.View) view {
+func (v Views) Get(vi *gocui.View) View {
 	if vi == nil {
 		return nil
 	}

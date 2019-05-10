@@ -29,7 +29,6 @@ var DefaultTransactionsColumns = []string{
 }
 
 type Transactions struct {
-	current      int
 	columns      []transactionsColumn
 	columnsView  *gocui.View
 	view         *gocui.View
@@ -55,7 +54,7 @@ func (c Transactions) Name() string {
 	return TRANSACTIONS
 }
 
-func (c *Transactions) Wrap(v *gocui.View) view {
+func (c *Transactions) Wrap(v *gocui.View) View {
 	c.view = v
 	return c
 }

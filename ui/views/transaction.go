@@ -30,7 +30,7 @@ func (c Transaction) Empty() bool {
 	return c.transactions == nil
 }
 
-func (c *Transaction) Wrap(v *gocui.View) view {
+func (c *Transaction) Wrap(v *gocui.View) View {
 	c.view = v
 	return c
 }

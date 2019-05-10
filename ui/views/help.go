@@ -21,7 +21,7 @@ func (h Help) Name() string {
 	return HELP
 }
 
-func (h *Help) Wrap(v *gocui.View) view {
+func (h *Help) Wrap(v *gocui.View) View {
 	h.view = v
 	return h
 }

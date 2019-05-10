@@ -30,7 +30,7 @@ func (c Channel) Empty() bool {
 	return c.channels == nil
 }
 
-func (c *Channel) Wrap(v *gocui.View) view {
+func (c *Channel) Wrap(v *gocui.View) View {
 	c.view = v
 	return c
 }
