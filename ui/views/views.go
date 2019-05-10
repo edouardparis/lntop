@@ -1,22 +1,20 @@
 package views
 
 import (
-	"github.com/edouardparis/lntop/config"
-	"github.com/edouardparis/lntop/ui/models"
 	"github.com/jroimartin/gocui"
 	"github.com/pkg/errors"
+
+	"github.com/edouardparis/lntop/config"
+	"github.com/edouardparis/lntop/ui/cursor"
+	"github.com/edouardparis/lntop/ui/models"
 )
 
 type view interface {
 	Set(*gocui.Gui, int, int, int, int) error
-	Wrap(*gocui.View) view
-	SetCursor(int, int) error
-	SetOrigin(int, int) error
-	Origin() (int, int)
-	Speed() (int, int, int, int)
-	Cursor() (int, int)
-	Name() string
 	Delete(*gocui.Gui) error
+	Wrap(*gocui.View) view
+	Name() string
+	cursor.View
 }
 
 type Views struct {
