@@ -235,7 +235,7 @@ func (c *Channels) display() {
 			buffer.WriteString(" ")
 			continue
 		} else if c.columns[i].sorted {
-			buffer.WriteString(color.Black(color.Background)(c.columns[i].name))
+			buffer.WriteString(color.Magenta(color.Background)(c.columns[i].name))
 			buffer.WriteString(" ")
 			continue
 		}

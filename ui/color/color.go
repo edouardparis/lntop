@@ -10,6 +10,7 @@ var (
 	green      = color.New(color.FgGreen).SprintFunc()
 	greenBold  = color.New(color.FgGreen, color.Bold).SprintFunc()
 	greenBg    = color.New(color.FgBlack, color.BgGreen).SprintFunc()
+	magentaBg  = color.New(color.FgBlack, color.BgMagenta).SprintFunc()
 	red        = color.New(color.FgRed).SprintFunc()
 	redBold    = color.New(color.FgRed, color.Bold).SprintFunc()
 	cyan       = color.New(color.FgCyan).SprintFunc()
@@ -96,4 +97,12 @@ func Black(opts ...Option) func(a ...interface{}) string {
 		return blackBg
 	}
 	return black
+}
+
+func Magenta(opts ...Option) func(a ...interface{}) string {
+	options := newOptions(opts)
+	if options.bg {
+		return magentaBg
+	}
+	return magentaBg
 }
