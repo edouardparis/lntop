@@ -302,6 +302,14 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 21,
 				name:  fmt.Sprintf("%-21s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.Int64Sort(
+							c1.LocalBalance*100/c1.Capacity,
+							c2.LocalBalance*100/c2.Capacity,
+							order)
+					}
+				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					index := int(c.LocalBalance * int64(15) / c.Capacity)
 					var buffer bytes.Buffer
@@ -337,6 +345,11 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 12,
 				name:  fmt.Sprintf("%12s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.Int64Sort(c1.Capacity, c2.Capacity, order)
+					}
+				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					return color.White(opts...)(printer.Sprintf("%12d", c.Capacity))
 				},
@@ -345,6 +358,11 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 5,
 				name:  fmt.Sprintf("%5s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.IntSort(len(c1.PendingHTLC), len(c2.PendingHTLC), order)
+					}
+				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					return color.Yellow(opts...)(fmt.Sprintf("%5d", len(c.PendingHTLC)))
 				},
@@ -353,6 +371,11 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 10,
 				name:  fmt.Sprintf("%-10s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.Int64Sort(c1.UnsettledBalance, c2.UnsettledBalance, order)
+					}
+				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					return color.Yellow(opts...)(printer.Sprintf("%10d", c.UnsettledBalance))
 				},
@@ -361,6 +384,11 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 6,
 				name:  fmt.Sprintf("%-6s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.Int64Sort(c1.CommitFee, c2.CommitFee, order)
+					}
+				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					return color.White(opts...)(printer.Sprintf("%6d", c.CommitFee))
 				},
@@ -369,6 +397,11 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 15,
 				name:  fmt.Sprintf("%-15s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.DateSort(c1.LastUpdate, c2.LastUpdate, order)
+					}
+				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					if c.LastUpdate != nil {
 						return color.Cyan(opts...)(
