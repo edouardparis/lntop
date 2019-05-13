@@ -197,6 +197,20 @@ func (c *controller) Menu(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
+func (c *controller) Order(order models.Order) func(*gocui.Gui, *gocui.View) error {
+	return func(g *gocui.Gui, v *gocui.View) error {
+		view := c.views.Get(v)
+		if view == nil {
+			return nil
+		}
+		switch view.Name() {
+		case views.CHANNELS:
+			c.views.Channels.Sort("", order)
+		}
+		return nil
+	}
+}
+
 func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 	maxX, maxY := g.Size()
 	view := c.views.Get(v)

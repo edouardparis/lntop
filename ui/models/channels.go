@@ -33,8 +33,12 @@ func (c *Channels) Less(i, j int) bool {
 	return c.sort(c.list[i], c.list[j])
 }
 
-func (c *Channels) WithSort(s ChannelsSort) {
+func (c *Channels) Sort(s ChannelsSort) {
+	if s == nil {
+		return
+	}
 	c.sort = s
+	sort.Sort(c)
 }
 
 func (c *Channels) Current() *models.Channel {

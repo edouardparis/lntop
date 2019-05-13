@@ -50,7 +50,8 @@ type Channels struct {
 type channelsColumn struct {
 	name    string
 	width   int
-	sort    func(*netmodels.Channel, *netmodels.Channel, models.Order) bool
+	sorted  bool
+	sort    func(models.Order) models.ChannelsSort
 	display func(*netmodels.Channel, ...color.Option) string
 }
 
@@ -75,6 +76,21 @@ func (c Channels) currentColumnIndex() int {
 		index++
 	}
 	return index
+}
+
+func (c Channels) Sort(column string, order models.Order) {
+	if column == "" {
+		index := c.currentColumnIndex()
+		col := c.columns[index]
+		if col.sort == nil {
+			return
+		}
+
+		c.channels.Sort(col.sort(order))
+		for i := range c.columns {
+			c.columns[i].sorted = (i == index)
+		}
+	}
 }
 
 func (c Channels) Origin() (int, int) {
@@ -218,6 +234,10 @@ func (c *Channels) display() {
 			buffer.WriteString(color.Cyan(color.Background)(c.columns[i].name))
 			buffer.WriteString(" ")
 			continue
+		} else if c.columns[i].sorted {
+			buffer.WriteString(color.Black(color.Background)(c.columns[i].name))
+			buffer.WriteString(" ")
+			continue
 		}
 		buffer.WriteString(c.columns[i].name)
 		buffer.WriteString(" ")
@@ -304,8 +324,10 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 12,
 				name:  fmt.Sprintf("%12s", columns[i]),
-				sort: func(c1, c2 *netmodels.Channel, order models.Order) bool {
-					return models.Int64Sort(c1.LocalBalance, c2.LocalBalance, order)
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.Int64Sort(c1.LocalBalance, c2.LocalBalance, order)
+					}
 				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					return color.Cyan(opts...)(printer.Sprintf("%12d", c.LocalBalance))

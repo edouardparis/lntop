@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"github.com/edouardparis/lntop/ui/models"
 	"github.com/jroimartin/gocui"
 )
 
@@ -65,6 +66,16 @@ func setKeyBinding(c *controller, g *gocui.Gui) error {
 	}
 
 	err = g.SetKeybinding("", 'm', gocui.ModNone, c.Menu)
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", 'a', gocui.ModNone, c.Order(models.Asc))
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", 'd', gocui.ModNone, c.Order(models.Desc))
 	if err != nil {
 		return err
 	}

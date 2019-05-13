@@ -9,6 +9,7 @@ var (
 	yellowBold = color.New(color.FgYellow, color.Bold).SprintFunc()
 	green      = color.New(color.FgGreen).SprintFunc()
 	greenBold  = color.New(color.FgGreen, color.Bold).SprintFunc()
+	greenBg    = color.New(color.FgBlack, color.BgGreen).SprintFunc()
 	red        = color.New(color.FgRed).SprintFunc()
 	redBold    = color.New(color.FgRed, color.Bold).SprintFunc()
 	cyan       = color.New(color.FgCyan).SprintFunc()
@@ -54,6 +55,11 @@ func Green(opts ...Option) func(a ...interface{}) string {
 	if options.bold {
 		return greenBold
 	}
+
+	if options.bg {
+		return greenBg
+	}
+
 	return green
 }
 
