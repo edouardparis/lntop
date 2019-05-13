@@ -2,6 +2,8 @@ package models
 
 import (
 	"context"
+	"sort"
+	"sync"
 
 	"github.com/edouardparis/lntop/network/models"
 )
@@ -12,9 +14,10 @@ type Transactions struct {
 	current *models.Transaction
 	list    []*models.Transaction
 	sort    TransactionsSort
+	mu      sync.RWMutex
 }
 
-func (t Transactions) Current() *models.Transaction {
+func (t *Transactions) Current() *models.Transaction {
 	return t.current
 }
 
@@ -22,7 +25,7 @@ func (t *Transactions) SetCurrent(index int) {
 	t.current = t.Get(index)
 }
 
-func (t Transactions) List() []*models.Transaction {
+func (t *Transactions) List() []*models.Transaction {
 	return t.list
 }
 
@@ -38,8 +41,12 @@ func (t *Transactions) Less(i, j int) bool {
 	return t.sort(t.list[i], t.list[j])
 }
 
-func (t *Transactions) WithSort(s TransactionsSort) {
+func (t *Transactions) Sort(s TransactionsSort) {
+	if s == nil {
+		return
+	}
 	t.sort = s
+	sort.Sort(t)
 }
 
 func (t *Transactions) Get(index int) *models.Transaction {
@@ -50,11 +57,40 @@ func (t *Transactions) Get(index int) *models.Transaction {
 	return t.list[index]
 }
 
+func (t *Transactions) Contains(tx *models.Transaction) bool {
+	if tx == nil {
+		return false
+	}
+	for i := range t.list {
+		if t.list[i].TxHash == tx.TxHash {
+			return true
+		}
+	}
+	return false
+}
+
+func (t *Transactions) Add(tx *models.Transaction) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if t.Contains(tx) {
+		return
+	}
+	t.list = append(t.list, tx)
+}
+
 func (m *Models) RefreshTransactions(ctx context.Context) error {
 	transactions, err := m.network.GetTransactions(ctx)
 	if err != nil {
 		return err
 	}
-	*m.Transactions = Transactions{list: transactions}
+
+	for i := range transactions {
+		m.Transactions.Add(transactions[i])
+	}
+
+	if m.Transactions.sort != nil {
+		sort.Sort(m.Transactions)
+	}
+
 	return nil
 }

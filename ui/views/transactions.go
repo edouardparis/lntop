@@ -44,6 +44,8 @@ type Transactions struct {
 type transactionsColumn struct {
 	name    string
 	width   int
+	sorted  bool
+	sort    func(models.Order) models.TransactionsSort
 	display func(*netmodels.Transaction, ...color.Option) string
 }
 
@@ -124,6 +126,21 @@ func (c *Transactions) Speed() (int, int, int, int) {
 	return c.columns[current].width + 1,
 		c.columns[current-1].width + 1,
 		1, 1
+}
+
+func (c *Transactions) Sort(column string, order models.Order) {
+	if column == "" {
+		index := c.currentColumnIndex()
+		col := c.columns[index]
+		if col.sort == nil {
+			return
+		}
+
+		c.transactions.Sort(col.sort(order))
+		for i := range c.columns {
+			c.columns[i].sorted = (i == index)
+		}
+	}
 }
 
 func (c Transactions) Delete(g *gocui.Gui) error {
@@ -211,6 +228,10 @@ func (c *Transactions) display() {
 			buffer.WriteString(color.Cyan(color.Background)(c.columns[i].name))
 			buffer.WriteString(" ")
 			continue
+		} else if c.columns[i].sorted {
+			buffer.WriteString(color.Black(color.Background)(c.columns[i].name))
+			buffer.WriteString(" ")
+			continue
 		}
 		buffer.WriteString(c.columns[i].name)
 		buffer.WriteString(" ")
@@ -253,6 +274,11 @@ func NewTransactions(cfg *config.View, txs *models.Transactions) *Transactions {
 			transactions.columns[i] = transactionsColumn{
 				name:  fmt.Sprintf("%-15s", columns[i]),
 				width: 15,
+				sort: func(order models.Order) models.TransactionsSort {
+					return func(tx1, tx2 *netmodels.Transaction) bool {
+						return models.DateSort(&tx1.Date, &tx2.Date, order)
+					}
+				},
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return color.Cyan(opts...)(
 						fmt.Sprintf("%15s", tx.Date.Format("15:04:05 Jan _2")),
@@ -263,6 +289,11 @@ func NewTransactions(cfg *config.View, txs *models.Transactions) *Transactions {
 			transactions.columns[i] = transactionsColumn{
 				name:  fmt.Sprintf("%8s", columns[i]),
 				width: 8,
+				sort: func(order models.Order) models.TransactionsSort {
+					return func(tx1, tx2 *netmodels.Transaction) bool {
+						return models.Int32Sort(tx1.BlockHeight, tx2.BlockHeight, order)
+					}
+				},
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return color.White(opts...)(fmt.Sprintf("%8d", tx.BlockHeight))
 				},
@@ -271,6 +302,11 @@ func NewTransactions(cfg *config.View, txs *models.Transactions) *Transactions {
 			transactions.columns[i] = transactionsColumn{
 				name:  fmt.Sprintf("%10s", columns[i]),
 				width: 10,
+				sort: func(order models.Order) models.TransactionsSort {
+					return func(tx1, tx2 *netmodels.Transaction) bool {
+						return models.IntSort(len(tx1.DestAddresses), len(tx2.DestAddresses), order)
+					}
+				},
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return color.White(opts...)(fmt.Sprintf("%10d", len(tx.DestAddresses)))
 				},
@@ -279,6 +315,11 @@ func NewTransactions(cfg *config.View, txs *models.Transactions) *Transactions {
 			transactions.columns[i] = transactionsColumn{
 				name:  fmt.Sprintf("%8s", columns[i]),
 				width: 8,
+				sort: func(order models.Order) models.TransactionsSort {
+					return func(tx1, tx2 *netmodels.Transaction) bool {
+						return models.Int64Sort(tx1.TotalFees, tx2.TotalFees, order)
+					}
+				},
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return color.White(opts...)(fmt.Sprintf("%8d", tx.TotalFees))
 				},
@@ -287,6 +328,11 @@ func NewTransactions(cfg *config.View, txs *models.Transactions) *Transactions {
 			transactions.columns[i] = transactionsColumn{
 				name:  fmt.Sprintf("%8s", columns[i]),
 				width: 8,
+				sort: func(order models.Order) models.TransactionsSort {
+					return func(tx1, tx2 *netmodels.Transaction) bool {
+						return models.Int32Sort(tx1.NumConfirmations, tx2.NumConfirmations, order)
+					}
+				},
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					n := fmt.Sprintf("%8d", tx.NumConfirmations)
 					if tx.NumConfirmations < 6 {
@@ -314,6 +360,11 @@ func NewTransactions(cfg *config.View, txs *models.Transactions) *Transactions {
 			transactions.columns[i] = transactionsColumn{
 				name:  fmt.Sprintf("%13s", columns[i]),
 				width: 13,
+				sort: func(order models.Order) models.TransactionsSort {
+					return func(tx1, tx2 *netmodels.Transaction) bool {
+						return models.Int64Sort(tx1.Amount, tx2.Amount, order)
+					}
+				},
 				display: func(tx *netmodels.Transaction, opts ...color.Option) string {
 					return color.White(opts...)(printer.Sprintf("%13d", tx.Amount))
 				},

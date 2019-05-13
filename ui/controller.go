@@ -206,6 +206,8 @@ func (c *controller) Order(order models.Order) func(*gocui.Gui, *gocui.View) err
 		switch view.Name() {
 		case views.CHANNELS:
 			c.views.Channels.Sort("", order)
+		case views.TRANSACTIONS:
+			c.views.Transactions.Sort("", order)
 		}
 		return nil
 	}

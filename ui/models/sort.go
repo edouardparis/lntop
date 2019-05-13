@@ -16,6 +16,13 @@ func IntSort(a, b int, o Order) bool {
 	return a < b
 }
 
+func Int32Sort(a, b int32, o Order) bool {
+	if o == Asc {
+		return a > b
+	}
+	return a < b
+}
+
 func Int64Sort(a, b int64, o Order) bool {
 	if o == Asc {
 		return a > b
