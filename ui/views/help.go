@@ -69,6 +69,10 @@ func (h Help) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		cyan("F2  m:"), "show/close the menu sidebar"))
 	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",
 		cyan("F10 q:"), "quit"))
+
+	fmt.Fprintln(h.view, "")
+	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",
+		cyan("  a d:"), "asc/desc order list with the current column value"))
 	_, err = g.SetCurrentView(HELP)
 	return err
 }
