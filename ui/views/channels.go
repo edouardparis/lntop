@@ -26,6 +26,8 @@ var DefaultChannelsColumns = []string{
 	"GAUGE",
 	"LOCAL",
 	"CAP",
+	"SENT",
+	"RECEIVED",
 	"HTLC",
 	"UNSETTLED",
 	"CFEE",
@@ -352,6 +354,32 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					return color.White(opts...)(printer.Sprintf("%12d", c.Capacity))
+				},
+			}
+		case "SENT":
+			channels.columns[i] = channelsColumn{
+				width: 12,
+				name:  fmt.Sprintf("%12s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.Int64Sort(c1.TotalAmountSent, c2.TotalAmountSent, order)
+					}
+				},
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.Cyan(opts...)(printer.Sprintf("%12d", c.TotalAmountSent))
+				},
+			}
+		case "RECEIVED":
+			channels.columns[i] = channelsColumn{
+				width: 12,
+				name:  fmt.Sprintf("%12s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.Int64Sort(c1.TotalAmountReceived, c2.TotalAmountReceived, order)
+					}
+				},
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.Cyan(opts...)(printer.Sprintf("%12d", c.TotalAmountReceived))
 				},
 			}
 		case "HTLC":

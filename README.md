@@ -51,6 +51,8 @@ pool_capacity = 3
 # GAUGE       ascii bar with percent local/capacity
 # LOCAL       the local amount of the channel
 # CAP         the total capacity of the channel
+# SENT        the total amount sent
+# RECEIVED    the total amount received
 # HTLC        the number of pending HTLC
 # UNSETTLED   the amount unsettled in the channel
 # CFEE        the commit fee
@@ -64,6 +66,8 @@ columns = [
 	"GAUGE",
 	"LOCAL",
 	"CAP",
+	"SENT",
+	"RECEIVED",
 	"HTLC",
 	"UNSETTLED",
 	"CFEE",
