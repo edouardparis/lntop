@@ -95,8 +95,11 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 	for event := range sub {
 		c.logger.Debug("event received", logging.String("type", event.Type))
 		switch event.Type {
+		case events.TransactionCreated:
+			refresh(c.models.RefreshTransactions)
 		case events.BlockReceived:
 			refresh(c.models.RefreshInfo)
+			refresh(c.models.RefreshTransactions)
 		case events.WalletBalanceUpdated:
 			refresh(
 				c.models.RefreshInfo,
