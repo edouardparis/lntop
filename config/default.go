@@ -23,6 +23,39 @@ macaroon_timeout = %[8]d
 max_msg_recv_size = %[9]d
 conn_timeout = %[10]d
 pool_capacity = %[11]d
+
+[views]
+# views.channels is the view displaying channel list.
+[views.channels]
+# It is possible to add, remove and order columns of the
+# table with the array columns. The available values are:
+columns = [
+	"STATUS",      # status of the channel
+	"ALIAS",       # alias of the channel node
+	"GAUGE",       # ascii bar with percent local/capacity
+	"LOCAL",       # the local amount of the channel
+	"CAP",         # the total capacity of the channel
+	"SENT",        # the total amount sent
+	"RECEIVED",    # the total amount received
+	"HTLC",        # the number of pending HTLC
+	"UNSETTLED",   # the amount unsettled in the channel
+	"CFEE",        # the commit fee
+	"LAST UPDATE", # last update of the channel
+	"PRIVATE",     # true if channel is private
+	"ID",          # the id of the channel
+]
+
+[views.transactions]
+# It is possible to add, remove and order columns of the
+# table with the array columns. The available values are:
+columns = [
+	"DATE",      # date of the transaction
+	"HEIGHT",    # block height of the transaction
+	"CONFIR",    # number of confirmations
+	"AMOUNT",    # amount moved by the transaction
+	"FEE",       # fee of the transaction
+	"ADDRESSES", # number of transaction output addresses
+]
 `,
 		cfg.Logger.Type,
 		cfg.Logger.Dest,

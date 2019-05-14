@@ -53,31 +53,35 @@ func (s *Summary) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 func (s *Summary) display() {
 	s.left.Clear()
 	p := message.NewPrinter(language.English)
-	fmt.Fprintln(s.left, color.Green("[ Channels ]"))
+	green := color.Green()
+	yellow := color.Yellow()
+	cyan := color.Cyan()
+	red := color.Red()
+	fmt.Fprintln(s.left, green("[ Channels ]"))
 	fmt.Fprintln(s.left, p.Sprintf("%s %d (%s|%s)",
-		color.Cyan("balance:"),
+		cyan("balance:"),
 		s.channelsBalance.Balance+s.channelsBalance.PendingOpenBalance,
-		color.Green(p.Sprintf("%d", s.channelsBalance.Balance)),
-		color.Yellow(p.Sprintf("%d", s.channelsBalance.PendingOpenBalance)),
+		green(p.Sprintf("%d", s.channelsBalance.Balance)),
+		yellow(p.Sprintf("%d", s.channelsBalance.PendingOpenBalance)),
 	))
 	fmt.Fprintln(s.left, fmt.Sprintf("%s %d %s %d %s %d %s",
-		color.Cyan("state  :"),
-		s.info.NumActiveChannels, color.Green("active"),
-		s.info.NumPendingChannels, color.Yellow("pending"),
-		s.info.NumInactiveChannels, color.Red("inactive"),
+		cyan("state  :"),
+		s.info.NumActiveChannels, green("active"),
+		s.info.NumPendingChannels, yellow("pending"),
+		s.info.NumInactiveChannels, red("inactive"),
 	))
 	fmt.Fprintln(s.left, fmt.Sprintf("%s %s",
-		color.Cyan("gauge  :"),
+		cyan("gauge  :"),
 		gaugeTotal(s.channelsBalance.Balance, s.channels.List()),
 	))
 
 	s.right.Clear()
-	fmt.Fprintln(s.right, color.Green("[ Wallet ]"))
+	fmt.Fprintln(s.right, green("[ Wallet ]"))
 	fmt.Fprintln(s.right, p.Sprintf("%s %d (%s|%s)",
-		color.Cyan("balance:"),
+		cyan("balance:"),
 		s.walletBalance.TotalBalance,
-		color.Green(p.Sprintf("%d", s.walletBalance.ConfirmedBalance)),
-		color.Yellow(p.Sprintf("%d", s.walletBalance.UnconfirmedBalance)),
+		green(p.Sprintf("%d", s.walletBalance.ConfirmedBalance)),
+		yellow(p.Sprintf("%d", s.walletBalance.UnconfirmedBalance)),
 	))
 }
 
@@ -93,9 +97,10 @@ func gaugeTotal(balance int64, channels []*netmodels.Channel) string {
 
 	index := int(balance * int64(20) / capacity)
 	var buffer bytes.Buffer
+	cyan := color.Cyan()
 	for i := 0; i < 20; i++ {
 		if i < index {
-			buffer.WriteString(color.Cyan("|"))
+			buffer.WriteString(cyan("|"))
 			continue
 		}
 		buffer.WriteString(" ")

@@ -46,12 +46,20 @@ func (b *Backend) SubscribeChannels(context.Context, chan *models.ChannelUpdate)
 	return nil
 }
 
-func (l *Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, error) {
+func (b *Backend) SubscribeTransactions(ctx context.Context, channel chan *models.Transaction) error {
+	return nil
+}
+
+func (b *Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, error) {
 	return &models.Node{}, nil
 }
 
 func (b *Backend) GetWalletBalance(ctx context.Context) (*models.WalletBalance, error) {
 	return &models.WalletBalance{}, nil
+}
+
+func (b *Backend) GetTransactions(ctx context.Context) ([]*models.Transaction, error) {
+	return []*models.Transaction{}, nil
 }
 
 func (b *Backend) GetChannelsBalance(ctx context.Context) (*models.ChannelsBalance, error) {

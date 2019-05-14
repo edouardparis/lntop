@@ -7,8 +7,8 @@
 
 `lntop` is an interactive text-mode channels viewer for Unix systems.
 
- ![lntop-v0.0.0](http://paris.iiens.net/lntop-v0.0.0.png?)
- *lntop-v0.0.0*
+ ![lntop-v0.1.0](http://paris.iiens.net/lntop-v0.1.0.png)
+ *lntop-v0.1.0*
 
 ## Install
 
@@ -22,6 +22,9 @@ cd lntop && export GO111MODULE=on && go install -mod=vendor ./...
 
 First time `lntop` is used a config file `.lntop/config.toml` is created
 in the user home directory.
+
+Change macaroon path according to your network.
+
 ```toml
 [logger]
 type = "production"
@@ -37,8 +40,40 @@ macaroon_timeout = 60
 max_msg_recv_size = 52428800
 conn_timeout = 1000000
 pool_capacity = 3
+
+[views]
+# views.channels is the view displaying channel list.
+[views.channels]
+# It is possible to add, remove and order columns of the
+# table with the array columns. The available values are:
+columns = [
+	"STATUS",      # status of the channel
+	"ALIAS",       # alias of the channel node
+	"GAUGE",       # ascii bar with percent local/capacity
+	"LOCAL",       # the local amount of the channel
+	"CAP",         # the total capacity of the channel
+	"SENT",        # the total amount sent
+	"RECEIVED",    # the total amount received
+	"HTLC",        # the number of pending HTLC
+	"UNSETTLED",   # the amount unsettled in the channel
+	"CFEE",        # the commit fee
+	"LAST UPDATE", # last update of the channel
+	"PRIVATE",     # true if channel is private
+	"ID",          # the id of the channel
+]
+
+[views.transactions]
+# It is possible to add, remove and order columns of the
+# table with the array columns. The available values are:
+columns = [
+	"DATE",      # date of the transaction
+	"HEIGHT",    # block height of the transaction
+	"CONFIR",    # number of confirmations
+	"AMOUNT",    # amount moved by the transaction
+	"FEE",       # fee of the transaction
+	"ADDRESSES", # number of transaction output addresses
+]
 ```
-Change macaroon path according to your network.
 
 ## Docker
 

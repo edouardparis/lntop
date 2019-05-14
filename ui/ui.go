@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jroimartin/gocui"
+	"github.com/pkg/errors"
 
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/events"
@@ -25,7 +26,7 @@ func Run(ctx context.Context, app *app.App, sub chan *events.Event) error {
 
 	g.SetManagerFunc(ctrl.layout)
 
-	err = ctrl.setKeyBinding(g)
+	err = setKeyBinding(ctrl, g)
 	if err != nil {
 		return err
 	}
@@ -35,5 +36,5 @@ func Run(ctx context.Context, app *app.App, sub chan *events.Event) error {
 	err = g.MainLoop()
 	close(sub)
 
-	return err
+	return errors.WithStack(err)
 }

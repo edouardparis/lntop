@@ -1,30 +1,36 @@
 package views
 
 import (
-	"github.com/edouardparis/lntop/ui/models"
 	"github.com/jroimartin/gocui"
+	"github.com/pkg/errors"
+
+	"github.com/edouardparis/lntop/config"
+	"github.com/edouardparis/lntop/ui/cursor"
+	"github.com/edouardparis/lntop/ui/models"
 )
 
-type view interface {
+type View interface {
 	Set(*gocui.Gui, int, int, int, int) error
-	Wrap(*gocui.View) view
-	CursorLeft() error
-	CursorRight() error
-	CursorUp() error
-	CursorDown() error
+	Delete(*gocui.Gui) error
+	Wrap(*gocui.View) View
 	Name() string
+	cursor.View
 }
 
 type Views struct {
-	Previous view
-	Help     *Help
-	Header   *Header
-	Summary  *Summary
-	Channels *Channels
-	Channel  *Channel
+	Main View
+
+	Help         *Help
+	Header       *Header
+	Menu         *Menu
+	Summary      *Summary
+	Channels     *Channels
+	Channel      *Channel
+	Transactions *Transactions
+	Transaction  *Transaction
 }
 
-func (v Views) Get(vi *gocui.View) view {
+func (v Views) Get(vi *gocui.View) View {
 	if vi == nil {
 		return nil
 	}
@@ -33,15 +39,17 @@ func (v Views) Get(vi *gocui.View) view {
 		return v.Channels.Wrap(vi)
 	case HELP:
 		return v.Help.Wrap(vi)
+	case MENU:
+		return v.Menu.Wrap(vi)
 	case CHANNEL:
 		return v.Channel.Wrap(vi)
+	case TRANSACTIONS:
+		return v.Transactions.Wrap(vi)
+	case TRANSACTION:
+		return v.Transaction.Wrap(vi)
 	default:
 		return nil
 	}
-}
-
-func (v *Views) SetPrevious(p view) {
-	v.Previous = p
 }
 
 func (v *Views) Layout(g *gocui.Gui, maxX, maxY int) error {
@@ -55,15 +63,49 @@ func (v *Views) Layout(g *gocui.Gui, maxX, maxY int) error {
 		return err
 	}
 
-	return v.Channels.Set(g, 0, 6, maxX-1, maxY)
+	current := g.CurrentView()
+	if current != nil {
+		switch current.Name() {
+		case v.Help.Name():
+			return nil
+		case v.Menu.Name():
+			err = v.Menu.Set(g, 0, 6, 10, maxY)
+			if err != nil {
+				return err
+			}
+
+			err = v.Main.Set(g, 11, 6, maxX-1, maxY)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+
+	err = v.Main.Set(g, 0, 6, maxX-1, maxY)
+	if err != nil && err != gocui.ErrUnknownView {
+		return err
+	}
+
+	_, err = g.SetCurrentView(v.Main.Name())
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
 }
 
-func New(m *models.Models) *Views {
+func New(cfg config.Views, m *models.Models) *Views {
+	main := NewChannels(cfg.Channels, m.Channels)
 	return &Views{
-		Header:   NewHeader(m.Info),
-		Help:     NewHelp(),
-		Summary:  NewSummary(m.Info, m.ChannelsBalance, m.WalletBalance, m.Channels),
-		Channels: NewChannels(m.Channels),
-		Channel:  NewChannel(m.CurrentChannel),
+		Header:       NewHeader(m.Info),
+		Help:         NewHelp(),
+		Menu:         NewMenu(),
+		Summary:      NewSummary(m.Info, m.ChannelsBalance, m.WalletBalance, m.Channels),
+		Channels:     main,
+		Channel:      NewChannel(m.Channels),
+		Transactions: NewTransactions(cfg.Transactions, m.Transactions),
+		Transaction:  NewTransaction(m.Transactions),
+		Main:         main,
 	}
 }

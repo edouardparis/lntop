@@ -18,8 +18,8 @@ const (
 )
 
 type Channel struct {
-	view    *gocui.View
-	channel *models.Channel
+	view     *gocui.View
+	channels *models.Channels
 }
 
 func (c Channel) Name() string {
@@ -27,28 +27,32 @@ func (c Channel) Name() string {
 }
 
 func (c Channel) Empty() bool {
-	return c.channel == nil
+	return c.channels == nil
 }
 
-func (c *Channel) Wrap(v *gocui.View) view {
+func (c *Channel) Wrap(v *gocui.View) View {
 	c.view = v
 	return c
 }
 
-func (c *Channel) CursorDown() error {
-	return cursorDown(c.view, 1)
+func (c Channel) Origin() (int, int) {
+	return c.view.Origin()
 }
 
-func (c *Channel) CursorUp() error {
-	return cursorUp(c.view, 1)
+func (c Channel) Cursor() (int, int) {
+	return c.view.Cursor()
 }
 
-func (c *Channel) CursorRight() error {
-	return cursorRight(c.view, 1)
+func (c Channel) Speed() (int, int, int, int) {
+	return 1, 1, 1, 1
 }
 
-func (c *Channel) CursorLeft() error {
-	return cursorLeft(c.view, 1)
+func (c *Channel) SetCursor(x, y int) error {
+	return c.view.SetCursor(x, y)
+}
+
+func (c *Channel) SetOrigin(x, y int) error {
+	return c.view.SetOrigin(x, y)
 }
 
 func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
@@ -84,10 +88,12 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.BgColor = gocui.ColorCyan
 	footer.FgColor = gocui.ColorBlack
 	footer.Clear()
-	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s",
-		color.BlackBg("F1"), "Help",
-		color.BlackBg("Enter"), "Channels",
-		color.BlackBg("F10"), "Quit",
+	blackBg := color.Black(color.Background)
+	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s %s%s",
+		blackBg("F1"), "Help",
+		blackBg("F2"), "Menu",
+		blackBg("Enter"), "Channels",
+		blackBg("F10"), "Quit",
 	))
 	return nil
 }
@@ -110,67 +116,70 @@ func (c *Channel) display() {
 	p := message.NewPrinter(language.English)
 	v := c.view
 	v.Clear()
-	channel := c.channel.Item
-	fmt.Fprintln(v, color.Green(" [ Channel ]"))
+	channel := c.channels.Current()
+	green := color.Green()
+	cyan := color.Cyan()
+	red := color.Red()
+	fmt.Fprintln(v, green(" [ Channel ]"))
 	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		color.Cyan("         Status:"), status(channel)))
+		cyan("         Status:"), status(channel)))
 	fmt.Fprintln(v, fmt.Sprintf("%s %d",
-		color.Cyan("             ID:"), channel.ID))
+		cyan("             ID:"), channel.ID))
 	fmt.Fprintln(v, p.Sprintf("%s %d",
-		color.Cyan("       Capacity:"), channel.Capacity))
+		cyan("       Capacity:"), channel.Capacity))
 	fmt.Fprintln(v, p.Sprintf("%s %d",
-		color.Cyan("  Local Balance:"), channel.LocalBalance))
+		cyan("  Local Balance:"), channel.LocalBalance))
 	fmt.Fprintln(v, p.Sprintf("%s %d",
-		color.Cyan(" Remote Balance:"), channel.RemoteBalance))
+		cyan(" Remote Balance:"), channel.RemoteBalance))
 	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		color.Cyan("  Channel Point:"), channel.ChannelPoint))
+		cyan("  Channel Point:"), channel.ChannelPoint))
 	fmt.Fprintln(v, "")
-	fmt.Fprintln(v, color.Green(" [ Node ]"))
+	fmt.Fprintln(v, green(" [ Node ]"))
 	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		color.Cyan("          Alias:"), alias(channel)))
-	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		color.Cyan("         PubKey:"), channel.RemotePubKey))
+		cyan("         PubKey:"), channel.RemotePubKey))
 
 	if channel.Node != nil {
+		fmt.Fprintln(v, fmt.Sprintf("%s %s",
+			cyan("          Alias:"), channel.Node.Alias))
 		fmt.Fprintln(v, p.Sprintf("%s %d",
-			color.Cyan(" Total Capacity:"), channel.Node.TotalCapacity))
+			cyan(" Total Capacity:"), channel.Node.TotalCapacity))
 		fmt.Fprintln(v, p.Sprintf("%s %d",
-			color.Cyan(" Total Channels:"), channel.Node.NumChannels))
+			cyan(" Total Channels:"), channel.Node.NumChannels))
 	}
 
 	if channel.Policy1 != nil {
 		fmt.Fprintln(v, "")
-		fmt.Fprintln(v, color.Green(" [ Forward Policy Node1 ]"))
+		fmt.Fprintln(v, green(" [ Forward Policy Node1 ]"))
 		if channel.Policy1.Disabled {
-			fmt.Fprintln(v, color.Red("disabled"))
+			fmt.Fprintln(v, red("disabled"))
 		}
 		fmt.Fprintln(v, p.Sprintf("%s %d",
-			color.Cyan("    Time lock delta:"), channel.Policy1.TimeLockDelta))
+			cyan("    Time lock delta:"), channel.Policy1.TimeLockDelta))
 		fmt.Fprintln(v, p.Sprintf("%s %d",
-			color.Cyan("           Min htlc:"), channel.Policy1.MinHtlc))
+			cyan("           Min htlc:"), channel.Policy1.MinHtlc))
 		fmt.Fprintln(v, p.Sprintf("%s %d",
-			color.Cyan("      Fee base msat:"), channel.Policy1.FeeBaseMsat))
+			cyan("      Fee base msat:"), channel.Policy1.FeeBaseMsat))
 		fmt.Fprintln(v, p.Sprintf("%s %d",
-			color.Cyan("Fee rate milli msat:"), channel.Policy1.FeeRateMilliMsat))
+			cyan("Fee rate milli msat:"), channel.Policy1.FeeRateMilliMsat))
 	}
 
 	if channel.Policy2 != nil {
 		fmt.Fprintln(v, "")
-		fmt.Fprintln(v, color.Green(" [ Forward Policy Node 2 ]"))
+		fmt.Fprintln(v, green(" [ Forward Policy Node 2 ]"))
 		if channel.Policy2.Disabled {
-			fmt.Fprintln(v, color.Red("disabled"))
+			fmt.Fprintln(v, red("disabled"))
 		}
 		fmt.Fprintln(v, p.Sprintf("%s %d",
-			color.Cyan("    Time lock delta:"), channel.Policy2.TimeLockDelta))
+			cyan("    Time lock delta:"), channel.Policy2.TimeLockDelta))
 		fmt.Fprintln(v, p.Sprintf("%s %d",
-			color.Cyan("           Min htlc:"), channel.Policy2.MinHtlc))
+			cyan("           Min htlc:"), channel.Policy2.MinHtlc))
 		fmt.Fprintln(v, p.Sprintf("%s %d",
-			color.Cyan("      Fee base msat:"), channel.Policy2.FeeBaseMsat))
+			cyan("      Fee base msat:"), channel.Policy2.FeeBaseMsat))
 		fmt.Fprintln(v, p.Sprintf("%s %d",
-			color.Cyan("Fee rate milli msat:"), channel.Policy2.FeeRateMilliMsat))
+			cyan("Fee rate milli msat:"), channel.Policy2.FeeRateMilliMsat))
 	}
 }
 
-func NewChannel(channel *models.Channel) *Channel {
-	return &Channel{channel: channel}
+func NewChannel(channels *models.Channels) *Channel {
+	return &Channel{channels: channels}
 }

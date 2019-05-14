@@ -284,3 +284,28 @@ func protoToRoutingPolicy(resp *lnrpc.RoutingPolicy) *models.RoutingPolicy {
 		Disabled:         resp.Disabled,
 	}
 }
+
+func protoToTransactions(resp *lnrpc.TransactionDetails) []*models.Transaction {
+	if resp == nil {
+		return nil
+	}
+
+	transactions := make([]*models.Transaction, len(resp.Transactions))
+	for i := range resp.Transactions {
+		transactions[i] = protoToTransaction(resp.Transactions[i])
+	}
+	return transactions
+}
+
+func protoToTransaction(resp *lnrpc.Transaction) *models.Transaction {
+	return &models.Transaction{
+		TxHash:           resp.TxHash,
+		Amount:           resp.Amount,
+		NumConfirmations: resp.NumConfirmations,
+		BlockHash:        resp.BlockHash,
+		BlockHeight:      resp.BlockHeight,
+		Date:             time.Unix(int64(resp.TimeStamp), 0),
+		TotalFees:        resp.TotalFees,
+		DestAddresses:    resp.DestAddresses,
+	}
+}
