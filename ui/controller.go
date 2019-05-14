@@ -98,8 +98,10 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 		case events.TransactionCreated:
 			refresh(c.models.RefreshTransactions)
 		case events.BlockReceived:
-			refresh(c.models.RefreshInfo)
-			refresh(c.models.RefreshTransactions)
+			refresh(
+				c.models.RefreshInfo,
+				c.models.RefreshTransactions,
+			)
 		case events.WalletBalanceUpdated:
 			refresh(
 				c.models.RefreshInfo,
