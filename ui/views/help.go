@@ -72,7 +72,7 @@ func (h Help) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 	fmt.Fprintln(h.view, "")
 	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",
-		cyan("  a d:"), "asc/desc order list with the current column value"))
+		cyan("  a d:"), "apply asc/desc order to the rows according to the selected column value"))
 	_, err = g.SetCurrentView(HELP)
 	return err
 }
