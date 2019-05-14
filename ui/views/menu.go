@@ -3,12 +3,14 @@ package views
 import (
 	"fmt"
 
+	"github.com/edouardparis/lntop/ui/color"
 	"github.com/jroimartin/gocui"
 )
 
 const (
 	MENU        = "menu"
 	MENU_HEADER = "menu_header"
+	MENU_FOOTER = "menu_footer"
 )
 
 var menu = []string{
@@ -81,6 +83,11 @@ func (c Menu) Delete(g *gocui.Gui) error {
 		return err
 	}
 
+	err = g.DeleteView(MENU_FOOTER)
+	if err != nil {
+		return err
+	}
+
 	return g.DeleteView(MENU)
 }
 
@@ -131,7 +138,25 @@ func (h Menu) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		fmt.Fprintln(h.view, fmt.Sprintf(" %-9s", menu[i]))
 	}
 	_, err = g.SetCurrentView(MENU)
-	return err
+	if err != nil {
+		return err
+	}
+
+	footer, err := g.SetView(MENU_FOOTER, x0-1, y1-2, x1, y1)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+	}
+	footer.Frame = false
+	footer.BgColor = gocui.ColorCyan
+	footer.FgColor = gocui.ColorBlack
+	footer.Clear()
+	blackBg := color.Black(color.Background)
+	fmt.Fprintln(footer, fmt.Sprintf("%s%s",
+		blackBg("F2"), "Close",
+	))
+	return nil
 }
 
 func NewMenu() *Menu { return &Menu{} }
