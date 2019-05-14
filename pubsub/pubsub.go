@@ -102,7 +102,8 @@ func (p *PubSub) Run(ctx context.Context, sub chan *events.Event) {
 	p.ticker(ctx, sub,
 		withTickerInfo(),
 		withTickerChannelsBalance(),
-		withTickerWalletBalance(),
+		// no need for ticker Wallet balance, transactions subscriber is enough
+		// withTickerWalletBalance(),
 	)
 
 	<-p.stop

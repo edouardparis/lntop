@@ -96,7 +96,11 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 		c.logger.Debug("event received", logging.String("type", event.Type))
 		switch event.Type {
 		case events.TransactionCreated:
-			refresh(c.models.RefreshTransactions)
+			refresh(
+				c.models.RefreshInfo,
+				c.models.RefreshWalletBalance,
+				c.models.RefreshTransactions,
+			)
 		case events.BlockReceived:
 			refresh(
 				c.models.RefreshInfo,
@@ -106,6 +110,7 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 			refresh(
 				c.models.RefreshInfo,
 				c.models.RefreshWalletBalance,
+				c.models.RefreshTransactions,
 			)
 		case events.ChannelBalanceUpdated:
 			refresh(
