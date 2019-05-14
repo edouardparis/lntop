@@ -76,6 +76,33 @@ func (t *Transactions) Add(tx *models.Transaction) {
 		return
 	}
 	t.list = append(t.list, tx)
+	if t.sort != nil {
+		sort.Sort(t)
+	}
+}
+
+func (t *Transactions) Update(tx *models.Transaction) {
+	if tx == nil {
+		return
+	}
+	if !t.Contains(tx) {
+		t.Add(tx)
+		return
+	}
+
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	for i := range t.list {
+		if t.list[i].TxHash == tx.TxHash {
+			t.list[i].NumConfirmations = tx.NumConfirmations
+			t.list[i].BlockHeight = tx.BlockHeight
+		}
+	}
+
+	if t.sort != nil {
+		sort.Sort(t)
+	}
 }
 
 func (m *Models) RefreshTransactions(ctx context.Context) error {
@@ -85,11 +112,7 @@ func (m *Models) RefreshTransactions(ctx context.Context) error {
 	}
 
 	for i := range transactions {
-		m.Transactions.Add(transactions[i])
-	}
-
-	if m.Transactions.sort != nil {
-		sort.Sort(m.Transactions)
+		m.Transactions.Update(transactions[i])
 	}
 
 	return nil
