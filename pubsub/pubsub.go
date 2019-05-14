@@ -59,6 +59,35 @@ func (p *PubSub) invoices(ctx context.Context, sub chan *events.Event) {
 	}()
 }
 
+func (p *PubSub) transactions(ctx context.Context, sub chan *events.Event) {
+	p.wg.Add(3)
+	transactions := make(chan *models.Transaction)
+	ctx, cancel := context.WithCancel(ctx)
+
+	go func() {
+		for tx := range transactions {
+			p.logger.Debug("receive transaction", logging.String("tx_hash", tx.TxHash))
+			sub <- events.New(events.TransactionCreated)
+		}
+		p.wg.Done()
+	}()
+
+	go func() {
+		err := p.network.SubscribeTransactions(ctx, transactions)
+		if err != nil {
+			p.logger.Error("SubscribeTransactions returned an error", logging.Error(err))
+		}
+		p.wg.Done()
+	}()
+
+	go func() {
+		<-p.stop
+		cancel()
+		close(transactions)
+		p.wg.Done()
+	}()
+}
+
 func (p *PubSub) Stop() {
 	p.stop <- true
 	close(p.stop)
@@ -69,6 +98,7 @@ func (p *PubSub) Run(ctx context.Context, sub chan *events.Event) {
 	p.logger.Debug("Starting...")
 
 	p.invoices(ctx, sub)
+	p.transactions(ctx, sub)
 	p.ticker(ctx, sub,
 		withTickerInfo(),
 		withTickerChannelsBalance(),
