@@ -37,4 +37,6 @@ type Backend interface {
 	SendPayment(context.Context, *models.PayReq) (*models.Payment, error)
 
 	GetTransactions(context.Context) ([]*models.Transaction, error)
+
+	SubscribeTransactions(context.Context, chan *models.Transaction) error
 }

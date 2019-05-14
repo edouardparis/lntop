@@ -46,7 +46,11 @@ func (b *Backend) SubscribeChannels(context.Context, chan *models.ChannelUpdate)
 	return nil
 }
 
-func (l *Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, error) {
+func (b *Backend) SubscribeTransactions(ctx context.Context, channel chan *models.Transaction) error {
+	return nil
+}
+
+func (b *Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, error) {
 	return &models.Node{}, nil
 }
 

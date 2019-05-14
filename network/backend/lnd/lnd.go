@@ -97,6 +97,38 @@ func (l Backend) SubscribeInvoice(ctx context.Context, channelInvoice chan *mode
 	}
 }
 
+func (l Backend) SubscribeTransactions(ctx context.Context, channel chan *models.Transaction) error {
+	clt, err := l.Client(ctx)
+	if err != nil {
+		return err
+	}
+	defer clt.Close()
+
+	cltTransactions, err := clt.SubscribeTransactions(ctx, &lnrpc.GetTransactionsRequest{})
+	if err != nil {
+		return err
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			break
+		default:
+			transaction, err := cltTransactions.Recv()
+			if err != nil {
+				st, ok := status.FromError(err)
+				if ok && st.Code() == codes.Canceled {
+					l.logger.Debug("stopping subscribe transactions: context canceled")
+					return nil
+				}
+				return err
+			}
+
+			channel <- protoToTransaction(transaction)
+		}
+	}
+}
+
 func (l Backend) SubscribeChannels(ctx context.Context, events chan *models.ChannelUpdate) error {
 	_, err := l.Client(ctx)
 	if err != nil {

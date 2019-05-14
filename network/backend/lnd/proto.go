@@ -292,16 +292,20 @@ func protoToTransactions(resp *lnrpc.TransactionDetails) []*models.Transaction {
 
 	transactions := make([]*models.Transaction, len(resp.Transactions))
 	for i := range resp.Transactions {
-		transactions[i] = &models.Transaction{
-			TxHash:           resp.Transactions[i].TxHash,
-			Amount:           resp.Transactions[i].Amount,
-			NumConfirmations: resp.Transactions[i].NumConfirmations,
-			BlockHash:        resp.Transactions[i].BlockHash,
-			BlockHeight:      resp.Transactions[i].BlockHeight,
-			Date:             time.Unix(int64(resp.Transactions[i].TimeStamp), 0),
-			TotalFees:        resp.Transactions[i].TotalFees,
-			DestAddresses:    resp.Transactions[i].DestAddresses,
-		}
+		transactions[i] = protoToTransaction(resp.Transactions[i])
 	}
 	return transactions
+}
+
+func protoToTransaction(resp *lnrpc.Transaction) *models.Transaction {
+	return &models.Transaction{
+		TxHash:           resp.TxHash,
+		Amount:           resp.Amount,
+		NumConfirmations: resp.NumConfirmations,
+		BlockHash:        resp.BlockHash,
+		BlockHeight:      resp.BlockHeight,
+		Date:             time.Unix(int64(resp.TimeStamp), 0),
+		TotalFees:        resp.TotalFees,
+		DestAddresses:    resp.DestAddresses,
+	}
 }
