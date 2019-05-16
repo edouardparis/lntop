@@ -10,7 +10,7 @@ import (
 	"github.com/edouardparis/lntop/network/models"
 )
 
-type tickerFunc func(context.Context, logging.Logger, *network.Network, chan *events.Event)
+type tickerFunc func(context.Context, logging.Logger, network.Network, chan *events.Event)
 
 func (p *PubSub) ticker(ctx context.Context, sub chan *events.Event, fn ...tickerFunc) {
 	p.wg.Add(1)
@@ -34,7 +34,7 @@ func (p *PubSub) ticker(ctx context.Context, sub chan *events.Event, fn ...ticke
 // withTickerInfo checks if general information did not changed changed in the ticker interval.
 func withTickerInfo() tickerFunc {
 	var old *models.Info
-	return func(ctx context.Context, logger logging.Logger, net *network.Network, sub chan *events.Event) {
+	return func(ctx context.Context, logger logging.Logger, net network.Network, sub chan *events.Event) {
 		info, err := net.Info(ctx)
 		if err != nil {
 			logger.Error("network info returned an error", logging.Error(err))
@@ -68,7 +68,7 @@ func withTickerInfo() tickerFunc {
 // changed in the ticker interval.
 func withTickerChannelsBalance() tickerFunc {
 	var old *models.ChannelsBalance
-	return func(ctx context.Context, logger logging.Logger, net *network.Network, sub chan *events.Event) {
+	return func(ctx context.Context, logger logging.Logger, net network.Network, sub chan *events.Event) {
 		channelsBalance, err := net.GetChannelsBalance(ctx)
 		if err != nil {
 			logger.Error("network channels balance returned an error", logging.Error(err))
@@ -87,7 +87,7 @@ func withTickerChannelsBalance() tickerFunc {
 // changed in the ticker interval.
 func withTickerWalletBalance() tickerFunc {
 	var old *models.WalletBalance
-	return func(ctx context.Context, logger logging.Logger, net *network.Network, sub chan *events.Event) {
+	return func(ctx context.Context, logger logging.Logger, net network.Network, sub chan *events.Event) {
 		walletBalance, err := net.GetWalletBalance(ctx)
 		if err != nil {
 			logger.Error("network wallet balance returned an error", logging.Error(err))

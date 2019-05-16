@@ -33,6 +33,8 @@ type Network struct {
 	MaxMsgRecvSize  int    `toml:"max_msg_recv_size"`
 	ConnTimeout     int    `toml:"conn_timeout"`
 	PoolCapacity    int    `toml:"pool_capacity"`
+	LightningDir    string `toml:"lightning_dir"`
+	RPCFile         string `toml:"rpc_file"`
 }
 
 type Views struct {

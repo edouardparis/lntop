@@ -9,7 +9,7 @@ import (
 type App struct {
 	Config  *config.Config
 	Logger  logging.Logger
-	Network *network.Network
+	Network network.Network
 }
 
 func New(cfg *config.Config) (*App, error) {

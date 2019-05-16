@@ -13,9 +13,9 @@ import (
 
 	"github.com/edouardparis/lntop/config"
 	"github.com/edouardparis/lntop/logging"
-	"github.com/edouardparis/lntop/network/backend/pool"
 	"github.com/edouardparis/lntop/network/models"
 	"github.com/edouardparis/lntop/network/options"
+	"github.com/edouardparis/lntop/network/pool"
 )
 
 const (

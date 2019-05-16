@@ -12,7 +12,7 @@ import (
 
 type Models struct {
 	logger          logging.Logger
-	network         *network.Network
+	network         network.Network
 	Info            *Info
 	Channels        *Channels
 	WalletBalance   *WalletBalance

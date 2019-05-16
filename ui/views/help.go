@@ -6,11 +6,11 @@ import (
 	"github.com/jroimartin/gocui"
 
 	"github.com/edouardparis/lntop/ui/color"
+	"github.com/edouardparis/lntop/version"
 )
 
 const (
-	version = "v0.1.0"
-	HELP    = "help"
+	HELP = "help"
 )
 
 type Help struct {
@@ -60,7 +60,7 @@ func (h Help) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	}
 	h.view.Frame = false
 	cyan := color.Cyan()
-	fmt.Fprintln(h.view, fmt.Sprintf("lntop %s - (C) 2019 Edouard Paris", version))
+	fmt.Fprintln(h.view, fmt.Sprintf("lntop %s - (C) 2019 Edouard Paris", version.Version))
 	fmt.Fprintln(h.view, "Released under the MIT License")
 	fmt.Fprintln(h.view, "")
 	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",

@@ -13,11 +13,11 @@ import (
 type PubSub struct {
 	stop    chan bool
 	logger  logging.Logger
-	network *network.Network
+	network network.Network
 	wg      *sync.WaitGroup
 }
 
-func New(logger logging.Logger, network *network.Network) *PubSub {
+func New(logger logging.Logger, network network.Network) *PubSub {
 	return &PubSub{
 		logger:  logger.With(logging.String("logger", "pubsub")),
 		network: network,
