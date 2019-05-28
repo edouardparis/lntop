@@ -1,23 +1,24 @@
 package events
 
+type Event string
+
 const (
-	BlockReceived         = "block.received"
-	ChannelActive         = "channel.active"
-	ChannelBalanceUpdated = "channel.balance.updated"
-	ChannelInactive       = "channel.inactive"
-	ChannelPending        = "channel.pending"
-	InvoiceCreated        = "invoice.created"
-	InvoiceSettled        = "invoice.settled"
-	PeerUpdated           = "peer.updated"
-	TransactionCreated    = "transaction.created"
-	WalletBalanceUpdated  = "wallet.balance.updated"
+	BlockReceived         Event = "block.received"
+	ChannelActive         Event = "channel.active"
+	ChannelBalanceUpdated Event = "channel.balance.updated"
+	ChannelInactive       Event = "channel.inactive"
+	ChannelPending        Event = "channel.pending"
+	InvoiceCreated        Event = "invoice.created"
+	InvoiceSettled        Event = "invoice.settled"
+	PeerUpdated           Event = "peer.updated"
+	TransactionCreated    Event = "transaction.created"
+	WalletBalanceUpdated  Event = "wallet.balance.updated"
 )
 
-type Event struct {
-	Type string
-	ID   string
-}
+type Publisher string
 
-func New(kind string) *Event {
-	return &Event{Type: kind}
-}
+const (
+	Channels     Publisher = "channels"
+	Invoices     Publisher = "invoices"
+	Transactions Publisher = "transactions"
+)

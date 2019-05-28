@@ -10,7 +10,14 @@ import (
 	"github.com/edouardparis/lntop/events"
 )
 
-func Run(ctx context.Context, app *app.App, sub chan *events.Event) error {
+type Pubsub interface {
+	Subscribe(events.Publisher)
+	Unsubscribe(events.Publisher)
+	Events() chan events.Event
+	Stop() error
+}
+
+func Run(ctx context.Context, app *app.App, ps Pubsub) error {
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
 		return err
@@ -31,10 +38,12 @@ func Run(ctx context.Context, app *app.App, sub chan *events.Event) error {
 		return err
 	}
 
-	go ctrl.Listen(ctx, g, sub)
+	go ctrl.Listen(ctx, g, ps.Events())
 
 	err = g.MainLoop()
-	close(sub)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 
-	return errors.WithStack(err)
+	return errors.WithStack(ps.Stop())
 }

@@ -80,7 +80,7 @@ func (c *controller) SetModels(ctx context.Context) error {
 	return c.models.RefreshChannels(ctx)
 }
 
-func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.Event) {
+func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan events.Event) {
 	c.logger.Debug("Listening...")
 	refresh := func(fn ...func(context.Context) error) {
 		for i := range fn {
@@ -93,8 +93,8 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 	}
 
 	for event := range sub {
-		c.logger.Debug("event received", logging.String("type", event.Type))
-		switch event.Type {
+		c.logger.Debug("new event received", logging.String("event", string(event)))
+		switch event {
 		case events.TransactionCreated:
 			refresh(
 				c.models.RefreshInfo,

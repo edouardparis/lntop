@@ -10,7 +10,6 @@ import (
 
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/config"
-	"github.com/edouardparis/lntop/events"
 	"github.com/edouardparis/lntop/logging"
 	"github.com/edouardparis/lntop/pubsub"
 	"github.com/edouardparis/lntop/ui"
@@ -60,19 +59,15 @@ func run(c *cli.Context) error {
 
 	ctx := context.Background()
 
-	events := make(chan *events.Event)
 	ps := pubsub.New(app.Logger, app.Network)
+	go ps.Run(ctx)
 
-	go func() {
-		err := ui.Run(ctx, app, events)
-		if err != nil {
-			app.Logger.Debug("ui", logging.String("error", err.Error()))
-		}
-		ps.Stop()
-	}()
+	err = ui.Run(ctx, app, ps)
+	if err != nil {
+		app.Logger.Debug("ui", logging.String("error", err.Error()))
+	}
 
-	ps.Run(ctx, events)
-	return nil
+	return ps.Stop()
 }
 
 func pubsubRun(c *cli.Context) error {
@@ -86,9 +81,8 @@ func pubsubRun(c *cli.Context) error {
 		return err
 	}
 
-	events := make(chan *events.Event)
 	ps := pubsub.New(app.Logger, app.Network)
-	ps.Run(context.Background(), events)
+	ps.Run(context.Background())
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt)

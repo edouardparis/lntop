@@ -10,9 +10,9 @@ import (
 	"github.com/edouardparis/lntop/network/models"
 )
 
-type tickerFunc func(context.Context, logging.Logger, network.Network, chan *events.Event)
+type tickerFunc func(context.Context, logging.Logger, network.Network, chan events.Event)
 
-func (p *PubSub) ticker(ctx context.Context, sub chan *events.Event, fn ...tickerFunc) {
+func (p *PubSub) ticker(ctx context.Context, sub chan events.Event, fn ...tickerFunc) {
 	p.wg.Add(1)
 	ticker := time.NewTicker(3 * time.Second)
 	go func() {
@@ -34,30 +34,30 @@ func (p *PubSub) ticker(ctx context.Context, sub chan *events.Event, fn ...ticke
 // withTickerInfo checks if general information did not changed changed in the ticker interval.
 func withTickerInfo() tickerFunc {
 	var old *models.Info
-	return func(ctx context.Context, logger logging.Logger, net network.Network, sub chan *events.Event) {
+	return func(ctx context.Context, logger logging.Logger, net network.Network, sub chan events.Event) {
 		info, err := net.Info(ctx)
 		if err != nil {
 			logger.Error("network info returned an error", logging.Error(err))
 		}
 		if old != nil {
 			if old.BlockHeight != info.BlockHeight {
-				sub <- events.New(events.BlockReceived)
+				sub <- events.BlockReceived
 			}
 
 			if old.NumPeers != info.NumPeers {
-				sub <- events.New(events.PeerUpdated)
+				sub <- events.PeerUpdated
 			}
 
 			if old.NumPendingChannels < info.NumPendingChannels {
-				sub <- events.New(events.ChannelPending)
+				sub <- events.ChannelPending
 			}
 
 			if old.NumActiveChannels < info.NumActiveChannels {
-				sub <- events.New(events.ChannelActive)
+				sub <- events.ChannelActive
 			}
 
 			if old.NumInactiveChannels < info.NumInactiveChannels {
-				sub <- events.New(events.ChannelInactive)
+				sub <- events.ChannelInactive
 			}
 		}
 		old = info
@@ -68,7 +68,7 @@ func withTickerInfo() tickerFunc {
 // changed in the ticker interval.
 func withTickerChannelsBalance() tickerFunc {
 	var old *models.ChannelsBalance
-	return func(ctx context.Context, logger logging.Logger, net network.Network, sub chan *events.Event) {
+	return func(ctx context.Context, logger logging.Logger, net network.Network, sub chan events.Event) {
 		channelsBalance, err := net.GetChannelsBalance(ctx)
 		if err != nil {
 			logger.Error("network channels balance returned an error", logging.Error(err))
@@ -76,7 +76,7 @@ func withTickerChannelsBalance() tickerFunc {
 		if old != nil {
 			if old.Balance != channelsBalance.Balance ||
 				old.PendingOpenBalance != channelsBalance.PendingOpenBalance {
-				sub <- events.New(events.ChannelBalanceUpdated)
+				sub <- events.ChannelBalanceUpdated
 			}
 		}
 		old = channelsBalance
@@ -87,7 +87,7 @@ func withTickerChannelsBalance() tickerFunc {
 // changed in the ticker interval.
 func withTickerWalletBalance() tickerFunc {
 	var old *models.WalletBalance
-	return func(ctx context.Context, logger logging.Logger, net network.Network, sub chan *events.Event) {
+	return func(ctx context.Context, logger logging.Logger, net network.Network, sub chan events.Event) {
 		walletBalance, err := net.GetWalletBalance(ctx)
 		if err != nil {
 			logger.Error("network wallet balance returned an error", logging.Error(err))
@@ -96,7 +96,7 @@ func withTickerWalletBalance() tickerFunc {
 			if old.TotalBalance != walletBalance.TotalBalance ||
 				old.ConfirmedBalance != walletBalance.ConfirmedBalance ||
 				old.UnconfirmedBalance != walletBalance.UnconfirmedBalance {
-				sub <- events.New(events.WalletBalanceUpdated)
+				sub <- events.WalletBalanceUpdated
 			}
 		}
 		old = walletBalance
