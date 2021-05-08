@@ -50,7 +50,7 @@ func newClientConn(c *config.Network) (*grpc.ClientConn, error) {
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(cred),
 		grpc.WithPerRPCCredentials(macaroons.NewMacaroonCredential(constrainedMac)),
-		grpc.WithDialer(lncfg.ClientAddressDialer(u.Port())),
+		grpc.WithContextDialer(lncfg.ClientAddressDialer(u.Port())),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(c.MaxMsgRecvSize)),
 	}
 

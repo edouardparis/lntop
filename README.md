@@ -15,7 +15,7 @@
 Require the [go programming language](https://golang.org/) (version >= 1.11)
 ```
 git clone https://github.com/edouardparis/lntop.git
-cd lntop && export GO111MODULE=on && go install -mod=vendor ./...
+cd lntop && export GO111MODULE=on && go install ./...
 ```
 
 ## Config
