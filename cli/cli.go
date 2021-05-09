@@ -27,6 +27,7 @@ func New() *cli.App {
 	return &cli.App{
 		Name:                  "lntop",
 		Version:               version,
+		Usage:                 "LN channels viewer",
 		EnableShellCompletion: true,
 		Action:                run,
 		Flags: []cli.Flag{
