@@ -50,6 +50,10 @@ func (b *Backend) SubscribeTransactions(ctx context.Context, channel chan *model
 	return nil
 }
 
+func (b *Backend) SubscribeRoutingEvents(ctx context.Context, channel chan *models.RoutingEvent) error {
+	return nil
+}
+
 func (b *Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, error) {
 	return &models.Node{}, nil
 }

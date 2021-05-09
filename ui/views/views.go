@@ -28,6 +28,7 @@ type Views struct {
 	Channel      *Channel
 	Transactions *Transactions
 	Transaction  *Transaction
+	Routing      *Routing
 }
 
 func (v Views) Get(vi *gocui.View) View {
@@ -47,6 +48,8 @@ func (v Views) Get(vi *gocui.View) View {
 		return v.Transactions.Wrap(vi)
 	case TRANSACTION:
 		return v.Transaction.Wrap(vi)
+	case ROUTING:
+		return v.Routing.Wrap(vi)
 	default:
 		return nil
 	}
@@ -106,6 +109,7 @@ func New(cfg config.Views, m *models.Models) *Views {
 		Channel:      NewChannel(m.Channels),
 		Transactions: NewTransactions(cfg.Transactions, m.Transactions),
 		Transaction:  NewTransaction(m.Transactions),
+		Routing:      NewRouting(cfg.Routing, m.RoutingLog, m.Channels),
 		Main:         main,
 	}
 }

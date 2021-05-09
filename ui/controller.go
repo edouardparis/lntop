@@ -144,6 +144,8 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 			)
 		case events.PeerUpdated:
 			refresh(c.models.RefreshInfo)
+		case events.RoutingEventUpdated:
+			refresh(c.models.RefreshRouting(event.Data))
 		}
 	}
 }
@@ -270,7 +272,19 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 			if err != nil {
 				return err
 			}
+		case views.ROUTING:
+			err := c.views.Main.Delete(g)
+			if err != nil {
+				return err
+			}
+
+			c.views.Main = c.views.Routing
+			err = c.views.Routing.Set(g, 11, 6, maxX-1, maxY)
+			if err != nil {
+				return err
+			}
 		}
+
 	case views.TRANSACTIONS:
 		index := c.views.Transactions.Index()
 		c.models.Transactions.SetCurrent(index)

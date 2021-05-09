@@ -1,9 +1,11 @@
 package lnd
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/lightningnetwork/lnd/lnrpc"
+	"github.com/lightningnetwork/lnd/lnrpc/routerrpc"
 
 	"github.com/edouardparis/lntop/network/models"
 )
@@ -312,5 +314,69 @@ func protoToTransaction(resp *lnrpc.Transaction) *models.Transaction {
 		Date:             time.Unix(int64(resp.TimeStamp), 0),
 		TotalFees:        resp.TotalFees,
 		DestAddresses:    resp.DestAddresses,
+	}
+}
+
+func protoToRoutingEvent(resp *routerrpc.HtlcEvent) *models.RoutingEvent {
+	var status, direction int
+	var incomingMsat, outgoingMsat uint64
+	var incomingTimelock, outgoingTimelock uint32
+	var amountMsat, feeMsat uint64
+	var failureCode int32
+	var detail string
+
+	if fe := resp.GetForwardEvent(); fe != nil {
+		status = models.RoutingStatusActive
+		incomingMsat = fe.Info.IncomingAmtMsat
+		outgoingMsat = fe.Info.OutgoingAmtMsat
+		incomingTimelock = fe.Info.IncomingTimelock
+		outgoingTimelock = fe.Info.OutgoingTimelock
+	} else if ffe := resp.GetForwardFailEvent(); ffe != nil {
+		status = models.RoutingStatusFailed
+	} else if se := resp.GetSettleEvent(); se != nil {
+		status = models.RoutingStatusSettled
+	} else if lfe := resp.GetLinkFailEvent(); lfe != nil {
+		incomingMsat = lfe.Info.IncomingAmtMsat
+		outgoingMsat = lfe.Info.OutgoingAmtMsat
+		incomingTimelock = lfe.Info.IncomingTimelock
+		outgoingTimelock = lfe.Info.OutgoingTimelock
+		status = models.RoutingStatusLinkFailed
+		detail = lfe.WireFailure.String()
+		if s := lfe.FailureDetail.String(); s != "" {
+			detail = fmt.Sprintf("%s %s", detail, s)
+		}
+		if lfe.FailureString != "" {
+			detail = fmt.Sprintf("%s %s", detail, lfe.FailureString)
+		}
+		failureCode = int32(lfe.WireFailure)
+	}
+
+	switch resp.EventType {
+	case routerrpc.HtlcEvent_SEND:
+		direction = models.RoutingSend
+		amountMsat = outgoingMsat
+	case routerrpc.HtlcEvent_RECEIVE:
+		direction = models.RoutingReceive
+		amountMsat = incomingMsat
+	case routerrpc.HtlcEvent_FORWARD:
+		direction = models.RoutingForward
+		amountMsat = outgoingMsat
+		feeMsat = incomingMsat - outgoingMsat
+	}
+
+	return &models.RoutingEvent{
+		IncomingChannelId: resp.IncomingChannelId,
+		OutgoingChannelId: resp.OutgoingChannelId,
+		IncomingHtlcId:    resp.IncomingHtlcId,
+		OutgoingHtlcId:    resp.OutgoingHtlcId,
+		LastUpdate:        time.Unix(0, int64(resp.TimestampNs)),
+		Direction:         direction,
+		Status:            status,
+		IncomingTimelock:  incomingTimelock,
+		OutgoingTimelock:  outgoingTimelock,
+		AmountMsat:        amountMsat,
+		FeeMsat:           feeMsat,
+		FailureCode:       failureCode,
+		FailureDetail:     detail,
 	}
 }

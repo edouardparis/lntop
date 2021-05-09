@@ -16,6 +16,7 @@ const (
 var menu = []string{
 	"CHANNEL",
 	"TRANSAC",
+	"ROUTING",
 }
 
 type Menu struct {
@@ -76,6 +77,8 @@ func (h Menu) Current() string {
 			return CHANNELS
 		case "TRANSAC":
 			return TRANSACTIONS
+		case "ROUTING":
+			return ROUTING
 		}
 	}
 	return ""

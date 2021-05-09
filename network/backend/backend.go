@@ -39,4 +39,6 @@ type Backend interface {
 	GetTransactions(context.Context) ([]*models.Transaction, error)
 
 	SubscribeTransactions(context.Context, chan *models.Transaction) error
+
+	SubscribeRoutingEvents(context.Context, chan *models.RoutingEvent) error
 }

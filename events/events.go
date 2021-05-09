@@ -11,13 +11,19 @@ const (
 	PeerUpdated           = "peer.updated"
 	TransactionCreated    = "transaction.created"
 	WalletBalanceUpdated  = "wallet.balance.updated"
+	RoutingEventUpdated   = "routing.event.updated"
 )
 
 type Event struct {
 	Type string
 	ID   string
+	Data interface{}
 }
 
 func New(kind string) *Event {
 	return &Event{Type: kind}
+}
+
+func NewWithData(kind string, data interface{}) *Event {
+	return &Event{Type: kind, Data: data}
 }
