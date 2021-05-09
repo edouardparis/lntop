@@ -105,7 +105,7 @@ func NewDefault() *Config {
 			MacaroonTimeOut: 60,
 			MaxMsgRecvSize:  52428800,
 			ConnTimeout:     1000000,
-			PoolCapacity:    3,
+			PoolCapacity:    4,
 		},
 	}
 }

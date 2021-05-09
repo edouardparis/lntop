@@ -39,7 +39,7 @@ macaroon = "/root/.lnd/data/chain/bitcoin/mainnet/admin.macaroon"
 macaroon_timeout = 60
 max_msg_recv_size = 52428800
 conn_timeout = 1000000
-pool_capacity = 3
+pool_capacity = 4
 
 [views]
 # views.channels is the view displaying channel list.

@@ -21,6 +21,7 @@ import (
 
 const (
 	lndDefaultInvoiceExpiry = 3600
+	lndMinPoolCapacity      = 4
 )
 
 type Client struct {
@@ -479,6 +480,10 @@ func New(c *config.Network, logger logging.Logger) (*Backend, error) {
 		logger: logger.With(logging.String("name", c.Name)),
 	}
 
+	if c.PoolCapacity < lndMinPoolCapacity {
+		c.PoolCapacity = lndMinPoolCapacity
+		logger.Info("pool_capacity too small, ignoring")
+	}
 	backend.pool, err = pool.New(backend.NewClientConn, c.PoolCapacity, time.Duration(c.ConnTimeout))
 	if err != nil {
 		return nil, err
