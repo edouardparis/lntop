@@ -233,6 +233,11 @@ func infoProtoToInfo(resp *lnrpc.GetInfoResponse) *models.Info {
 		return nil
 	}
 
+	chains := []string{}
+	for i := range resp.Chains {
+		chains = append(chains, resp.Chains[i].Chain)
+	}
+
 	return &models.Info{
 		PubKey:              resp.IdentityPubkey,
 		Alias:               resp.Alias,
@@ -244,7 +249,7 @@ func infoProtoToInfo(resp *lnrpc.GetInfoResponse) *models.Info {
 		BlockHash:           resp.BlockHash,
 		Synced:              resp.SyncedToChain,
 		Version:             resp.Version,
-		Chains:              resp.Chains,
+		Chains:              chains,
 		Testnet:             resp.Testnet,
 	}
 }

@@ -1,4 +1,4 @@
-FROM golang:1.12-alpine as builder
+FROM golang:1.13-alpine as builder
 
 # install build dependencies
 RUN apk add --no-cache --update git gcc musl-dev
@@ -15,11 +15,11 @@ WORKDIR $GOPATH/src/github.com/edouardparis/lntop
 COPY "$LNTOP_SRC_PATH" .
 
 ENV GO111MODULE=on
-RUN go install -mod=vendor ./...
+RUN go install ./...
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
-FROM golang:1.12-alpine as final
+FROM golang:1.13-alpine as final
 
 RUN apk add --no-cache \
     bash fish \
