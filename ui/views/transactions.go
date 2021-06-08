@@ -117,20 +117,31 @@ func (c *Transactions) SetOrigin(ox, oy int) error {
 
 func (c *Transactions) Speed() (int, int, int, int) {
 	current := c.currentColumnIndex()
+	up := 0
+	down := 0
+	if c.Index() > 0 {
+		up = 1
+	}
+	if c.Index() < c.transactions.Len()-1 {
+		down = 1
+	}
 	if current > len(c.columns)-1 {
-		return 0, c.columns[current-1].width + 1, 1, 1
+		return 0, c.columns[current-1].width + 1, down, up
 	}
 	if current == 0 {
-		return c.columns[0].width + 1, 0, 1, 1
+		return c.columns[0].width + 1, 0, down, up
 	}
 	return c.columns[current].width + 1,
 		c.columns[current-1].width + 1,
-		1, 1
+		down, up
 }
 
 func (c *Transactions) Sort(column string, order models.Order) {
 	if column == "" {
 		index := c.currentColumnIndex()
+		if index >= len(c.columns) {
+			return
+		}
 		col := c.columns[index]
 		if col.sort == nil {
 			return

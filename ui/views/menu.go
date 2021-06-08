@@ -42,7 +42,11 @@ func (h Menu) Cursor() (int, int) {
 }
 
 func (h Menu) Speed() (int, int, int, int) {
-	return 0, 0, 1, 1
+	down := 0
+	if h.cy+h.oy < len(menu)-1 {
+		down = 1
+	}
+	return 0, 0, down, 1
 }
 
 func (h *Menu) SetCursor(x, y int) error {
