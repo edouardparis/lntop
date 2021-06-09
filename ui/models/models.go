@@ -18,6 +18,7 @@ type Models struct {
 	WalletBalance   *WalletBalance
 	ChannelsBalance *ChannelsBalance
 	Transactions    *Transactions
+	RoutingLog      *RoutingLog
 }
 
 func New(app *app.App) *Models {
@@ -29,6 +30,7 @@ func New(app *app.App) *Models {
 		WalletBalance:   &WalletBalance{},
 		ChannelsBalance: &ChannelsBalance{},
 		Transactions:    &Transactions{},
+		RoutingLog:      &RoutingLog{},
 	}
 }
 
@@ -102,4 +104,35 @@ func (m *Models) RefreshChannelsBalance(ctx context.Context) error {
 	}
 	*m.ChannelsBalance = ChannelsBalance{balance}
 	return nil
+}
+
+type RoutingLog struct {
+	Log []*models.RoutingEvent
+}
+
+const MaxRoutingEvents = 512 // 8K monitor @ 8px per line = 540
+
+func (m *Models) RefreshRouting(update interface{}) func(context.Context) error {
+	return (func(ctx context.Context) error {
+		hu, ok := update.(*models.RoutingEvent)
+		if ok {
+			found := false
+			for _, hlu := range m.RoutingLog.Log {
+				if hlu.Equals(hu) {
+					hlu.Update(hu)
+					found = true
+					break
+				}
+			}
+			if !found {
+				if len(m.RoutingLog.Log) == MaxRoutingEvents {
+					m.RoutingLog.Log = m.RoutingLog.Log[1:]
+				}
+				m.RoutingLog.Log = append(m.RoutingLog.Log, hu)
+			}
+		} else {
+			m.logger.Error("refreshRouting: invalid event data")
+		}
+		return nil
+	})
 }

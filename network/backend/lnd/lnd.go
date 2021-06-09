@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/lightningnetwork/lnd/lnrpc"
+	"github.com/lightningnetwork/lnd/lnrpc/routerrpc"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -20,6 +21,7 @@ import (
 
 const (
 	lndDefaultInvoiceExpiry = 3600
+	lndMinPoolCapacity      = 4
 )
 
 type Client struct {
@@ -28,6 +30,15 @@ type Client struct {
 }
 
 func (c *Client) Close() error {
+	return c.conn.Close()
+}
+
+type RouterClient struct {
+	routerrpc.RouterClient
+	conn *pool.Conn
+}
+
+func (c *RouterClient) Close() error {
 	return c.conn.Close()
 }
 
@@ -150,6 +161,38 @@ func (l Backend) SubscribeChannels(ctx context.Context, events chan *models.Chan
 	return nil
 }
 
+func (l Backend) SubscribeRoutingEvents(ctx context.Context, channelEvents chan *models.RoutingEvent) error {
+	clt, err := l.RouterClient(ctx)
+	if err != nil {
+		return err
+	}
+	defer clt.Close()
+
+	cltRoutingEvents, err := clt.SubscribeHtlcEvents(ctx, &routerrpc.SubscribeHtlcEventsRequest{})
+	if err != nil {
+		return err
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			break
+		default:
+			event, err := cltRoutingEvents.Recv()
+			if err != nil {
+				st, ok := status.FromError(err)
+				if ok && st.Code() == codes.Canceled {
+					l.logger.Debug("stopping subscribe routing events: context canceled")
+					return nil
+				}
+				return err
+			}
+
+			channelEvents <- protoToRoutingEvent(event)
+		}
+	}
+}
+
 func (l Backend) Client(ctx context.Context) (*Client, error) {
 	conn, err := l.pool.Get(ctx)
 	if err != nil {
@@ -159,6 +202,18 @@ func (l Backend) Client(ctx context.Context) (*Client, error) {
 	return &Client{
 		LightningClient: lnrpc.NewLightningClient(conn.ClientConn),
 		conn:            conn,
+	}, nil
+}
+
+func (l Backend) RouterClient(ctx context.Context) (*RouterClient, error) {
+	conn, err := l.pool.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &RouterClient{
+		RouterClient: routerrpc.NewRouterClient(conn.ClientConn),
+		conn:         conn,
 	}, nil
 }
 
@@ -425,6 +480,10 @@ func New(c *config.Network, logger logging.Logger) (*Backend, error) {
 		logger: logger.With(logging.String("name", c.Name)),
 	}
 
+	if c.PoolCapacity < lndMinPoolCapacity {
+		c.PoolCapacity = lndMinPoolCapacity
+		logger.Info("pool_capacity too small, ignoring")
+	}
 	backend.pool, err = pool.New(backend.NewClientConn, c.PoolCapacity, time.Duration(c.ConnTimeout))
 	if err != nil {
 		return nil, err

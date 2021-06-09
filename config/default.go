@@ -56,6 +56,24 @@ columns = [
 	"FEE",       # fee of the transaction
 	"ADDRESSES", # number of transaction output addresses
 ]
+
+[views.routing]
+columns = [
+	"DIR",            # event type:  send, receive, forward
+	"STATUS",         # one of: active, settled, failed, linkfail
+	"IN_CHANNEL",     # channel id of the incomming channel
+	"IN_ALIAS",       # incoming channel node alias
+	# "IN_HTLC",      # htlc id on incoming channel
+	# "IN_TIMELOCK",  # incoming timelock height
+	"OUT_CHANNEL",    # channel id of the outgoing channel
+	"OUT_ALIAS",      # outgoing channel node alias
+	# "OUT_HTLC",     # htlc id on outgoing channel
+	# "OUT_TIMELOCK", # outgoing timelock height
+	"AMOUNT",         # routed amount
+	"FEE",            # routing fee
+	"LAST UPDATE",    # last update
+	"DETAIL",         # error description
+]
 `,
 		cfg.Logger.Type,
 		cfg.Logger.Dest,
@@ -87,7 +105,7 @@ func NewDefault() *Config {
 			MacaroonTimeOut: 60,
 			MaxMsgRecvSize:  52428800,
 			ConnTimeout:     1000000,
-			PoolCapacity:    3,
+			PoolCapacity:    4,
 		},
 	}
 }

@@ -38,6 +38,7 @@ type Network struct {
 type Views struct {
 	Channels     *View `toml:"channels"`
 	Transactions *View `toml:"transactions"`
+	Routing      *View `toml:"routing"`
 }
 
 type View struct {

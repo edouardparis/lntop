@@ -88,6 +88,35 @@ func (p *PubSub) transactions(ctx context.Context, sub chan *events.Event) {
 	}()
 }
 
+func (p *PubSub) routingUpdates(ctx context.Context, sub chan *events.Event) {
+	p.wg.Add(3)
+	routingUpdates := make(chan *models.RoutingEvent)
+	ctx, cancel := context.WithCancel(ctx)
+
+	go func() {
+		for hu := range routingUpdates {
+			p.logger.Debug("receive htlcUpdate")
+			sub <- events.NewWithData(events.RoutingEventUpdated, hu)
+		}
+		p.wg.Done()
+	}()
+
+	go func() {
+		err := p.network.SubscribeRoutingEvents(ctx, routingUpdates)
+		if err != nil {
+			p.logger.Error("SubscribeRoutingEvents returned an error", logging.Error(err))
+		}
+		p.wg.Done()
+	}()
+
+	go func() {
+		<-p.stop
+		cancel()
+		close(routingUpdates)
+		p.wg.Done()
+	}()
+}
+
 func (p *PubSub) Stop() {
 	p.stop <- true
 	close(p.stop)
@@ -99,6 +128,7 @@ func (p *PubSub) Run(ctx context.Context, sub chan *events.Event) {
 
 	p.invoices(ctx, sub)
 	p.transactions(ctx, sub)
+	p.routingUpdates(ctx, sub)
 	p.ticker(ctx, sub,
 		withTickerInfo(),
 		withTickerChannelsBalance(),
