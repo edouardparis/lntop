@@ -39,7 +39,7 @@ func withTickerInfo() tickerFunc {
 		if err != nil {
 			logger.Error("network info returned an error", logging.Error(err))
 		}
-		if old != nil {
+		if old != nil && info != nil {
 			if old.BlockHeight != info.BlockHeight {
 				sub <- events.New(events.BlockReceived)
 			}
@@ -73,7 +73,7 @@ func withTickerChannelsBalance() tickerFunc {
 		if err != nil {
 			logger.Error("network channels balance returned an error", logging.Error(err))
 		}
-		if old != nil {
+		if old != nil && channelsBalance != nil {
 			if old.Balance != channelsBalance.Balance ||
 				old.PendingOpenBalance != channelsBalance.PendingOpenBalance {
 				sub <- events.New(events.ChannelBalanceUpdated)
@@ -92,7 +92,7 @@ func withTickerWalletBalance() tickerFunc {
 		if err != nil {
 			logger.Error("network wallet balance returned an error", logging.Error(err))
 		}
-		if old != nil {
+		if old != nil && walletBalance != nil {
 			if old.TotalBalance != walletBalance.TotalBalance ||
 				old.ConfirmedBalance != walletBalance.ConfirmedBalance ||
 				old.UnconfirmedBalance != walletBalance.UnconfirmedBalance {
