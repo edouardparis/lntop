@@ -24,6 +24,12 @@ func New() *cli.App {
 		Usage: "print the version",
 	}
 
+	configFlag := cli.StringFlag{
+		Name:    "config",
+		Aliases: []string{"c"},
+		Usage:   "path to config file",
+	}
+
 	return &cli.App{
 		Name:                  "lntop",
 		Version:               version,
@@ -31,11 +37,7 @@ func New() *cli.App {
 		EnableShellCompletion: true,
 		Action:                run,
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "config",
-				Aliases: []string{"c"},
-				Usage:   "path to config file",
-			},
+			&configFlag,
 		},
 		Commands: []*cli.Command{
 			{
@@ -43,6 +45,9 @@ func New() *cli.App {
 				Aliases: []string{""},
 				Usage:   "run the pubsub only",
 				Action:  pubsubRun,
+				Flags: []cli.Flag{
+					&configFlag,
+				},
 			},
 		},
 	}

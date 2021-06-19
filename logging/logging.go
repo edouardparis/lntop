@@ -56,13 +56,13 @@ func New(cfg config.Logger) (Logger, error) {
 
 func NewProductionLogger(dest string) (Logger, error) {
 	config := zap.NewProductionConfig()
-	config.OutputPaths = []string{dest}
+	config.OutputPaths = []string{"stderr", dest}
 	return config.Build()
 }
 
 func NewDevelopmentLogger(dest string) (Logger, error) {
 	config := zap.NewDevelopmentConfig()
-	config.OutputPaths = []string{dest}
+	config.OutputPaths = []string{"stderr", dest}
 	return config.Build()
 }
 
