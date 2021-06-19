@@ -2,6 +2,7 @@ package lnd
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/lightningnetwork/lnd/lnrpc"
@@ -346,7 +347,8 @@ func protoToRoutingEvent(resp *routerrpc.HtlcEvent) *models.RoutingEvent {
 			detail = fmt.Sprintf("%s %s", detail, s)
 		}
 		if lfe.FailureString != "" {
-			detail = fmt.Sprintf("%s %s", detail, lfe.FailureString)
+			firstLine := strings.Split(lfe.FailureString, "\n")[0]
+			detail = fmt.Sprintf("%s %s", detail, firstLine)
 		}
 		failureCode = int32(lfe.WireFailure)
 	}
