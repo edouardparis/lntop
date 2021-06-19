@@ -45,6 +45,26 @@ func setKeyBinding(c *controller, g *gocui.Gui) error {
 		return err
 	}
 
+	err = g.SetKeybinding("", gocui.KeyHome, gocui.ModNone, c.cursorHome)
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", gocui.KeyEnd, gocui.ModNone, c.cursorEnd)
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", gocui.KeyPgdn, gocui.ModNone, c.cursorPageDown)
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", gocui.KeyPgup, gocui.ModNone, c.cursorPageUp)
+	if err != nil {
+		return err
+	}
+
 	err = g.SetKeybinding("", gocui.KeyEnter, gocui.ModNone, c.OnEnter)
 	if err != nil {
 		return err

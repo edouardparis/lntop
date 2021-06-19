@@ -47,6 +47,10 @@ func (c Channel) Speed() (int, int, int, int) {
 	return 1, 1, 1, 1
 }
 
+func (c Channel) Limits() (pageSize int, fullSize int) {
+	return 0, 0
+}
+
 func (c *Channel) SetCursor(x, y int) error {
 	return c.view.SetCursor(x, y)
 }

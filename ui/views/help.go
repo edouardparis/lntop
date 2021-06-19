@@ -42,6 +42,10 @@ func (h Help) Speed() (int, int, int, int) {
 	return 1, 1, 1, 1
 }
 
+func (h Help) Limits() (pageSize int, fullSize int) {
+	return 0, 0
+}
+
 func (h *Help) SetCursor(x, y int) error {
 	return h.view.SetCursor(x, y)
 }

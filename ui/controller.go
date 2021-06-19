@@ -56,6 +56,38 @@ func (c *controller) cursorLeft(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
+func (c *controller) cursorHome(g *gocui.Gui, v *gocui.View) error {
+	view := c.views.Get(v)
+	if view != nil {
+		return cursor.Home(view)
+	}
+	return nil
+}
+
+func (c *controller) cursorEnd(g *gocui.Gui, v *gocui.View) error {
+	view := c.views.Get(v)
+	if view != nil {
+		return cursor.End(view)
+	}
+	return nil
+}
+
+func (c *controller) cursorPageDown(g *gocui.Gui, v *gocui.View) error {
+	view := c.views.Get(v)
+	if view != nil {
+		return cursor.PageDown(view)
+	}
+	return nil
+}
+
+func (c *controller) cursorPageUp(g *gocui.Gui, v *gocui.View) error {
+	view := c.views.Get(v)
+	if view != nil {
+		return cursor.PageUp(view)
+	}
+	return nil
+}
+
 func (c *controller) SetModels(ctx context.Context) error {
 	err := c.models.RefreshInfo(ctx)
 	if err != nil {

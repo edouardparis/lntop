@@ -3,7 +3,8 @@ package cursor
 type View interface {
 	Cursor() (int, int)
 	Origin() (int, int)
-	Speed() (int, int, int, int)
+	Speed() (right int, left int, down int, up int)
+	Limits() (pageSize int, fullSize int)
 	SetCursor(int, int) error
 	SetOrigin(int, int) error
 }
@@ -79,6 +80,83 @@ func Left(v View) error {
 				return err
 			}
 		}
+	}
+	return nil
+}
+
+func Home(v View) error {
+	if v == nil {
+		return nil
+	}
+	ox, _ := v.Origin()
+	cx, _ := v.Cursor()
+	v.SetCursor(cx, 0)
+	v.SetOrigin(ox, 0)
+	return nil
+}
+
+func End(v View) error {
+	if v == nil {
+		return nil
+	}
+	ps, fs := v.Limits()
+	if ps == 0 { // no pagination
+		return nil
+	}
+	if ps > fs {
+		ps = fs
+	}
+	ox, _ := v.Origin()
+	cx, _ := v.Cursor()
+	v.SetCursor(cx, ps-1)
+	v.SetOrigin(ox, fs-ps)
+	return nil
+}
+
+func PageDown(v View) error {
+	if v == nil {
+		return nil
+	}
+	ps, fs := v.Limits()
+	if ps == 0 { // no pagination
+		return nil
+	}
+	if ps > fs {
+		ps = fs
+	}
+	ox, oy := v.Origin()
+	cx, cy := v.Cursor()
+	ny := oy + cy + ps
+	if ny >= fs {
+		ny = fs - 1
+	}
+	if ny >= fs-ps {
+		v.SetOrigin(ox, fs-ps)
+		v.SetCursor(cx, ny-fs+ps)
+	} else {
+		v.SetOrigin(ox, ny-ps)
+		v.SetCursor(cx, ps-1)
+	}
+	return nil
+}
+
+func PageUp(v View) error {
+	if v == nil {
+		return nil
+	}
+	ox, oy := v.Origin()
+	cx, cy := v.Cursor()
+	ps, _ := v.Limits()
+	ny := oy + cy - ps
+	if ny <= 0 {
+		ny = 0
+	}
+	if ny <= ps {
+		v.SetOrigin(ox, 0)
+		v.SetCursor(cx, ny)
+	} else {
+		v.SetOrigin(ox, ny)
+		v.SetCursor(cx, 0)
 	}
 	return nil
 }
