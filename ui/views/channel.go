@@ -149,7 +149,7 @@ func (c *Channel) display() {
 
 	if channel.Policy1 != nil {
 		fmt.Fprintln(v, "")
-		fmt.Fprintln(v, green(" [ Forward Policy Node1 ]"))
+		fmt.Fprintln(v, green(" [ Forward Policy Node 1 ]"))
 		if channel.Policy1.Disabled {
 			fmt.Fprintln(v, red("disabled"))
 		}
