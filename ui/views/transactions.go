@@ -136,6 +136,12 @@ func (c *Transactions) Speed() (int, int, int, int) {
 		down, up
 }
 
+func (c *Transactions) Limits() (pageSize int, fullSize int) {
+	_, pageSize = c.view.Size()
+	fullSize = c.transactions.Len()
+	return
+}
+
 func (c *Transactions) Sort(column string, order models.Order) {
 	if column == "" {
 		index := c.currentColumnIndex()

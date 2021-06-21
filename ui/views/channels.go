@@ -156,6 +156,12 @@ func (c *Channels) Speed() (int, int, int, int) {
 		down, up
 }
 
+func (c *Channels) Limits() (pageSize int, fullSize int) {
+	_, pageSize = c.view.Size()
+	fullSize = c.channels.Len()
+	return
+}
+
 func (c Channels) Index() int {
 	_, oy := c.Origin()
 	_, cy := c.Cursor()

@@ -50,6 +50,12 @@ func (h Menu) Speed() (int, int, int, int) {
 	return 0, 0, down, 1
 }
 
+func (h Menu) Limits() (pageSize int, fullSize int) {
+	pageSize = len(menu)
+	fullSize = len(menu)
+	return
+}
+
 func (h *Menu) SetCursor(x, y int) error {
 	err := h.view.SetCursor(x, y)
 	if err != nil {

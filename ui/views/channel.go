@@ -47,6 +47,10 @@ func (c Channel) Speed() (int, int, int, int) {
 	return 1, 1, 1, 1
 }
 
+func (c Channel) Limits() (pageSize int, fullSize int) {
+	return 0, 0
+}
+
 func (c *Channel) SetCursor(x, y int) error {
 	return c.view.SetCursor(x, y)
 }
@@ -149,7 +153,7 @@ func (c *Channel) display() {
 
 	if channel.Policy1 != nil {
 		fmt.Fprintln(v, "")
-		fmt.Fprintln(v, green(" [ Forward Policy Node1 ]"))
+		fmt.Fprintln(v, green(" [ Forward Policy Node 1 ]"))
 		if channel.Policy1.Disabled {
 			fmt.Fprintln(v, red("disabled"))
 		}
