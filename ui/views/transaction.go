@@ -48,7 +48,9 @@ func (c Transaction) Speed() (int, int, int, int) {
 }
 
 func (c Transaction) Limits() (pageSize int, fullSize int) {
-	return 0, 0
+	_, pageSize = c.view.Size()
+	fullSize = len(c.view.BufferLines()) - 1
+	return
 }
 
 func (c *Transaction) SetCursor(x, y int) error {

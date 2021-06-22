@@ -137,6 +137,9 @@ func (c *Routing) Speed() (int, int, int, int) {
 func (c *Routing) Limits() (pageSize int, fullSize int) {
 	_, pageSize = c.view.Size()
 	fullSize = len(c.routingEvents.Log)
+	if pageSize < fullSize {
+		fullSize = pageSize
+	}
 	return
 }
 
