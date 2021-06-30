@@ -14,10 +14,14 @@ func Down(v View) error {
 		return nil
 	}
 	cx, cy := v.Cursor()
+	ox, oy := v.Origin()
 	_, _, sy, _ := v.Speed()
+	_, fs := v.Limits()
+	if cy+oy+sy >= fs {
+		return nil
+	}
 	err := v.SetCursor(cx, cy+sy)
 	if err != nil {
-		ox, oy := v.Origin()
 		err := v.SetOrigin(ox, oy+sy)
 		if err != nil {
 			return err

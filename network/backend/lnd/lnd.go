@@ -354,6 +354,14 @@ func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) er
 	channel.Policy1 = protoToRoutingPolicy(resp.Node1Policy)
 	channel.Policy2 = protoToRoutingPolicy(resp.Node2Policy)
 
+	info, err := clt.GetInfo(ctx, &lnrpc.GetInfoRequest{})
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if info != nil {
+		channel.WeFirst = resp.Node1Pub == info.IdentityPubkey
+	}
+
 	return nil
 }
 

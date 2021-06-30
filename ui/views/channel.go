@@ -7,6 +7,7 @@ import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
+	netModels "github.com/edouardparis/lntop/network/models"
 	"github.com/edouardparis/lntop/ui/color"
 	"github.com/edouardparis/lntop/ui/models"
 )
@@ -48,7 +49,9 @@ func (c Channel) Speed() (int, int, int, int) {
 }
 
 func (c Channel) Limits() (pageSize int, fullSize int) {
-	return 0, 0
+	_, pageSize = c.view.Size()
+	fullSize = len(c.view.BufferLines()) - 1
+	return
 }
 
 func (c *Channel) SetCursor(x, y int) error {
@@ -93,12 +96,12 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.FgColor = gocui.ColorBlack
 	footer.Clear()
 	blackBg := color.Black(color.Background)
-	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s %s%s",
+	fmt.Fprintf(footer, "%s%s %s%s %s%s %s%s\n",
 		blackBg("F1"), "Help",
 		blackBg("F2"), "Menu",
 		blackBg("Enter"), "Channels",
 		blackBg("F10"), "Quit",
-	))
+	)
 	return nil
 }
 
@@ -116,6 +119,29 @@ func (c Channel) Delete(g *gocui.Gui) error {
 	return g.DeleteView(CHANNEL_FOOTER)
 }
 
+func printPolicy(v *gocui.View, p *message.Printer, policy *netModels.RoutingPolicy, outgoing bool) {
+	green := color.Green()
+	cyan := color.Cyan()
+	red := color.Red()
+	fmt.Fprintln(v, "")
+	direction := "Outgoing"
+	if !outgoing {
+		direction = "Incoming"
+	}
+	fmt.Fprintf(v, green(" [ %s Policy ]\n"), direction)
+	if policy.Disabled {
+		fmt.Fprintln(v, red("disabled"))
+	}
+	fmt.Fprintf(v, "%s %d\n",
+		cyan("    Time lock delta:"), policy.TimeLockDelta)
+	fmt.Fprintf(v, "%s %d\n",
+		cyan("           Min htlc:"), policy.MinHtlc)
+	fmt.Fprintf(v, "%s %d\n",
+		cyan("      Fee base msat:"), policy.FeeBaseMsat)
+	fmt.Fprintf(v, "%s %d\n",
+		cyan("Fee rate milli msat:"), policy.FeeRateMilliMsat)
+}
+
 func (c *Channel) display() {
 	p := message.NewPrinter(language.English)
 	v := c.view
@@ -123,64 +149,43 @@ func (c *Channel) display() {
 	channel := c.channels.Current()
 	green := color.Green()
 	cyan := color.Cyan()
-	red := color.Red()
 	fmt.Fprintln(v, green(" [ Channel ]"))
-	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		cyan("         Status:"), status(channel)))
-	fmt.Fprintln(v, fmt.Sprintf("%s %d",
-		cyan("             ID:"), channel.ID))
-	fmt.Fprintln(v, p.Sprintf("%s %d",
-		cyan("       Capacity:"), channel.Capacity))
-	fmt.Fprintln(v, p.Sprintf("%s %d",
-		cyan("  Local Balance:"), channel.LocalBalance))
-	fmt.Fprintln(v, p.Sprintf("%s %d",
-		cyan(" Remote Balance:"), channel.RemoteBalance))
-	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		cyan("  Channel Point:"), channel.ChannelPoint))
+	fmt.Fprintf(v, "%s %s\n",
+		cyan("         Status:"), status(channel))
+	fmt.Fprintf(v, "%s %d\n",
+		cyan("             ID:"), channel.ID)
+	fmt.Fprintf(v, "%s %d\n",
+		cyan("       Capacity:"), channel.Capacity)
+	fmt.Fprintf(v, "%s %d\n",
+		cyan("  Local Balance:"), channel.LocalBalance)
+	fmt.Fprintf(v, "%s %d\n",
+		cyan(" Remote Balance:"), channel.RemoteBalance)
+	fmt.Fprintf(v, "%s %s\n",
+		cyan("  Channel Point:"), channel.ChannelPoint)
 	fmt.Fprintln(v, "")
 	fmt.Fprintln(v, green(" [ Node ]"))
-	fmt.Fprintln(v, fmt.Sprintf("%s %s",
-		cyan("         PubKey:"), channel.RemotePubKey))
+	fmt.Fprintf(v, "%s %s\n",
+		cyan("         PubKey:"), channel.RemotePubKey)
 
 	if channel.Node != nil {
-		fmt.Fprintln(v, fmt.Sprintf("%s %s",
-			cyan("          Alias:"), channel.Node.Alias))
-		fmt.Fprintln(v, p.Sprintf("%s %d",
-			cyan(" Total Capacity:"), channel.Node.TotalCapacity))
-		fmt.Fprintln(v, p.Sprintf("%s %d",
-			cyan(" Total Channels:"), channel.Node.NumChannels))
+		fmt.Fprintf(v, "%s %s\n",
+			cyan("          Alias:"), channel.Node.Alias)
+		fmt.Fprintf(v, "%s %d\n",
+			cyan(" Total Capacity:"), channel.Node.TotalCapacity)
+		fmt.Fprintf(v, "%s %d\n",
+			cyan(" Total Channels:"), channel.Node.NumChannels)
 	}
 
-	if channel.Policy1 != nil {
-		fmt.Fprintln(v, "")
-		fmt.Fprintln(v, green(" [ Forward Policy Node 1 ]"))
-		if channel.Policy1.Disabled {
-			fmt.Fprintln(v, red("disabled"))
-		}
-		fmt.Fprintln(v, p.Sprintf("%s %d",
-			cyan("    Time lock delta:"), channel.Policy1.TimeLockDelta))
-		fmt.Fprintln(v, p.Sprintf("%s %d",
-			cyan("           Min htlc:"), channel.Policy1.MinHtlc))
-		fmt.Fprintln(v, p.Sprintf("%s %d",
-			cyan("      Fee base msat:"), channel.Policy1.FeeBaseMsat))
-		fmt.Fprintln(v, p.Sprintf("%s %d",
-			cyan("Fee rate milli msat:"), channel.Policy1.FeeRateMilliMsat))
+	if channel.Policy1 != nil && channel.WeFirst {
+		printPolicy(v, p, channel.Policy1, true)
 	}
 
 	if channel.Policy2 != nil {
-		fmt.Fprintln(v, "")
-		fmt.Fprintln(v, green(" [ Forward Policy Node 2 ]"))
-		if channel.Policy2.Disabled {
-			fmt.Fprintln(v, red("disabled"))
-		}
-		fmt.Fprintln(v, p.Sprintf("%s %d",
-			cyan("    Time lock delta:"), channel.Policy2.TimeLockDelta))
-		fmt.Fprintln(v, p.Sprintf("%s %d",
-			cyan("           Min htlc:"), channel.Policy2.MinHtlc))
-		fmt.Fprintln(v, p.Sprintf("%s %d",
-			cyan("      Fee base msat:"), channel.Policy2.FeeBaseMsat))
-		fmt.Fprintln(v, p.Sprintf("%s %d",
-			cyan("Fee rate milli msat:"), channel.Policy2.FeeRateMilliMsat))
+		printPolicy(v, p, channel.Policy2, !channel.WeFirst)
+	}
+
+	if channel.Policy1 != nil && !channel.WeFirst {
+		printPolicy(v, p, channel.Policy1, false)
 	}
 }
 

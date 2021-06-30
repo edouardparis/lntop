@@ -43,7 +43,9 @@ func (h Help) Speed() (int, int, int, int) {
 }
 
 func (h Help) Limits() (pageSize int, fullSize int) {
-	return 0, 0
+	_, pageSize = h.view.Size()
+	fullSize = len(h.view.BufferLines()) - 1
+	return
 }
 
 func (h *Help) SetCursor(x, y int) error {
