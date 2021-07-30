@@ -18,7 +18,7 @@ export LND_HOME=~/.lnd
 
 # or alternatively if you have remote lnd node, specify paths to auth files explicitly:
 # export TLS_CERT_FILE=/path/to/tls.cert
-# export ADMIN_MACAROON_FILE=/path/to/admin.macaroon  
+# export MACAROON_FILE=/path/to/readonly.macaroon
 # export LND_GRPC_HOST=//<remoteip>:10009
 
 # look into _settings.sh for more details on container configuration
