@@ -1,6 +1,8 @@
 package views
 
 import (
+	"fmt"
+
 	"github.com/jroimartin/gocui"
 	"github.com/pkg/errors"
 
@@ -112,4 +114,12 @@ func New(cfg config.Views, m *models.Models) *Views {
 		Routing:      NewRouting(cfg.Routing, m.RoutingLog, m.Channels),
 		Main:         main,
 	}
+}
+
+func ToScid(id uint64) string {
+	blocknum := id >> 40
+	txnum := (id >> 16) & 0x00FFFFFF
+	outnum := id & 0xFFFF
+
+	return fmt.Sprintf("%dx%dx%d", blocknum, txnum, outnum)
 }

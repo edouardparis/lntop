@@ -309,6 +309,17 @@ func NewRouting(cfg *config.View, routingEvents *models.RoutingLog, channels *mo
 					return color.White(opts...)(fmt.Sprintf("%19d", c.IncomingChannelId))
 				},
 			}
+		case "IN_SCID":
+			routing.columns[i] = routingColumn{
+				width: 14,
+				name:  fmt.Sprintf("%14s", columns[i]),
+				display: func(c *netmodels.RoutingEvent, opts ...color.Option) string {
+					if c.IncomingChannelId == 0 {
+						return fmt.Sprintf("%14s", "")
+					}
+					return color.White(opts...)(fmt.Sprintf("%14s", ToScid(c.IncomingChannelId)))
+				},
+			}
 		case "IN_TIMELOCK":
 			routing.columns[i] = routingColumn{
 				width: 10,
@@ -346,6 +357,17 @@ func NewRouting(cfg *config.View, routingEvents *models.RoutingLog, channels *mo
 						return fmt.Sprintf("%19s", "")
 					}
 					return color.White(opts...)(fmt.Sprintf("%19d", c.OutgoingChannelId))
+				},
+			}
+		case "OUT_SCID":
+			routing.columns[i] = routingColumn{
+				width: 14,
+				name:  fmt.Sprintf("%14s", columns[i]),
+				display: func(c *netmodels.RoutingEvent, opts ...color.Option) string {
+					if c.OutgoingChannelId == 0 {
+						return fmt.Sprintf("%14s", "")
+					}
+					return color.White(opts...)(fmt.Sprintf("%14s", ToScid(c.OutgoingChannelId)))
 				},
 			}
 		case "OUT_TIMELOCK":

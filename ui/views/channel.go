@@ -152,8 +152,8 @@ func (c *Channel) display() {
 	fmt.Fprintln(v, green(" [ Channel ]"))
 	fmt.Fprintf(v, "%s %s\n",
 		cyan("         Status:"), status(channel))
-	fmt.Fprintf(v, "%s %d\n",
-		cyan("             ID:"), channel.ID)
+	fmt.Fprintf(v, "%s %d (%s)\n",
+		cyan("             ID:"), channel.ID, ToScid(channel.ID))
 	fmt.Fprintf(v, "%s %d\n",
 		cyan("       Capacity:"), channel.Capacity)
 	fmt.Fprintf(v, "%s %d\n",

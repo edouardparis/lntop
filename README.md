@@ -59,6 +59,7 @@ columns = [
 	"LAST UPDATE", # last update of the channel
 	"PRIVATE",     # true if channel is private
 	"ID",          # the id of the channel
+	# "SCID",      # short channel id (BxTxO formatted)
 ]
 
 [views.transactions]
@@ -79,10 +80,12 @@ columns = [
 	"STATUS",         # one of: active, settled, failed, linkfail
 	"IN_CHANNEL",     # channel id of the incomming channel
 	"IN_ALIAS",       # incoming channel node alias
+	# "IN_SCID",      # incoming short channel id (BxTxO)
 	# "IN_HTLC",      # htlc id on incoming channel
 	# "IN_TIMELOCK",  # incoming timelock height
 	"OUT_CHANNEL",    # channel id of the outgoing channel
 	"OUT_ALIAS",      # outgoing channel node alias
+	# "OUT_SCID",     # outgoing short channel id (BxTxO)
 	# "OUT_HTLC",     # htlc id on outgoing channel
 	# "OUT_TIMELOCK", # outgoing timelock height
 	"AMOUNT",         # routed amount
