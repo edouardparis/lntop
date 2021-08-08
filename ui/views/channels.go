@@ -478,6 +478,17 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 					return color.White(opts...)(fmt.Sprintf("%d", c.ID))
 				},
 			}
+		case "SCID":
+			channels.columns[i] = channelsColumn{
+				width: 14,
+				name:  fmt.Sprintf("%-14s", columns[i]),
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					if c.ID == 0 {
+						return fmt.Sprintf("%-14s", "")
+					}
+					return color.White(opts...)(fmt.Sprintf("%-14s", ToScid(c.ID)))
+				},
+			}
 		default:
 			channels.columns[i] = channelsColumn{
 				width: 21,
