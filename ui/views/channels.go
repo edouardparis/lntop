@@ -297,14 +297,25 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 		switch columns[i] {
 		case "STATUS":
 			channels.columns[i] = channelsColumn{
-				width:   13,
-				name:    fmt.Sprintf("%-13s", columns[i]),
+				width: 13,
+				name:  fmt.Sprintf("%-13s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						// status meanings are kinda the opposite of their numerical value
+						return models.IntSort(-c1.Status, -c2.Status, order)
+					}
+				},
 				display: status,
 			}
 		case "ALIAS":
 			channels.columns[i] = channelsColumn{
 				width: 25,
 				name:  fmt.Sprintf("%-25s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.StringSort(c1.Node.Alias, c2.Node.Alias, order)
+					}
+				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					var alias string
 					if c.Node == nil || c.Node.Alias == "" {
@@ -460,6 +471,12 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 7,
 				name:  fmt.Sprintf("%-7s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						// public > private
+						return models.BoolSort(!c1.Private, !c2.Private, order)
+					}
+				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					if c.Private {
 						return color.Red(opts...)("private")
@@ -471,6 +488,11 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 19,
 				name:  fmt.Sprintf("%-19s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.UInt64Sort(c1.ID, c2.ID, order)
+					}
+				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					if c.ID == 0 {
 						return fmt.Sprintf("%-19s", "")
@@ -482,6 +504,11 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 			channels.columns[i] = channelsColumn{
 				width: 14,
 				name:  fmt.Sprintf("%-14s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.UInt64Sort(c1.ID, c2.ID, order)
+					}
+				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					if c.ID == 0 {
 						return fmt.Sprintf("%-14s", "")
