@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 type Order int
 
@@ -30,6 +33,13 @@ func Int64Sort(a, b int64, o Order) bool {
 	return a > b
 }
 
+func UInt64Sort(a, b uint64, o Order) bool {
+	if o == Asc {
+		return a < b
+	}
+	return a > b
+}
+
 func DateSort(a, b *time.Time, o Order) bool {
 	if o == Desc {
 		if a == nil || b == nil {
@@ -44,4 +54,19 @@ func DateSort(a, b *time.Time, o Order) bool {
 	}
 
 	return a.Before(*b)
+}
+
+func StringSort(a, b string, o Order) bool {
+	result := strings.Compare(a, b)
+	if o == Asc {
+		return result < 0
+	}
+	return result > 0
+}
+
+func BoolSort(a, b bool, o Order) bool {
+	if o == Asc {
+		return !a && b
+	}
+	return a && !b
 }
