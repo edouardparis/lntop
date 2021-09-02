@@ -5,12 +5,12 @@ import (
 
 	"github.com/jroimartin/gocui"
 
+	"github.com/edouardparis/lntop"
 	"github.com/edouardparis/lntop/ui/color"
 )
 
 const (
-	version = "v0.1.0"
-	HELP    = "help"
+	HELP = "help"
 )
 
 type Help struct {
@@ -66,19 +66,15 @@ func (h Help) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	}
 	h.view.Frame = false
 	cyan := color.Cyan()
-	fmt.Fprintln(h.view, fmt.Sprintf("lntop %s - (C) 2019 Edouard Paris", version))
+	fmt.Fprintf(h.view, "lntop %s - (C) 2019 Edouard Paris\n", lntop.Version)
 	fmt.Fprintln(h.view, "Released under the MIT License")
 	fmt.Fprintln(h.view, "")
-	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",
-		cyan("F1  h:"), "show/close this help screen"))
-	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",
-		cyan("F2  m:"), "show/close the menu sidebar"))
-	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",
-		cyan("F10 q:"), "quit"))
-
+	fmt.Fprintf(h.view, "%6s show/close this help screen\n", cyan("F1  h:"))
+	fmt.Fprintf(h.view, "%6s show/close the menu sidebar\n", cyan("F2  m:"))
+	fmt.Fprintf(h.view, "%6s quit\n", cyan("F10 q:"))
 	fmt.Fprintln(h.view, "")
-	fmt.Fprintln(h.view, fmt.Sprintf("%6s %s",
-		cyan("  a d:"), "apply asc/desc order to the rows according to the selected column value"))
+	fmt.Fprintf(h.view, "%6s apply asc/desc order to the rows according to the selected column value\n",
+		cyan("  a d:"))
 	_, err = g.SetCurrentView(HELP)
 	return err
 }
