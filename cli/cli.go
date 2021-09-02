@@ -7,6 +7,7 @@ import (
 
 	cli "gopkg.in/urfave/cli.v2"
 
+	"github.com/edouardparis/lntop"
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/config"
 	"github.com/edouardparis/lntop/events"
@@ -14,8 +15,6 @@ import (
 	"github.com/edouardparis/lntop/pubsub"
 	"github.com/edouardparis/lntop/ui"
 )
-
-const version = "v0.1.0"
 
 // New creates a new cli app.
 func New() *cli.App {
@@ -26,7 +25,7 @@ func New() *cli.App {
 
 	return &cli.App{
 		Name:                  "lntop",
-		Version:               version,
+		Version:               lntop.Version,
 		Usage:                 "LN channels viewer",
 		EnableShellCompletion: true,
 		Action:                run,

@@ -6,6 +6,7 @@ import (
 	"github.com/edouardparis/lntop/network"
 )
 
+
 type App struct {
 	Config  *config.Config
 	Logger  logging.Logger

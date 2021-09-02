@@ -121,9 +121,3 @@ The events are in one of four states:
 ## Docker
 
 If you prefer to run `lntop` from a docker container, `cd docker` and follow [`README`](docker/README.md) there.
-
-## Compatibility
-
-| lntop  | lightningnetwork/lnd |
-|--------|----------------------|
-| v0.0.1 | v0.5.1               |
