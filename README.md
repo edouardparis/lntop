@@ -19,6 +19,8 @@ Require the [go programming language](https://golang.org/) (version >= 1.13)
 ```
 git clone https://github.com/edouardparis/lntop.git
 cd lntop && go install ./...
+go build -o lntop cmd/lntop/main.go
+./lntop
 ```
 
 With Go version >= 1.16, you can use [`go-install`](https://golang.org/ref/mod#go-install)
