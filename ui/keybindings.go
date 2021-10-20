@@ -60,7 +60,17 @@ func setKeyBinding(c *controller, g *gocui.Gui) error {
 		return err
 	}
 
+	err = g.SetKeybinding("", 'g', gocui.ModNone, c.cursorHome)
+	if err != nil {
+		return err
+	}
+
 	err = g.SetKeybinding("", gocui.KeyEnd, gocui.ModNone, c.cursorEnd)
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", 'G', gocui.ModNone, c.cursorEnd)
 	if err != nil {
 		return err
 	}
