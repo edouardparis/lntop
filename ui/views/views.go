@@ -67,8 +67,7 @@ func (v *Views) Layout(g *gocui.Gui, maxX, maxY int) error {
 
 	current := g.CurrentView()
 	if current != nil {
-		switch current.Name() {
-		case v.Menu.Name():
+		if current.Name() == v.Menu.Name() {
 			err = v.Menu.Set(g, 0, 6, 10, maxY)
 			if err != nil {
 				return err
