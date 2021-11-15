@@ -90,16 +90,6 @@ func setKeyBinding(c *controller, g *gocui.Gui) error {
 		return err
 	}
 
-	err = g.SetKeybinding("", gocui.KeyF1, gocui.ModNone, c.Help)
-	if err != nil {
-		return err
-	}
-
-	err = g.SetKeybinding("", 'h', gocui.ModNone, c.Help)
-	if err != nil {
-		return err
-	}
-
 	err = g.SetKeybinding("", gocui.KeyF2, gocui.ModNone, c.Menu)
 	if err != nil {
 		return err
