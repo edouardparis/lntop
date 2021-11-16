@@ -96,8 +96,7 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.FgColor = gocui.ColorBlack
 	footer.Clear()
 	blackBg := color.Black(color.Background)
-	fmt.Fprintf(footer, "%s%s %s%s %s%s %s%s\n",
-		blackBg("F1"), "Help",
+	fmt.Fprintf(footer, "%s%s %s%s %s%s\n",
 		blackBg("F2"), "Menu",
 		blackBg("Enter"), "Channels",
 		blackBg("F10"), "Quit",

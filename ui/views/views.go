@@ -22,7 +22,6 @@ type View interface {
 type Views struct {
 	Main View
 
-	Help         *Help
 	Header       *Header
 	Menu         *Menu
 	Summary      *Summary
@@ -40,8 +39,6 @@ func (v Views) Get(vi *gocui.View) View {
 	switch vi.Name() {
 	case CHANNELS:
 		return v.Channels.Wrap(vi)
-	case HELP:
-		return v.Help.Wrap(vi)
 	case MENU:
 		return v.Menu.Wrap(vi)
 	case CHANNEL:
@@ -70,10 +67,7 @@ func (v *Views) Layout(g *gocui.Gui, maxX, maxY int) error {
 
 	current := g.CurrentView()
 	if current != nil {
-		switch current.Name() {
-		case v.Help.Name():
-			return nil
-		case v.Menu.Name():
+		if current.Name() == v.Menu.Name() {
 			err = v.Menu.Set(g, 0, 6, 10, maxY)
 			if err != nil {
 				return err
@@ -104,7 +98,6 @@ func New(cfg config.Views, m *models.Models) *Views {
 	main := NewChannels(cfg.Channels, m.Channels)
 	return &Views{
 		Header:       NewHeader(m.Info),
-		Help:         NewHelp(),
 		Menu:         NewMenu(),
 		Summary:      NewSummary(m.Info, m.ChannelsBalance, m.WalletBalance, m.Channels),
 		Channels:     main,

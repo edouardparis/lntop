@@ -30,7 +30,17 @@ func setKeyBinding(c *controller, g *gocui.Gui) error {
 		return err
 	}
 
+	err = g.SetKeybinding("", 'k', gocui.ModNone, c.cursorUp)
+	if err != nil {
+		return err
+	}
+
 	err = g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, c.cursorDown)
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", 'j', gocui.ModNone, c.cursorDown)
 	if err != nil {
 		return err
 	}
@@ -40,7 +50,17 @@ func setKeyBinding(c *controller, g *gocui.Gui) error {
 		return err
 	}
 
+	err = g.SetKeybinding("", 'h', gocui.ModNone, c.cursorLeft)
+	if err != nil {
+		return err
+	}
+
 	err = g.SetKeybinding("", gocui.KeyArrowRight, gocui.ModNone, c.cursorRight)
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", 'l', gocui.ModNone, c.cursorRight)
 	if err != nil {
 		return err
 	}
@@ -50,7 +70,17 @@ func setKeyBinding(c *controller, g *gocui.Gui) error {
 		return err
 	}
 
+	err = g.SetKeybinding("", 'g', gocui.ModNone, c.cursorHome)
+	if err != nil {
+		return err
+	}
+
 	err = g.SetKeybinding("", gocui.KeyEnd, gocui.ModNone, c.cursorEnd)
+	if err != nil {
+		return err
+	}
+
+	err = g.SetKeybinding("", 'G', gocui.ModNone, c.cursorEnd)
 	if err != nil {
 		return err
 	}
@@ -66,16 +96,6 @@ func setKeyBinding(c *controller, g *gocui.Gui) error {
 	}
 
 	err = g.SetKeybinding("", gocui.KeyEnter, gocui.ModNone, c.OnEnter)
-	if err != nil {
-		return err
-	}
-
-	err = g.SetKeybinding("", gocui.KeyF1, gocui.ModNone, c.Help)
-	if err != nil {
-		return err
-	}
-
-	err = g.SetKeybinding("", 'h', gocui.ModNone, c.Help)
 	if err != nil {
 		return err
 	}

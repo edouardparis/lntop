@@ -182,36 +182,8 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 	}
 }
 
-func (c *controller) Help(g *gocui.Gui, v *gocui.View) error {
-	maxX, maxY := g.Size()
-	view := c.views.Get(g.CurrentView())
-	if view == nil {
-		return nil
-	}
-
-	if view.Name() != views.HELP {
-		c.views.Main = view
-		return c.views.Help.Set(g, 0, -1, maxX, maxY)
-	}
-
-	err := view.Delete(g)
-	if err != nil {
-		return err
-	}
-
-	if c.views.Main != nil {
-		_, err := g.SetCurrentView(c.views.Main.Name())
-		return err
-	}
-
-	return nil
-}
-
 func (c *controller) Menu(g *gocui.Gui, v *gocui.View) error {
 	maxX, maxY := g.Size()
-	if v.Name() == c.views.Help.Name() {
-		return nil
-	}
 
 	if v.Name() != c.views.Menu.Name() {
 		err := c.views.Menu.Set(g, 0, 6, 10, maxY)

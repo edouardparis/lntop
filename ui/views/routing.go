@@ -216,8 +216,7 @@ func (c *Routing) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.FgColor = gocui.ColorBlack
 	footer.Clear()
 	blackBg := color.Black(color.Background)
-	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s",
-		blackBg("F1"), "Help",
+	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s",
 		blackBg("F2"), "Menu",
 		blackBg("F10"), "Quit",
 	))
