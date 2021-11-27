@@ -8,6 +8,7 @@ type Node struct {
 	LastUpdate    time.Time
 	PubKey        string
 	Alias         string
+	ForcedAlias   string
 	Addresses     []*NodeAddress
 }
 

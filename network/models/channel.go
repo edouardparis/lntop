@@ -72,6 +72,21 @@ func (m Channel) MarshalLogObject(enc logging.ObjectEncoder) error {
 	return nil
 }
 
+func (m Channel) ShortAlias() (alias string, forced bool) {
+	if m.Node != nil && m.Node.ForcedAlias != "" {
+		alias = m.Node.ForcedAlias
+		forced = true
+	} else if m.Node == nil || m.Node.Alias == "" {
+		alias = m.RemotePubKey[:24]
+	} else {
+		alias = m.Node.Alias
+	}
+	if len(alias) > 25 {
+		alias = alias[:24]
+	}
+	return
+}
+
 type ChannelUpdate struct {
 }
 

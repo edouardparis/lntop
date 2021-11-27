@@ -50,6 +50,12 @@ max_msg_recv_size = 52428800
 conn_timeout = 1000000
 pool_capacity = 4
 
+[network.aliases]
+# Not all peers have aliases set up. In order to remember who is whom, pubkeys can be annotated.
+# "Forced" aliases will be printed in a different color to be distinguished from network advertised aliases.
+035e4ff418fc8b5554c5d9eea66396c227bd429a3251c8cbc711002ba215bfc226 = "Wallet of Satoshi"
+03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f = "-=[ACINQ]=-"
+
 [views]
 # views.channels is the view displaying channel list.
 [views.channels]
