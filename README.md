@@ -29,10 +29,9 @@ go install github.com/edouardparis/lntop@latest
 
 ## Config
 
-First time `lntop` is used a config file `.lntop/config.toml` is created
-in the user home directory.
+First time `lntop` is started, a config file `.lntop/config.toml` is created in the user's home directory. Change `address`, `cert` path and `macaroon` path according to your setup.
 
-Change macaroon path according to your network.
+The following environment variables, if present, will be used in the initial config file instead of the defaults, so you won't have to have `lntop` fail on the first start and then manually edit the config file: `LND_ADDRESS`, `CERT_PATH`, `MACAROON_PATH`.
 
 ```toml
 [logger]
