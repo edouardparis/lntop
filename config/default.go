@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"os/user"
 	"path"
 )
@@ -94,6 +95,18 @@ columns = [
 
 func NewDefault() *Config {
 	usr, _ := user.Current()
+	lndAddress, present := os.LookupEnv("LND_ADDRESS")
+	if !present {
+		lndAddress = "//127.0.0.1:10009"
+	}
+	certPath, present := os.LookupEnv("CERT_PATH")
+	if !present {
+		certPath = path.Join(usr.HomeDir, ".lnd/tls.cert")
+	}
+	macaroonPath, present := os.LookupEnv("MACAROON_PATH")
+	if !present {
+		macaroonPath = path.Join(usr.HomeDir, ".lnd/data/chain/bitcoin/mainnet/readonly.macaroon")
+	}
 	return &Config{
 		Logger: Logger{
 			Type: "production",
@@ -102,9 +115,9 @@ func NewDefault() *Config {
 		Network: Network{
 			Name:            "lnd",
 			Type:            "lnd",
-			Address:         "//127.0.0.1:10009",
-			Cert:            path.Join(usr.HomeDir, ".lnd/tls.cert"),
-			Macaroon:        path.Join(usr.HomeDir, ".lnd/data/chain/bitcoin/mainnet/readonly.macaroon"),
+			Address:         lndAddress,
+			Cert:            certPath,
+			Macaroon:        macaroonPath,
 			MacaroonTimeOut: 60,
 			MaxMsgRecvSize:  52428800,
 			ConnTimeout:     1000000,
