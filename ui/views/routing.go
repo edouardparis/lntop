@@ -477,18 +477,17 @@ func ralias(channels *models.Channels, out bool) func(*netmodels.RoutingEvent, .
 		}
 
 		var alias string
+		var forced bool
+		aliasColor := color.White(opts...)
 		for _, ch := range channels.List() {
 			if ch.ID == id {
-				if ch.Node == nil || ch.Node.Alias == "" {
-					alias = ch.RemotePubKey[:24]
-				} else if len(ch.Node.Alias) > 25 {
-					alias = ch.Node.Alias[:24]
-				} else {
-					alias = ch.Node.Alias
+				alias, forced = ch.ShortAlias()
+				if forced {
+					aliasColor = color.Cyan(opts...)
 				}
 				break
 			}
 		}
-		return color.White(opts...)(fmt.Sprintf("%-25s", alias))
+		return aliasColor(fmt.Sprintf("%-25s", alias))
 	}
 }

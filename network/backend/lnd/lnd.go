@@ -379,8 +379,11 @@ func (l Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, erro
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-
-	return nodeProtoToNode(resp), nil
+	result := nodeProtoToNode(resp)
+	if forcedAlias, ok := l.cfg.Aliases[result.PubKey]; ok {
+		result.ForcedAlias = forcedAlias
+	}
+	return result, nil
 }
 
 func (l Backend) CreateInvoice(ctx context.Context, amount int64, desc string) (*models.Invoice, error) {

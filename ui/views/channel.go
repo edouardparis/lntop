@@ -167,8 +167,12 @@ func (c *Channel) display() {
 		cyan("         PubKey:"), channel.RemotePubKey)
 
 	if channel.Node != nil {
+		alias, forced := channel.ShortAlias()
+		if forced {
+			alias = cyan(alias)
+		}
 		fmt.Fprintf(v, "%s %s\n",
-			cyan("          Alias:"), channel.Node.Alias)
+			cyan("          Alias:"), alias)
 		fmt.Fprintf(v, "%s %d\n",
 			cyan(" Total Capacity:"), channel.Node.TotalCapacity)
 		fmt.Fprintf(v, "%s %d\n",

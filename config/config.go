@@ -23,16 +23,17 @@ type Logger struct {
 }
 
 type Network struct {
-	Name            string `toml:"name"`
-	Type            string `toml:"type"`
-	Address         string `toml:"address"`
-	Cert            string `toml:"cert"`
-	Macaroon        string `toml:"macaroon"`
-	MacaroonTimeOut int64  `toml:"macaroon_timeout"`
-	MacaroonIP      string `toml:"macaroon_ip"`
-	MaxMsgRecvSize  int    `toml:"max_msg_recv_size"`
-	ConnTimeout     int    `toml:"conn_timeout"`
-	PoolCapacity    int    `toml:"pool_capacity"`
+	Name            string  `toml:"name"`
+	Type            string  `toml:"type"`
+	Address         string  `toml:"address"`
+	Cert            string  `toml:"cert"`
+	Macaroon        string  `toml:"macaroon"`
+	MacaroonTimeOut int64   `toml:"macaroon_timeout"`
+	MacaroonIP      string  `toml:"macaroon_ip"`
+	MaxMsgRecvSize  int     `toml:"max_msg_recv_size"`
+	ConnTimeout     int     `toml:"conn_timeout"`
+	PoolCapacity    int     `toml:"pool_capacity"`
+	Aliases         Aliases `toml:"aliases"`
 }
 
 type Views struct {
@@ -44,6 +45,8 @@ type Views struct {
 type View struct {
 	Columns []string `toml:"columns"`
 }
+
+type Aliases map[string]string
 
 func Load(path string) (*Config, error) {
 	c := &Config{}

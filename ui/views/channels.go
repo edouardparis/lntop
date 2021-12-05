@@ -316,15 +316,12 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 					}
 				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
-					var alias string
-					if c.Node == nil || c.Node.Alias == "" {
-						alias = c.RemotePubKey[:24]
-					} else if len(c.Node.Alias) > 25 {
-						alias = c.Node.Alias[:24]
-					} else {
-						alias = c.Node.Alias
+					aliasColor := color.White(opts...)
+					alias, forced := c.ShortAlias()
+					if forced {
+						aliasColor = color.Cyan(opts...)
 					}
-					return color.White(opts...)(fmt.Sprintf("%-25s", alias))
+					return aliasColor(fmt.Sprintf("%-25s", alias))
 				},
 			}
 		case "GAUGE":
