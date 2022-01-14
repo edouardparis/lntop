@@ -16,7 +16,7 @@ import (
 	"github.com/edouardparis/lntop/cli"
 )
 
-const Version = "v0.3.0"
+const Version = "v0.3.1"
 
 func main() {
 	err := cli.New(Version).Run(os.Args)

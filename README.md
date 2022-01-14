@@ -18,7 +18,10 @@ Require the [go programming language](https://golang.org/) (version >= 1.13)
 
 ```
 git clone https://github.com/edouardparis/lntop.git
-cd lntop && go install ./...
+cd lntop
+go build   // creates a binary `lntop` in directory
+go install // creates a binary and move it in your $GOBIN path
+
 ```
 
 With Go version >= 1.16, you can use [`go-install`](https://golang.org/ref/mod#go-install)
