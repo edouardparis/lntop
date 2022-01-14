@@ -1,4 +1,3 @@
-// lntop v0.0.0
 // Released under the MIT License
 //
 // Lightning is a decentralized network using smart contract functionality
@@ -8,4 +7,20 @@
 //
 // lntop is an interactive text-mode channels viewer for Unix systems.
 // It supports for the moment the Go implementation lnd only.
-package lntop
+package main
+
+import (
+	"log"
+	"os"
+
+	"github.com/edouardparis/lntop/cli"
+)
+
+const Version = "v0.3.0"
+
+func main() {
+	err := cli.New(Version).Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
+}

@@ -7,7 +7,6 @@ import (
 
 	cli "gopkg.in/urfave/cli.v2"
 
-	"github.com/edouardparis/lntop"
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/config"
 	"github.com/edouardparis/lntop/events"
@@ -17,7 +16,7 @@ import (
 )
 
 // New creates a new cli app.
-func New() *cli.App {
+func New(version string) *cli.App {
 	cli.VersionFlag = &cli.BoolFlag{
 		Name: "version", Aliases: []string{},
 		Usage: "print the version",
@@ -25,7 +24,7 @@ func New() *cli.App {
 
 	return &cli.App{
 		Name:                  "lntop",
-		Version:               lntop.Version,
+		Version:               version,
 		Usage:                 "LN channels viewer",
 		EnableShellCompletion: true,
 		Action:                run,
