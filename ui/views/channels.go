@@ -330,9 +330,9 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 				name:  fmt.Sprintf("%-21s", columns[i]),
 				sort: func(order models.Order) models.ChannelsSort {
 					return func(c1, c2 *netmodels.Channel) bool {
-						return models.Int64Sort(
-							c1.LocalBalance*100/c1.Capacity,
-							c2.LocalBalance*100/c2.Capacity,
+						return models.Float64Sort(
+							float64(c1.LocalBalance)*100/float64(c1.Capacity),
+							float64(c2.LocalBalance)*100/float64(c2.Capacity),
 							order)
 					}
 				},
