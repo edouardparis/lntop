@@ -132,13 +132,13 @@ func printPolicy(v *gocui.View, p *message.Printer, policy *netModels.RoutingPol
 		fmt.Fprintln(v, red("disabled"))
 	}
 	fmt.Fprintf(v, "%s %d\n",
-		cyan("    Time lock delta:"), policy.TimeLockDelta)
+		cyan("     Time lock delta:"), policy.TimeLockDelta)
 	fmt.Fprintf(v, "%s %d\n",
-		cyan("           Min htlc:"), policy.MinHtlc)
+		cyan("            Min htlc:"), policy.MinHtlc)
 	fmt.Fprintf(v, "%s %d\n",
-		cyan("      Fee base msat:"), policy.FeeBaseMsat)
+		cyan("       Fee base msat:"), policy.FeeBaseMsat)
 	fmt.Fprintf(v, "%s %d\n",
-		cyan("Fee rate milli msat:"), policy.FeeRateMilliMsat)
+		cyan(" Fee rate milli msat:"), policy.FeeRateMilliMsat)
 }
 
 func (c *Channel) display() {
@@ -190,6 +190,20 @@ func (c *Channel) display() {
 	if channel.Policy1 != nil && !channel.WeFirst {
 		printPolicy(v, p, channel.Policy1, false)
 	}
+	if len(channel.PendingHTLC) > 0 {
+		fmt.Fprintln(v)
+		fmt.Fprintln(v, green(" [ Pending HTLCs ]"))
+		for _, htlc := range channel.PendingHTLC {
+			fmt.Fprintf(v, "%s %t\n",
+				cyan("   Incoming:"), htlc.Incoming)
+			fmt.Fprintf(v, "%s %d\n",
+				cyan("     Amount:"), htlc.Amount)
+			fmt.Fprintf(v, "%s %d\n",
+				cyan(" Expiration:"), htlc.ExpirationHeight)
+			fmt.Fprintln(v)
+		}
+	}
+
 }
 
 func NewChannel(channels *models.Channels) *Channel {
