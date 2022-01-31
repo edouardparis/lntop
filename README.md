@@ -68,6 +68,7 @@ columns = [
 	"ALIAS",       # alias of the channel node
 	"GAUGE",       # ascii bar with percent local/capacity
 	"LOCAL",       # the local amount of the channel
+	# "REMOTE",    # the remote amount of the channel
 	"CAP",         # the total capacity of the channel
 	"SENT",        # the total amount sent
 	"RECEIVED",    # the total amount received
@@ -78,6 +79,7 @@ columns = [
 	"PRIVATE",     # true if channel is private
 	"ID",          # the id of the channel
 	# "SCID",      # short channel id (BxTxO formatted)
+	# "NUPD",      # number of channel updates
 ]
 
 [views.transactions]
