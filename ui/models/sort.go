@@ -33,6 +33,13 @@ func Int64Sort(a, b int64, o Order) bool {
 	return a > b
 }
 
+func Float64Sort(a, b float64, o Order) bool {
+	if o == Asc {
+		return a < b
+	}
+	return a > b
+}
+
 func UInt64Sort(a, b uint64, o Order) bool {
 	if o == Asc {
 		return a < b
