@@ -11,8 +11,6 @@
 
 ## Install
 
-Note: If you are using **Umbrel** or [**Citadel**](https://github.com/runcitadel) you can simply install the [**Lightning Shell**](https://github.com/ibz/lightningshell.app) app from the respective dashboard. This will give you `lntop` which should just work without any additional configuration.
-
 Require the [go programming language](https://golang.org/) (version >= 1.13)
 
 **Raspberry Pi users: be aware that Raspbian ships with Go 1.11** ( see
@@ -31,6 +29,8 @@ With Go version >= 1.16, you can use [`go-install`](https://golang.org/ref/mod#g
 ```
 go install github.com/edouardparis/lntop@latest
 ```
+
+Note: If you are using [**Umbrel**](https://getumbrel.com) or [**Citadel**](https://runcitadel.space) you can simply install the [**Lightning Shell**](https://lightningshell.app) app from the respective dashboard. This will give you `lntop` which should just work without any additional configuration.
 
 ## Config
 
