@@ -330,9 +330,9 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 				name:  fmt.Sprintf("%-21s", columns[i]),
 				sort: func(order models.Order) models.ChannelsSort {
 					return func(c1, c2 *netmodels.Channel) bool {
-						return models.Int64Sort(
-							c1.LocalBalance*100/c1.Capacity,
-							c2.LocalBalance*100/c2.Capacity,
+						return models.Float64Sort(
+							float64(c1.LocalBalance)*100/float64(c1.Capacity),
+							float64(c2.LocalBalance)*100/float64(c2.Capacity),
 							order)
 					}
 				},
@@ -365,6 +365,19 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					return color.Cyan(opts...)(printer.Sprintf("%12d", c.LocalBalance))
+				},
+			}
+		case "REMOTE":
+			channels.columns[i] = channelsColumn{
+				width: 12,
+				name:  fmt.Sprintf("%12s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.Int64Sort(c1.RemoteBalance, c2.RemoteBalance, order)
+					}
+				},
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.Cyan(opts...)(printer.Sprintf("%12d", c.RemoteBalance))
 				},
 			}
 		case "CAP":
@@ -510,6 +523,19 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 						return fmt.Sprintf("%-14s", "")
 					}
 					return color.White(opts...)(fmt.Sprintf("%-14s", ToScid(c.ID)))
+				},
+			}
+		case "NUPD":
+			channels.columns[i] = channelsColumn{
+				width: 8,
+				name:  fmt.Sprintf("%-8s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.UInt64Sort(c1.UpdatesCount, c2.UpdatesCount, order)
+					}
+				},
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.White(opts...)(printer.Sprintf("%8d", c.UpdatesCount))
 				},
 			}
 		default:
