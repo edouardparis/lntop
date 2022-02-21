@@ -30,6 +30,8 @@ With Go version >= 1.16, you can use [`go-install`](https://golang.org/ref/mod#g
 go install github.com/edouardparis/lntop@latest
 ```
 
+Note: If you are using [**Umbrel**](https://getumbrel.com) or [**Citadel**](https://runcitadel.space) you can simply install the [**Lightning Shell**](https://lightningshell.app) app from the respective dashboard. This will give you `lntop` which should just work without any additional configuration.
+
 ## Config
 
 First time `lntop` is started, a config file `.lntop/config.toml` is created in the user's home directory. Change `address`, `cert` path and `macaroon` path according to your setup.
