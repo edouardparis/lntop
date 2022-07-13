@@ -70,7 +70,11 @@ columns = [
 	"ALIAS",       # alias of the channel node
 	"GAUGE",       # ascii bar with percent local/capacity
 	"LOCAL",       # the local amount of the channel
+	#"BASE_OUT"    # the outgoing base fee of the channel
+	#"RATE_OUT"    # the outgoing fee rate in ppm of the channel
 	# "REMOTE",    # the remote amount of the channel
+	#"BASE_IN"    # the incoming base fee of the channel
+	#"RATE_IN"    # the incoming fee rate in ppm of the channel
 	"CAP",         # the total capacity of the channel
 	"SENT",        # the total amount sent
 	"RECEIVED",    # the total amount received
