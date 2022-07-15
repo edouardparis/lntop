@@ -538,6 +538,58 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 					return color.White(opts...)(printer.Sprintf("%8d", c.UpdatesCount))
 				},
 			}
+		case "BASE_OUT":
+			channels.columns[i] = channelsColumn{
+				width: 8,
+				name:  fmt.Sprintf("%-8s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.UInt64Sort(uint64(c1.Policy1.FeeBaseMsat), uint64(c2.Policy1.FeeBaseMsat), order)
+					}
+				},
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.White(opts...)(printer.Sprintf("%8d", c.Policy1.FeeBaseMsat))
+				},
+			}
+		case "RATE_OUT":
+			channels.columns[i] = channelsColumn{
+				width: 8,
+				name:  fmt.Sprintf("%-8s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.UInt64Sort(uint64(c1.Policy1.FeeRateMilliMsat), uint64(c2.Policy1.FeeRateMilliMsat), order)
+					}
+				},
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.White(opts...)(printer.Sprintf("%8d", c.Policy1.FeeRateMilliMsat))
+				},
+			}
+		case "BASE_IN":
+			channels.columns[i] = channelsColumn{
+				width: 7,
+				name:  fmt.Sprintf("%-7s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.UInt64Sort(uint64(c1.Policy2.FeeBaseMsat), uint64(c2.Policy2.FeeBaseMsat), order)
+					}
+				},
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.White(opts...)(printer.Sprintf("%7d", c.Policy2.FeeBaseMsat))
+				},
+			}
+		case "RATE_IN":
+			channels.columns[i] = channelsColumn{
+				width: 7,
+				name:  fmt.Sprintf("%-7s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.UInt64Sort(uint64(c1.Policy2.FeeRateMilliMsat), uint64(c2.Policy2.FeeRateMilliMsat), order)
+					}
+				},
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					return color.White(opts...)(printer.Sprintf("%7d", c.Policy2.FeeRateMilliMsat))
+				},
+			}
 		default:
 			channels.columns[i] = channelsColumn{
 				width: 21,
