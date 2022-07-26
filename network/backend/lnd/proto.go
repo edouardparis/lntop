@@ -145,16 +145,15 @@ func pendingChannelsProtoToChannels(r *lnrpc.PendingChannelsResponse) []*models.
 
 func openingChannelProtoToChannel(c *lnrpc.PendingChannelsResponse_PendingOpenChannel) *models.Channel {
 	return &models.Channel{
-		Status:             models.ChannelOpening,
-		RemotePubKey:       c.Channel.RemoteNodePub,
-		Capacity:           c.Channel.Capacity,
-		LocalBalance:       c.Channel.LocalBalance,
-		RemoteBalance:      c.Channel.RemoteBalance,
-		ChannelPoint:       c.Channel.ChannelPoint,
-		CommitWeight:       c.CommitWeight,
-		CommitFee:          c.CommitFee,
-		ConfirmationHeight: &c.ConfirmationHeight,
-		FeePerKiloWeight:   c.FeePerKw,
+		Status:           models.ChannelOpening,
+		RemotePubKey:     c.Channel.RemoteNodePub,
+		Capacity:         c.Channel.Capacity,
+		LocalBalance:     c.Channel.LocalBalance,
+		RemoteBalance:    c.Channel.RemoteBalance,
+		ChannelPoint:     c.Channel.ChannelPoint,
+		CommitWeight:     c.CommitWeight,
+		CommitFee:        c.CommitFee,
+		FeePerKiloWeight: c.FeePerKw,
 	}
 }
 
