@@ -41,7 +41,6 @@ type Channel struct {
 	UnsettledBalance    int64
 	TotalAmountSent     int64
 	TotalAmountReceived int64
-	ConfirmationHeight  *uint32
 	UpdatesCount        uint64
 	CSVDelay            uint32
 	Private             bool
