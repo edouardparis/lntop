@@ -666,6 +666,8 @@ func status(c *netmodels.Channel, opts ...color.Option) string {
 		return color.Yellow(opts...)(fmt.Sprintf("%-13s", "force closing"))
 	case netmodels.ChannelWaitingClose:
 		return color.Yellow(opts...)(fmt.Sprintf("%-13s", "waiting close"))
+	case netmodels.ChannelClosed:
+		return color.Red(opts...)(fmt.Sprintf("%-13s", "closed"))
 	}
 	return ""
 }

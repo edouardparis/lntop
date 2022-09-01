@@ -21,7 +21,7 @@ import (
 
 const (
 	lndDefaultInvoiceExpiry = 3600
-	lndMinPoolCapacity      = 4
+	lndMinPoolCapacity      = 5
 )
 
 type Client struct {
@@ -91,7 +91,7 @@ func (l Backend) SubscribeInvoice(ctx context.Context, channelInvoice chan *mode
 	for {
 		select {
 		case <-ctx.Done():
-			break
+			return nil
 		default:
 			invoice, err := cltInvoices.Recv()
 			if err != nil {
@@ -123,7 +123,7 @@ func (l Backend) SubscribeTransactions(ctx context.Context, channel chan *models
 	for {
 		select {
 		case <-ctx.Done():
-			break
+			return nil
 		default:
 			transaction, err := cltTransactions.Recv()
 			if err != nil {
@@ -141,24 +141,37 @@ func (l Backend) SubscribeTransactions(ctx context.Context, channel chan *models
 }
 
 func (l Backend) SubscribeChannels(ctx context.Context, events chan *models.ChannelUpdate) error {
-	_, err := l.Client(ctx)
+	clt, err := l.Client(ctx)
+	if err != nil {
+		return err
+	}
+	defer clt.Close()
+
+	channelEvents, err := clt.SubscribeChannelEvents(ctx, &lnrpc.ChannelEventSubscription{})
 	if err != nil {
 		return err
 	}
 
-	// events, err := clt.SubscribeChannelEvents(ctx, &lnrpc.ChannelEventSubscription{})
-	// if err != nil {
-	// 	return err
-	// }
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			event, err := channelEvents.Recv()
+			if err != nil {
+				st, ok := status.FromError(err)
+				if ok && st.Code() == codes.Canceled {
+					l.logger.Debug("stopping subscribe channels: context canceled")
+					return nil
+				}
+				return err
+			}
+			if event.Type == lnrpc.ChannelEventUpdate_FULLY_RESOLVED_CHANNEL {
+				events <- &models.ChannelUpdate{}
+			}
 
-	// for {
-	// 	event, err := events.Recv()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// events <-
-	//}
-	return nil
+		}
+	}
 }
 
 func (l Backend) SubscribeRoutingEvents(ctx context.Context, channelEvents chan *models.RoutingEvent) error {
@@ -176,7 +189,7 @@ func (l Backend) SubscribeRoutingEvents(ctx context.Context, channelEvents chan 
 	for {
 		select {
 		case <-ctx.Done():
-			break
+			return nil
 		default:
 			event, err := cltRoutingEvents.Recv()
 			if err != nil {

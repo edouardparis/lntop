@@ -52,14 +52,16 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	index := map[string]*models.Channel{}
 	for i := range channels {
+		index[channels[i].ChannelPoint] = channels[i]
 		if !m.Channels.Contains(channels[i]) {
 			m.Channels.Add(channels[i])
 		}
 		channel := m.Channels.GetByChanPoint(channels[i].ChannelPoint)
 		if channel != nil &&
 			(channel.UpdatesCount < channels[i].UpdatesCount ||
-				channel.LastUpdate == nil) {
+				channel.LastUpdate == nil || channel.Policy1 == nil || channel.Policy2 == nil) {
 			err := m.network.GetChannelInfo(ctx, channels[i])
 			if err != nil {
 				return err
@@ -76,6 +78,11 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 		}
 
 		m.Channels.Update(channels[i])
+	}
+	for _, c := range m.Channels.List() {
+		if _, ok := index[c.ChannelPoint]; !ok {
+			c.Status = models.ChannelClosed
+		}
 	}
 	return nil
 }
