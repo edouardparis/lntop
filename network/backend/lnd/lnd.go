@@ -2,6 +2,7 @@ package lnd
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"time"
 
@@ -21,7 +22,7 @@ import (
 
 const (
 	lndDefaultInvoiceExpiry = 3600
-	lndMinPoolCapacity      = 5
+	lndMinPoolCapacity      = 6
 )
 
 type Client struct {
@@ -170,6 +171,53 @@ func (l Backend) SubscribeChannels(ctx context.Context, events chan *models.Chan
 				events <- &models.ChannelUpdate{}
 			}
 
+		}
+	}
+}
+
+func chanpointToString(c *lnrpc.ChannelPoint) string {
+	hash := c.GetFundingTxidBytes()
+	for i := 0; i < len(hash)/2; i++ {
+		hash[i], hash[len(hash)-i-1] = hash[len(hash)-i-1], hash[i]
+	}
+	output := c.OutputIndex
+	result := fmt.Sprintf("%s:%d", hex.EncodeToString(hash), output)
+	return result
+}
+
+func (l Backend) SubscribeGraphEvents(ctx context.Context, events chan *models.ChannelEdgeUpdate) error {
+	clt, err := l.Client(ctx)
+	if err != nil {
+		return err
+	}
+	defer clt.Close()
+
+	graphEvents, err := clt.SubscribeChannelGraph(ctx, &lnrpc.GraphTopologySubscription{})
+	if err != nil {
+		return err
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			event, err := graphEvents.Recv()
+			if err != nil {
+				st, ok := status.FromError(err)
+				if ok && st.Code() == codes.Canceled {
+					l.logger.Debug("stopping subscribe graph: context canceled")
+					return nil
+				}
+				return err
+			}
+			chanPoints := []string{}
+			for _, c := range event.ChannelUpdates {
+				chanPoints = append(chanPoints, chanpointToString(c.ChanPoint))
+			}
+			if len(chanPoints) > 0 {
+				events <- &models.ChannelEdgeUpdate{ChanPoints: chanPoints}
+			}
 		}
 	}
 }

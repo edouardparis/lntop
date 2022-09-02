@@ -144,6 +144,22 @@ func (m *Models) RefreshRouting(update interface{}) func(context.Context) error 
 	})
 }
 
+func (m *Models) RefreshPolicies(update interface{}) func(context.Context) error {
+	return func(ctx context.Context) error {
+		for _, chanpoint := range update.(*models.ChannelEdgeUpdate).ChanPoints {
+			if m.Channels.Contains(&models.Channel{ChannelPoint: chanpoint}) {
+				m.logger.Debug("updating channel", logging.String("chanpoint", chanpoint))
+				channel := m.Channels.GetByChanPoint(chanpoint)
+				err := m.network.GetChannelInfo(ctx, channel)
+				if err != nil {
+					m.logger.Error("error updating channel info", logging.Error(err))
+				}
+			}
+		}
+		return nil
+	}
+}
+
 func (m *Models) RefreshCurrentNode(ctx context.Context) (err error) {
 	cur := m.Channels.Current()
 	if cur != nil {
