@@ -371,8 +371,8 @@ func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) er
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if info != nil {
-		channel.WeFirst = resp.Node1Pub == info.IdentityPubkey
+	if info != nil && resp.Node1Pub != info.IdentityPubkey {
+		channel.Policy1, channel.Policy2 = channel.Policy2, channel.Policy1
 	}
 
 	return nil

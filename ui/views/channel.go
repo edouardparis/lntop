@@ -230,17 +230,14 @@ func (c *Channel) display() {
 		}
 	}
 
-	if channel.Policy1 != nil && channel.WeFirst {
+	if channel.Policy1 != nil {
 		printPolicy(v, p, channel.Policy1, true)
 	}
 
 	if channel.Policy2 != nil {
-		printPolicy(v, p, channel.Policy2, !channel.WeFirst)
+		printPolicy(v, p, channel.Policy2, false)
 	}
 
-	if channel.Policy1 != nil && !channel.WeFirst {
-		printPolicy(v, p, channel.Policy1, false)
-	}
 	if len(channel.PendingHTLC) > 0 {
 		fmt.Fprintln(v)
 		fmt.Fprintln(v, green(" [ Pending HTLCs ]"))
