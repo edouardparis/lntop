@@ -141,6 +141,26 @@ func printPolicy(v *gocui.View, p *message.Printer, policy *netModels.RoutingPol
 		cyan(" Fee rate milli msat:"), policy.FeeRateMilliMsat)
 }
 
+func formatAmount(amt int64) string {
+	btc := amt / 1e8
+	ms := amt % 1e8 / 1e6
+	ts := amt % 1e6 / 1e3
+	s := amt % 1e3
+	if btc > 0 {
+		return fmt.Sprintf("%d.%02d,%03d,%03d", btc, ms, ts, s)
+	}
+	if ms > 0 {
+		return fmt.Sprintf("%d,%03d,%03d", ms, ts, s)
+	}
+	if ts > 0 {
+		return fmt.Sprintf("%d,%03d", ts, s)
+	}
+	if s >= 0 {
+		return fmt.Sprintf("%d", s)
+	}
+	return fmt.Sprintf("error: %d", amt)
+}
+
 func (c *Channel) display() {
 	p := message.NewPrinter(language.English)
 	v := c.view
@@ -153,12 +173,12 @@ func (c *Channel) display() {
 		cyan("         Status:"), status(channel))
 	fmt.Fprintf(v, "%s %d (%s)\n",
 		cyan("             ID:"), channel.ID, ToScid(channel.ID))
-	fmt.Fprintf(v, "%s %d\n",
-		cyan("       Capacity:"), channel.Capacity)
-	fmt.Fprintf(v, "%s %d\n",
-		cyan("  Local Balance:"), channel.LocalBalance)
-	fmt.Fprintf(v, "%s %d\n",
-		cyan(" Remote Balance:"), channel.RemoteBalance)
+	fmt.Fprintf(v, "%s %s\n",
+		cyan("       Capacity:"), formatAmount(channel.Capacity))
+	fmt.Fprintf(v, "%s %s\n",
+		cyan("  Local Balance:"), formatAmount(channel.LocalBalance))
+	fmt.Fprintf(v, "%s %s\n",
+		cyan(" Remote Balance:"), formatAmount(channel.RemoteBalance))
 	fmt.Fprintf(v, "%s %s\n",
 		cyan("  Channel Point:"), channel.ChannelPoint)
 	fmt.Fprintln(v, "")
@@ -173,8 +193,8 @@ func (c *Channel) display() {
 		}
 		fmt.Fprintf(v, "%s %s\n",
 			cyan("          Alias:"), alias)
-		fmt.Fprintf(v, "%s %d\n",
-			cyan(" Total Capacity:"), channel.Node.TotalCapacity)
+		fmt.Fprintf(v, "%s %s\n",
+			cyan(" Total Capacity:"), formatAmount(channel.Node.TotalCapacity))
 		fmt.Fprintf(v, "%s %d\n",
 			cyan(" Total Channels:"), channel.Node.NumChannels)
 	}
@@ -196,8 +216,8 @@ func (c *Channel) display() {
 		for _, htlc := range channel.PendingHTLC {
 			fmt.Fprintf(v, "%s %t\n",
 				cyan("   Incoming:"), htlc.Incoming)
-			fmt.Fprintf(v, "%s %d\n",
-				cyan("     Amount:"), htlc.Amount)
+			fmt.Fprintf(v, "%s %s\n",
+				cyan("     Amount:"), formatAmount(htlc.Amount))
 			fmt.Fprintf(v, "%s %d\n",
 				cyan(" Expiration:"), htlc.ExpirationHeight)
 			fmt.Fprintln(v)
