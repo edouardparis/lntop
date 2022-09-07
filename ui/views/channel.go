@@ -96,9 +96,10 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.FgColor = gocui.ColorBlack
 	footer.Clear()
 	blackBg := color.Black(color.Background)
-	fmt.Fprintf(footer, "%s%s %s%s %s%s\n",
+	fmt.Fprintf(footer, "%s%s %s%s %s%s %s%s\n",
 		blackBg("F2"), "Menu",
 		blackBg("Enter"), "Channels",
+		blackBg("C"), "Get disabled",
 		blackBg("F10"), "Quit",
 	)
 	return nil
@@ -163,6 +164,19 @@ func formatAmount(amt int64) string {
 	return fmt.Sprintf("error: %d", amt)
 }
 
+func formatDisabledCount(cnt int, total uint32) string {
+	perc := uint32(cnt) * 100 / total
+	disabledStr := ""
+	if perc >= 25 && perc < 50 {
+		disabledStr = color.Yellow(color.Bold)(fmt.Sprintf("%4d", cnt))
+	} else if perc >= 50 {
+		disabledStr = color.Red(color.Bold)(fmt.Sprintf("%4d", cnt))
+	} else {
+		disabledStr = fmt.Sprintf("%4d", cnt)
+	}
+	return fmt.Sprintf("%s / %d", disabledStr, total)
+}
+
 func (c *Channel) display() {
 	p := message.NewPrinter(language.English)
 	v := c.view
@@ -199,6 +213,21 @@ func (c *Channel) display() {
 			cyan(" Total Capacity:"), formatAmount(channel.Node.TotalCapacity))
 		fmt.Fprintf(v, "%s %d\n",
 			cyan(" Total Channels:"), channel.Node.NumChannels)
+
+		if c.channels.CurrentNode != nil && c.channels.CurrentNode.PubKey == channel.RemotePubKey {
+			disabledOut := 0
+			disabledIn := 0
+			for _, ch := range c.channels.CurrentNode.Channels {
+				if ch.Policy1 != nil && ch.Policy1.Disabled {
+					disabledOut++
+				}
+				if ch.Policy2 != nil && ch.Policy2.Disabled {
+					disabledIn++
+				}
+			}
+			fmt.Fprintf(v, "\n %s %s\n", cyan("Disabled from node:"), formatDisabledCount(disabledOut, channel.Node.NumChannels))
+			fmt.Fprintf(v, " %s %s\n", cyan("Disabled to node:  "), formatDisabledCount(disabledIn, channel.Node.NumChannels))
+		}
 	}
 
 	if channel.Policy1 != nil && channel.WeFirst {

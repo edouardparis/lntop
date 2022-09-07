@@ -120,5 +120,10 @@ func setKeyBinding(c *controller, g *gocui.Gui) error {
 		return err
 	}
 
+	err = g.SetKeybinding("", 'c', gocui.ModNone, c.NodeInfo)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

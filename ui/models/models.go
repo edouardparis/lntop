@@ -67,7 +67,7 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 
 			if channels[i].Node == nil {
 				channels[i].Node, err = m.network.GetNode(ctx,
-					channels[i].RemotePubKey)
+					channels[i].RemotePubKey, false)
 				if err != nil {
 					m.logger.Debug("refreshChannels: cannot find Node",
 						logging.String("pubkey", channels[i].RemotePubKey))
@@ -135,4 +135,12 @@ func (m *Models) RefreshRouting(update interface{}) func(context.Context) error 
 		}
 		return nil
 	})
+}
+
+func (m *Models) RefreshCurrentNode(ctx context.Context) (err error) {
+	cur := m.Channels.Current()
+	if cur != nil {
+		m.Channels.CurrentNode, err = m.network.GetNode(ctx, cur.RemotePubKey, true)
+	}
+	return
 }

@@ -10,11 +10,12 @@ import (
 type ChannelsSort func(*models.Channel, *models.Channel) bool
 
 type Channels struct {
-	current *models.Channel
-	index   map[string]*models.Channel
-	list    []*models.Channel
-	sort    ChannelsSort
-	mu      sync.RWMutex
+	current     *models.Channel
+	index       map[string]*models.Channel
+	list        []*models.Channel
+	sort        ChannelsSort
+	mu          sync.RWMutex
+	CurrentNode *models.Node
 }
 
 func (c *Channels) List() []*models.Channel {

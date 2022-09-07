@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"time"
 
 	"github.com/jroimartin/gocui"
 
@@ -240,6 +241,9 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 	case views.CHANNELS:
 		index := c.views.Channels.Index()
 		c.models.Channels.SetCurrent(index)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+		defer cancel()
+		c.models.RefreshCurrentNode(ctx)
 		c.views.Main = c.views.Channel
 		return ToggleView(g, view, c.views.Channels)
 
@@ -299,6 +303,16 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 		c.views.Main = c.views.Transactions
 		return ToggleView(g, view, c.views.Transactions)
 	}
+	return nil
+}
+
+func (c *controller) NodeInfo(g *gocui.Gui, v *gocui.View) error {
+	if v.Name() != views.CHANNEL {
+		return nil
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	c.models.RefreshCurrentNode(ctx)
 	return nil
 }
 

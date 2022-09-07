@@ -54,7 +54,7 @@ func (b *Backend) SubscribeRoutingEvents(ctx context.Context, channel chan *mode
 	return nil
 }
 
-func (b *Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, error) {
+func (b *Backend) GetNode(ctx context.Context, pubkey string, includeChannels bool) (*models.Node, error) {
 	return &models.Node{}, nil
 }
 

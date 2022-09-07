@@ -268,6 +268,20 @@ func nodeProtoToNode(resp *lnrpc.NodeInfo) *models.Node {
 			Addr:    resp.Node.Addresses[i].Addr,
 		}
 	}
+	channels := []*models.Channel{}
+	for _, c := range resp.Channels {
+		ch := &models.Channel{
+			ID:           c.ChannelId,
+			ChannelPoint: c.ChanPoint,
+			Capacity:     c.Capacity,
+			Policy1:      protoToRoutingPolicy(c.Node1Policy),
+			Policy2:      protoToRoutingPolicy(c.Node2Policy),
+		}
+		if c.Node1Pub != resp.Node.PubKey {
+			ch.Policy1, ch.Policy2 = ch.Policy2, ch.Policy1
+		}
+		channels = append(channels, ch)
+	}
 
 	return &models.Node{
 		NumChannels:   resp.NumChannels,
@@ -276,6 +290,7 @@ func nodeProtoToNode(resp *lnrpc.NodeInfo) *models.Node {
 		PubKey:        resp.Node.PubKey,
 		Alias:         resp.Node.Alias,
 		Addresses:     addresses,
+		Channels:      channels,
 	}
 }
 
