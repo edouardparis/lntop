@@ -286,6 +286,7 @@ func protoToRoutingPolicy(resp *lnrpc.RoutingPolicy) *models.RoutingPolicy {
 	return &models.RoutingPolicy{
 		TimeLockDelta:    resp.TimeLockDelta,
 		MinHtlc:          resp.MinHtlc,
+		MaxHtlc:          resp.MaxHtlcMsat,
 		FeeBaseMsat:      resp.FeeBaseMsat,
 		FeeRateMilliMsat: resp.FeeRateMilliMsat,
 		Disabled:         resp.Disabled,

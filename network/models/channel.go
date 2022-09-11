@@ -92,6 +92,7 @@ type ChannelUpdate struct {
 type RoutingPolicy struct {
 	TimeLockDelta    uint32
 	MinHtlc          int64
+	MaxHtlc          uint64
 	FeeBaseMsat      int64
 	FeeRateMilliMsat int64
 	Disabled         bool
