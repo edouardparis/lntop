@@ -174,7 +174,7 @@ func formatDisabledCount(cnt int, total uint32) string {
 	} else {
 		disabledStr = fmt.Sprintf("%4d", cnt)
 	}
-	return fmt.Sprintf("%s / %d", disabledStr, total)
+	return fmt.Sprintf("%s / %d (%d%%)", disabledStr, total, perc)
 }
 
 func (c *Channel) display() {
