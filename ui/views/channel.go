@@ -137,8 +137,8 @@ func printPolicy(v *gocui.View, p *message.Printer, policy *netModels.RoutingPol
 		cyan("     Min htlc (msat):"), formatAmount(policy.MinHtlc))
 	fmt.Fprintf(v, "%s %s\n",
 		cyan("      Max htlc (sat):"), formatAmount(int64(policy.MaxHtlc/1000)))
-	fmt.Fprintf(v, "%s %d\n",
-		cyan("       Fee base msat:"), policy.FeeBaseMsat)
+	fmt.Fprintf(v, "%s %s\n",
+		cyan("       Fee base msat:"), formatAmount(policy.FeeBaseMsat))
 	fmt.Fprintf(v, "%s %d\n",
 		cyan(" Fee rate milli msat:"), policy.FeeRateMilliMsat)
 }
