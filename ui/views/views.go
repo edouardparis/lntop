@@ -132,16 +132,28 @@ func FormatAge(age uint32) string {
 	return fmt.Sprintf("%02dy%02dm%02dd", age/52596, (age%52596)/4383, (age%4383)/144)
 }
 
+func interp(a, b [3]float64, r float64) (result [3]float64) {
+	result[0] = a[0] + (b[0]-a[0])*r
+	result[1] = a[1] + (b[1]-a[1])*r
+	result[2] = a[2] + (b[2]-a[2])*r
+	return
+}
+
 func ColorizeAge(age uint32, text string, opts ...lntcolor.Option) string {
-	s := 1.0
-	l := 0.5
-	if age < 52596 {
-		s = float64(age) / 52596
+	ageColors := [][3]float64{
+		{120, 0.9, 0.9},
+		{60, 0.9, 0.6},
+		{22, 1, 0.5},
 	}
-	if age < 8766 { // increase brightness slightly for 16 color terminals or else it renders as black
-		l = 0.66
+	cur := [3]float64{}
+	if age < 26298 {
+		cur = interp(ageColors[0], ageColors[1], float64(age)/26298)
+	} else if age < 52596 {
+		cur = interp(ageColors[1], ageColors[2], float64(age-26298)/26298)
+	} else {
+		cur = ageColors[2]
 	}
-	val := color.HSL(22./360, s, l).C256().Value()
+	val := color.HSL(cur[0]/360, cur[1], cur[2]).C256().Value()
 	c := color.S256(val)
 	options := lntcolor.NewOptions(opts)
 	if options.Bold {
