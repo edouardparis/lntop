@@ -43,6 +43,7 @@ columns = [
 	"UNSETTLED",   # the amount unsettled in the channel
 	"CFEE",        # the commit fee
 	"LAST UPDATE", # last update of the channel
+	# "AGE",       # approximate channel age
 	"PRIVATE",     # true if channel is private
 	"ID",          # the id of the channel
 	# "SCID",      # short channel id (BxTxO formatted)

@@ -45,6 +45,7 @@ type Channel struct {
 	TotalAmountReceived int64
 	UpdatesCount        uint64
 	CSVDelay            uint32
+	Age                 uint32
 	Private             bool
 	PendingHTLC         []*HTLC
 	LastUpdate          *time.Time

@@ -116,3 +116,19 @@ func ToScid(id uint64) string {
 
 	return fmt.Sprintf("%dx%dx%d", blocknum, txnum, outnum)
 }
+
+func FormatAge(age uint32) string {
+	if age < 6 {
+		return fmt.Sprintf("%02dm", age*10)
+	}
+	if age < 144 {
+		return fmt.Sprintf("%02dh", age/6)
+	}
+	if age < 4383 {
+		return fmt.Sprintf("%02dd%02dh", age/144, (age%144)/6)
+	}
+	if age < 52596 {
+		return fmt.Sprintf("%02dm%02dd%02dh", age/4383, (age%4383)/144, (age%144)/6)
+	}
+	return fmt.Sprintf("%02dy%02dm%02dd", age/52596, (age%52596)/4383, (age%4383)/144)
+}
