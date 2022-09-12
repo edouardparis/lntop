@@ -544,11 +544,23 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 				name:  fmt.Sprintf("%-8s", columns[i]),
 				sort: func(order models.Order) models.ChannelsSort {
 					return func(c1, c2 *netmodels.Channel) bool {
-						return models.UInt64Sort(uint64(c1.Policy1.FeeBaseMsat), uint64(c2.Policy1.FeeBaseMsat), order)
+						var c1f uint64
+						var c2f uint64
+						if c1.Policy1 != nil {
+							c1f = uint64(c1.Policy1.FeeBaseMsat)
+						}
+						if c2.Policy1 != nil {
+							c2f = uint64(c2.Policy1.FeeBaseMsat)
+						}
+						return models.UInt64Sort(c1f, c2f, order)
 					}
 				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
-					return color.White(opts...)(printer.Sprintf("%8d", c.Policy1.FeeBaseMsat))
+					var val int64
+					if c.Policy1 != nil {
+						val = c.Policy1.FeeBaseMsat
+					}
+					return color.White(opts...)(printer.Sprintf("%8d", val))
 				},
 			}
 		case "RATE_OUT":
@@ -557,11 +569,23 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 				name:  fmt.Sprintf("%-8s", columns[i]),
 				sort: func(order models.Order) models.ChannelsSort {
 					return func(c1, c2 *netmodels.Channel) bool {
-						return models.UInt64Sort(uint64(c1.Policy1.FeeRateMilliMsat), uint64(c2.Policy1.FeeRateMilliMsat), order)
+						var c1f uint64
+						var c2f uint64
+						if c1.Policy1 != nil {
+							c1f = uint64(c1.Policy1.FeeRateMilliMsat)
+						}
+						if c2.Policy1 != nil {
+							c2f = uint64(c2.Policy1.FeeRateMilliMsat)
+						}
+						return models.UInt64Sort(c1f, c2f, order)
 					}
 				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
-					return color.White(opts...)(printer.Sprintf("%8d", c.Policy1.FeeRateMilliMsat))
+					var val int64
+					if c.Policy1 != nil {
+						val = c.Policy1.FeeRateMilliMsat
+					}
+					return color.White(opts...)(printer.Sprintf("%8d", val))
 				},
 			}
 		case "BASE_IN":
@@ -570,11 +594,23 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 				name:  fmt.Sprintf("%-7s", columns[i]),
 				sort: func(order models.Order) models.ChannelsSort {
 					return func(c1, c2 *netmodels.Channel) bool {
-						return models.UInt64Sort(uint64(c1.Policy2.FeeBaseMsat), uint64(c2.Policy2.FeeBaseMsat), order)
+						var c1f uint64
+						var c2f uint64
+						if c1.Policy2 != nil {
+							c1f = uint64(c1.Policy2.FeeBaseMsat)
+						}
+						if c2.Policy2 != nil {
+							c2f = uint64(c2.Policy2.FeeBaseMsat)
+						}
+						return models.UInt64Sort(c1f, c2f, order)
 					}
 				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
-					return color.White(opts...)(printer.Sprintf("%7d", c.Policy2.FeeBaseMsat))
+					var val int64
+					if c.Policy2 != nil {
+						val = c.Policy2.FeeBaseMsat
+					}
+					return color.White(opts...)(printer.Sprintf("%7d", val))
 				},
 			}
 		case "RATE_IN":
@@ -583,11 +619,23 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 				name:  fmt.Sprintf("%-7s", columns[i]),
 				sort: func(order models.Order) models.ChannelsSort {
 					return func(c1, c2 *netmodels.Channel) bool {
-						return models.UInt64Sort(uint64(c1.Policy2.FeeRateMilliMsat), uint64(c2.Policy2.FeeRateMilliMsat), order)
+						var c1f uint64
+						var c2f uint64
+						if c1.Policy2 != nil {
+							c1f = uint64(c1.Policy2.FeeRateMilliMsat)
+						}
+						if c2.Policy2 != nil {
+							c2f = uint64(c2.Policy2.FeeRateMilliMsat)
+						}
+						return models.UInt64Sort(c1f, c2f, order)
 					}
 				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
-					return color.White(opts...)(printer.Sprintf("%7d", c.Policy2.FeeRateMilliMsat))
+					var val int64
+					if c.Policy2 != nil {
+						val = c.Policy2.FeeRateMilliMsat
+					}
+					return color.White(opts...)(printer.Sprintf("%7d", val))
 				},
 			}
 		default:
