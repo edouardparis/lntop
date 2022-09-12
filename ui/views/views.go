@@ -7,8 +7,10 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/edouardparis/lntop/config"
+	lntcolor "github.com/edouardparis/lntop/ui/color"
 	"github.com/edouardparis/lntop/ui/cursor"
 	"github.com/edouardparis/lntop/ui/models"
+	"github.com/gookit/color"
 )
 
 type View interface {
@@ -120,15 +122,30 @@ func ToScid(id uint64) string {
 func FormatAge(age uint32) string {
 	if age < 6 {
 		return fmt.Sprintf("%02dm", age*10)
-	}
-	if age < 144 {
+	} else if age < 144 {
 		return fmt.Sprintf("%02dh", age/6)
-	}
-	if age < 4383 {
+	} else if age < 4383 {
 		return fmt.Sprintf("%02dd%02dh", age/144, (age%144)/6)
-	}
-	if age < 52596 {
+	} else if age < 52596 {
 		return fmt.Sprintf("%02dm%02dd%02dh", age/4383, (age%4383)/144, (age%144)/6)
 	}
 	return fmt.Sprintf("%02dy%02dm%02dd", age/52596, (age%52596)/4383, (age%4383)/144)
+}
+
+func ColorizeAge(age uint32, text string, opts ...lntcolor.Option) string {
+	s := 1.0
+	l := 0.5
+	if age < 52596 {
+		s = float64(age) / 52596
+	}
+	if age < 8766 { // increase brightness slightly for 16 color terminals or else it renders as black
+		l = 0.66
+	}
+	val := color.HSL(22./360, s, l).C256().Value()
+	c := color.S256(val)
+	options := lntcolor.NewOptions(opts)
+	if options.Bold {
+		c.AddOpts(color.Bold)
+	}
+	return c.Sprint(text)
 }

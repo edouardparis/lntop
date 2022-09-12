@@ -651,7 +651,7 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 					if c.ID == 0 {
 						return fmt.Sprintf("%10s", "")
 					}
-					return color.White(opts...)(fmt.Sprintf("%10s", FormatAge(c.Age)))
+					return ColorizeAge(c.Age, printer.Sprintf("%10s", FormatAge(c.Age)), opts...)
 				},
 			}
 
