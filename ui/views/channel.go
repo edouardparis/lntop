@@ -148,6 +148,7 @@ func (c *Channel) display() {
 	channel := c.channels.Current()
 	green := color.Green()
 	cyan := color.Cyan()
+
 	fmt.Fprintln(v, green(" [ Channel ]"))
 	fmt.Fprintf(v, "%s %s\n",
 		cyan("         Status:"), status(channel))
@@ -161,7 +162,9 @@ func (c *Channel) display() {
 		cyan(" Remote Balance:"), channel.RemoteBalance)
 	fmt.Fprintf(v, "%s %s\n",
 		cyan("  Channel Point:"), channel.ChannelPoint)
+
 	fmt.Fprintln(v, "")
+
 	fmt.Fprintln(v, green(" [ Node ]"))
 	fmt.Fprintf(v, "%s %s\n",
 		cyan("         PubKey:"), channel.RemotePubKey)
@@ -178,17 +181,11 @@ func (c *Channel) display() {
 		fmt.Fprintf(v, "%s %d\n",
 			cyan(" Total Channels:"), channel.Node.NumChannels)
 	}
-
-	if channel.Policy1 != nil && channel.WeFirst {
-		printPolicy(v, p, channel.Policy1, true)
+	if channel.LocalPolicy != nil {
+		printPolicy(v, p, channel.LocalPolicy, true)
 	}
-
-	if channel.Policy2 != nil {
-		printPolicy(v, p, channel.Policy2, !channel.WeFirst)
-	}
-
-	if channel.Policy1 != nil && !channel.WeFirst {
-		printPolicy(v, p, channel.Policy1, false)
+	if channel.RemotePolicy != nil {
+		printPolicy(v, p, channel.RemotePolicy, false)
 	}
 	if len(channel.PendingHTLC) > 0 {
 		fmt.Fprintln(v)

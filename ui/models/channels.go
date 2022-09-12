@@ -108,12 +108,12 @@ func (c *Channels) Update(newChannel *models.Channel) {
 		oldChannel.LastUpdate = newChannel.LastUpdate
 	}
 
-	if newChannel.Policy1 != nil {
-		oldChannel.Policy1 = newChannel.Policy1
+	if newChannel.LocalPolicy != nil {
+		oldChannel.LocalPolicy = newChannel.LocalPolicy
 	}
 
-	if newChannel.Policy2 != nil {
-		oldChannel.Policy2 = newChannel.Policy2
+	if newChannel.RemotePolicy != nil {
+		oldChannel.RemotePolicy = newChannel.RemotePolicy
 	}
 }
 

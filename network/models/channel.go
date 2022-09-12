@@ -48,8 +48,8 @@ type Channel struct {
 	LastUpdate          *time.Time
 	Node                *Node
 	WeFirst             bool
-	Policy1             *RoutingPolicy
-	Policy2             *RoutingPolicy
+	LocalPolicy         *RoutingPolicy
+	RemotePolicy        *RoutingPolicy
 }
 
 func (m Channel) MarshalLogObject(enc logging.ObjectEncoder) error {

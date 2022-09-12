@@ -351,8 +351,6 @@ func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) er
 
 	t := time.Unix(int64(uint64(resp.LastUpdate)), 0)
 	channel.LastUpdate = &t
-	channel.Policy1 = protoToRoutingPolicy(resp.Node1Policy)
-	channel.Policy2 = protoToRoutingPolicy(resp.Node2Policy)
 
 	info, err := clt.GetInfo(ctx, &lnrpc.GetInfoRequest{})
 	if err != nil {
@@ -360,6 +358,13 @@ func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) er
 	}
 	if info != nil {
 		channel.WeFirst = resp.Node1Pub == info.IdentityPubkey
+	}
+	if channel.WeFirst {
+		channel.LocalPolicy = protoToRoutingPolicy(resp.Node1Policy)
+		channel.RemotePolicy = protoToRoutingPolicy(resp.Node2Policy)
+	} else {
+		channel.LocalPolicy = protoToRoutingPolicy(resp.Node2Policy)
+		channel.RemotePolicy = protoToRoutingPolicy(resp.Node1Policy)
 	}
 
 	return nil
