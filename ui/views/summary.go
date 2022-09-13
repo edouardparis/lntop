@@ -58,11 +58,11 @@ func (s *Summary) display() {
 	cyan := color.Cyan()
 	red := color.Red()
 	fmt.Fprintln(s.left, green("[ Channels ]"))
-	fmt.Fprintln(s.left, p.Sprintf("%s %d (%s|%s)",
+	fmt.Fprintln(s.left, p.Sprintf("%s %s (%s|%s)",
 		cyan("balance:"),
-		s.channelsBalance.Balance+s.channelsBalance.PendingOpenBalance,
-		green(p.Sprintf("%d", s.channelsBalance.Balance)),
-		yellow(p.Sprintf("%d", s.channelsBalance.PendingOpenBalance)),
+		formatAmount(s.channelsBalance.Balance+s.channelsBalance.PendingOpenBalance),
+		green(p.Sprintf("%s", formatAmount(s.channelsBalance.Balance))),
+		yellow(p.Sprintf("%s", formatAmount(s.channelsBalance.PendingOpenBalance))),
 	))
 	fmt.Fprintln(s.left, fmt.Sprintf("%s %d %s %d %s %d %s",
 		cyan("state  :"),
@@ -77,11 +77,11 @@ func (s *Summary) display() {
 
 	s.right.Clear()
 	fmt.Fprintln(s.right, green("[ Wallet ]"))
-	fmt.Fprintln(s.right, p.Sprintf("%s %d (%s|%s)",
+	fmt.Fprintln(s.right, p.Sprintf("%s %s (%s|%s)",
 		cyan("balance:"),
-		s.walletBalance.TotalBalance,
-		green(p.Sprintf("%d", s.walletBalance.ConfirmedBalance)),
-		yellow(p.Sprintf("%d", s.walletBalance.UnconfirmedBalance)),
+		formatAmount(s.walletBalance.TotalBalance),
+		green(p.Sprintf("%s", formatAmount(s.walletBalance.ConfirmedBalance))),
+		yellow(p.Sprintf("%s", formatAmount(s.walletBalance.UnconfirmedBalance))),
 	))
 }
 
