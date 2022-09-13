@@ -218,10 +218,10 @@ func (c *Channel) display() {
 			disabledOut := 0
 			disabledIn := 0
 			for _, ch := range c.channels.CurrentNode.Channels {
-				if ch.Policy1 != nil && ch.Policy1.Disabled {
+				if ch.LocalPolicy != nil && ch.LocalPolicy.Disabled {
 					disabledOut++
 				}
-				if ch.Policy2 != nil && ch.Policy2.Disabled {
+				if ch.RemotePolicy != nil && ch.RemotePolicy.Disabled {
 					disabledIn++
 				}
 			}
@@ -230,12 +230,12 @@ func (c *Channel) display() {
 		}
 	}
 
-	if channel.Policy1 != nil {
-		printPolicy(v, p, channel.Policy1, true)
+	if channel.LocalPolicy != nil {
+		printPolicy(v, p, channel.LocalPolicy, true)
 	}
 
-	if channel.Policy2 != nil {
-		printPolicy(v, p, channel.Policy2, false)
+	if channel.RemotePolicy != nil {
+		printPolicy(v, p, channel.RemotePolicy, false)
 	}
 
 	if len(channel.PendingHTLC) > 0 {

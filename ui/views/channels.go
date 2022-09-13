@@ -546,19 +546,19 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 					return func(c1, c2 *netmodels.Channel) bool {
 						var c1f uint64
 						var c2f uint64
-						if c1.Policy1 != nil {
-							c1f = uint64(c1.Policy1.FeeBaseMsat)
+						if c1.LocalPolicy != nil {
+							c1f = uint64(c1.LocalPolicy.FeeBaseMsat)
 						}
-						if c2.Policy1 != nil {
-							c2f = uint64(c2.Policy1.FeeBaseMsat)
+						if c2.LocalPolicy != nil {
+							c2f = uint64(c2.LocalPolicy.FeeBaseMsat)
 						}
 						return models.UInt64Sort(c1f, c2f, order)
 					}
 				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					var val int64
-					if c.Policy1 != nil {
-						val = c.Policy1.FeeBaseMsat
+					if c.LocalPolicy != nil {
+						val = c.LocalPolicy.FeeBaseMsat
 					}
 					return color.White(opts...)(printer.Sprintf("%8d", val))
 				},
@@ -571,19 +571,19 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 					return func(c1, c2 *netmodels.Channel) bool {
 						var c1f uint64
 						var c2f uint64
-						if c1.Policy1 != nil {
-							c1f = uint64(c1.Policy1.FeeRateMilliMsat)
+						if c1.LocalPolicy != nil {
+							c1f = uint64(c1.LocalPolicy.FeeRateMilliMsat)
 						}
-						if c2.Policy1 != nil {
-							c2f = uint64(c2.Policy1.FeeRateMilliMsat)
+						if c2.LocalPolicy != nil {
+							c2f = uint64(c2.LocalPolicy.FeeRateMilliMsat)
 						}
 						return models.UInt64Sort(c1f, c2f, order)
 					}
 				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					var val int64
-					if c.Policy1 != nil {
-						val = c.Policy1.FeeRateMilliMsat
+					if c.LocalPolicy != nil {
+						val = c.LocalPolicy.FeeRateMilliMsat
 					}
 					return color.White(opts...)(printer.Sprintf("%8d", val))
 				},
@@ -596,19 +596,19 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 					return func(c1, c2 *netmodels.Channel) bool {
 						var c1f uint64
 						var c2f uint64
-						if c1.Policy2 != nil {
-							c1f = uint64(c1.Policy2.FeeBaseMsat)
+						if c1.RemotePolicy != nil {
+							c1f = uint64(c1.RemotePolicy.FeeBaseMsat)
 						}
-						if c2.Policy2 != nil {
-							c2f = uint64(c2.Policy2.FeeBaseMsat)
+						if c2.RemotePolicy != nil {
+							c2f = uint64(c2.RemotePolicy.FeeBaseMsat)
 						}
 						return models.UInt64Sort(c1f, c2f, order)
 					}
 				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					var val int64
-					if c.Policy2 != nil {
-						val = c.Policy2.FeeBaseMsat
+					if c.RemotePolicy != nil {
+						val = c.RemotePolicy.FeeBaseMsat
 					}
 					return color.White(opts...)(printer.Sprintf("%7d", val))
 				},
@@ -621,19 +621,19 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 					return func(c1, c2 *netmodels.Channel) bool {
 						var c1f uint64
 						var c2f uint64
-						if c1.Policy2 != nil {
-							c1f = uint64(c1.Policy2.FeeRateMilliMsat)
+						if c1.RemotePolicy != nil {
+							c1f = uint64(c1.RemotePolicy.FeeRateMilliMsat)
 						}
-						if c2.Policy2 != nil {
-							c2f = uint64(c2.Policy2.FeeRateMilliMsat)
+						if c2.RemotePolicy != nil {
+							c2f = uint64(c2.RemotePolicy.FeeRateMilliMsat)
 						}
 						return models.UInt64Sort(c1f, c2f, order)
 					}
 				},
 				display: func(c *netmodels.Channel, opts ...color.Option) string {
 					var val int64
-					if c.Policy2 != nil {
-						val = c.Policy2.FeeRateMilliMsat
+					if c.RemotePolicy != nil {
+						val = c.RemotePolicy.FeeRateMilliMsat
 					}
 					return color.White(opts...)(printer.Sprintf("%7d", val))
 				},
@@ -655,10 +655,10 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 func channelDisabled(c *netmodels.Channel, opts ...color.Option) string {
 	outgoing := false
 	incoming := false
-	if c.Policy1 != nil && c.Policy1.Disabled {
+	if c.LocalPolicy != nil && c.LocalPolicy.Disabled {
 		outgoing = true
 	}
-	if c.Policy2 != nil && c.Policy2.Disabled {
+	if c.RemotePolicy != nil && c.RemotePolicy.Disabled {
 		incoming = true
 	}
 	result := ""

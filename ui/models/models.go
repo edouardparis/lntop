@@ -61,7 +61,7 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 		channel := m.Channels.GetByChanPoint(channels[i].ChannelPoint)
 		if channel != nil &&
 			(channel.UpdatesCount < channels[i].UpdatesCount ||
-				channel.LastUpdate == nil || channel.Policy1 == nil || channel.Policy2 == nil) {
+				channel.LastUpdate == nil || channel.LocalPolicy == nil || channel.RemotePolicy == nil) {
 			err := m.network.GetChannelInfo(ctx, channels[i])
 			if err != nil {
 				return err
