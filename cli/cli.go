@@ -71,6 +71,8 @@ func run(c *cli.Context) error {
 	}()
 
 	ps.Run(ctx, events)
+	close(events)
+
 	return nil
 }
 

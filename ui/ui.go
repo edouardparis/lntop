@@ -34,7 +34,6 @@ func Run(ctx context.Context, app *app.App, sub chan *events.Event) error {
 	go ctrl.Listen(ctx, g, sub)
 
 	err = g.MainLoop()
-	close(sub)
 
 	return errors.WithStack(err)
 }
