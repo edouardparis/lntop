@@ -18,7 +18,7 @@ type Backend interface {
 
 	Info(context.Context) (*models.Info, error)
 
-	GetNode(context.Context, string) (*models.Node, error)
+	GetNode(context.Context, string, bool) (*models.Node, error)
 
 	GetWalletBalance(context.Context) (*models.WalletBalance, error)
 

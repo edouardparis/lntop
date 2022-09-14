@@ -365,7 +365,7 @@ func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) er
 	return nil
 }
 
-func (l Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, error) {
+func (l Backend) GetNode(ctx context.Context, pubkey string, includeChannels bool) (*models.Node, error) {
 	l.logger.Debug("GetNode")
 
 	clt, err := l.Client(ctx)
@@ -374,7 +374,7 @@ func (l Backend) GetNode(ctx context.Context, pubkey string) (*models.Node, erro
 	}
 	defer clt.Close()
 
-	req := &lnrpc.NodeInfoRequest{PubKey: pubkey}
+	req := &lnrpc.NodeInfoRequest{PubKey: pubkey, IncludeChannels: includeChannels}
 	resp, err := clt.GetNodeInfo(ctx, req)
 	if err != nil {
 		return nil, errors.WithStack(err)

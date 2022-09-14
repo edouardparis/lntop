@@ -10,6 +10,7 @@ type Node struct {
 	Alias         string
 	ForcedAlias   string
 	Addresses     []*NodeAddress
+	Channels      []*Channel
 }
 
 type NodeAddress struct {
