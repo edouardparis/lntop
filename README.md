@@ -89,6 +89,13 @@ columns = [
 	# "NUPD",      # number of channel updates
 ]
 
+[views.channels.options]
+# Currently only one option for the AGE column. If enabled, uses multiple colors
+# from green to orange to indicate the channel age using 256 color scheme in
+# supported terminals
+
+# AGE = { color = "color" }
+
 [views.transactions]
 # It is possible to add, remove and order columns of the
 # table with the array columns. The available values are:

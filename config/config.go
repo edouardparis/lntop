@@ -42,8 +42,19 @@ type Views struct {
 	Routing      *View `toml:"routing"`
 }
 
+type ColumnOptions map[string]map[string]string
+
 type View struct {
-	Columns []string `toml:"columns"`
+	Columns []string      `toml:"columns"`
+	Options ColumnOptions `toml:"options"`
+}
+
+func (co ColumnOptions) GetOption(columnName, option string) string {
+	if o, ok := co[columnName]; !ok {
+		return ""
+	} else {
+		return o[option]
+	}
 }
 
 type Aliases map[string]string
