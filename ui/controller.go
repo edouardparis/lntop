@@ -179,6 +179,8 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 			refresh(c.models.RefreshInfo)
 		case events.RoutingEventUpdated:
 			refresh(c.models.RefreshRouting(event.Data))
+		case events.GraphUpdated:
+			refresh(c.models.RefreshPolicies(event.Data))
 		}
 	}
 }

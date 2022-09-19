@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strings"
 	"time"
 
 	"github.com/edouardparis/lntop/logging"
@@ -13,6 +14,7 @@ const (
 	ChannelClosing
 	ChannelForceClosing
 	ChannelWaitingClose
+	ChannelClosed
 )
 
 type ChannelsBalance struct {
@@ -47,9 +49,8 @@ type Channel struct {
 	PendingHTLC         []*HTLC
 	LastUpdate          *time.Time
 	Node                *Node
-	WeFirst             bool
-	Policy1             *RoutingPolicy
-	Policy2             *RoutingPolicy
+	LocalPolicy         *RoutingPolicy
+	RemotePolicy        *RoutingPolicy
 }
 
 func (m Channel) MarshalLogObject(enc logging.ObjectEncoder) error {
@@ -78,7 +79,7 @@ func (m Channel) ShortAlias() (alias string, forced bool) {
 	} else if m.Node == nil || m.Node.Alias == "" {
 		alias = m.RemotePubKey[:24]
 	} else {
-		alias = m.Node.Alias
+		alias = strings.ReplaceAll(m.Node.Alias, "\ufe0f", "")
 	}
 	if len(alias) > 25 {
 		alias = alias[:24]
@@ -89,6 +90,9 @@ func (m Channel) ShortAlias() (alias string, forced bool) {
 type ChannelUpdate struct {
 }
 
+type ChannelEdgeUpdate struct {
+	ChanPoints []string
+}
 type RoutingPolicy struct {
 	TimeLockDelta    uint32
 	MinHtlc          int64

@@ -117,6 +117,64 @@ func (p *PubSub) routingUpdates(ctx context.Context, sub chan *events.Event) {
 	}()
 }
 
+func (p *PubSub) graphUpdates(ctx context.Context, sub chan *events.Event) {
+	p.wg.Add(3)
+	graphUpdates := make(chan *models.ChannelEdgeUpdate)
+	ctx, cancel := context.WithCancel(ctx)
+
+	go func() {
+		for gu := range graphUpdates {
+			p.logger.Debug("receive graph update")
+			sub <- events.NewWithData(events.GraphUpdated, gu)
+		}
+		p.wg.Done()
+	}()
+
+	go func() {
+		err := p.network.SubscribeGraphEvents(ctx, graphUpdates)
+		if err != nil {
+			p.logger.Error("SubscribeGraphEvents returned an error", logging.Error(err))
+		}
+		p.wg.Done()
+	}()
+
+	go func() {
+		<-p.stop
+		cancel()
+		close(graphUpdates)
+		p.wg.Done()
+	}()
+}
+
+func (p *PubSub) channels(ctx context.Context, sub chan *events.Event) {
+	p.wg.Add(3)
+	channels := make(chan *models.ChannelUpdate)
+	ctx, cancel := context.WithCancel(ctx)
+
+	go func() {
+		for range channels {
+			p.logger.Debug("channels updated")
+			sub <- events.New(events.ChannelActive)
+		}
+		p.wg.Done()
+	}()
+
+	go func() {
+		err := p.network.SubscribeChannels(ctx, channels)
+		if err != nil {
+			p.logger.Error("SubscribeChannels returned an error", logging.Error(err))
+		}
+		p.wg.Done()
+	}()
+
+	go func() {
+		<-p.stop
+		cancel()
+		close(channels)
+		p.wg.Done()
+	}()
+}
+
 func (p *PubSub) Stop() {
 	p.stop <- true
 	close(p.stop)
@@ -129,6 +187,8 @@ func (p *PubSub) Run(ctx context.Context, sub chan *events.Event) {
 	p.invoices(ctx, sub)
 	p.transactions(ctx, sub)
 	p.routingUpdates(ctx, sub)
+	p.channels(ctx, sub)
+	p.graphUpdates(ctx, sub)
 	p.ticker(ctx, sub,
 		withTickerInfo(),
 		withTickerChannelsBalance(),

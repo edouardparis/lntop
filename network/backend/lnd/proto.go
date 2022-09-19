@@ -274,11 +274,11 @@ func nodeProtoToNode(resp *lnrpc.NodeInfo) *models.Node {
 			ID:           c.ChannelId,
 			ChannelPoint: c.ChanPoint,
 			Capacity:     c.Capacity,
-			Policy1:      protoToRoutingPolicy(c.Node1Policy),
-			Policy2:      protoToRoutingPolicy(c.Node2Policy),
+			LocalPolicy:  protoToRoutingPolicy(c.Node1Policy),
+			RemotePolicy: protoToRoutingPolicy(c.Node2Policy),
 		}
 		if c.Node1Pub != resp.Node.PubKey {
-			ch.Policy1, ch.Policy2 = ch.Policy2, ch.Policy1
+			ch.LocalPolicy, ch.RemotePolicy = ch.RemotePolicy, ch.LocalPolicy
 		}
 		channels = append(channels, ch)
 	}

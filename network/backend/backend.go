@@ -41,4 +41,6 @@ type Backend interface {
 	SubscribeTransactions(context.Context, chan *models.Transaction) error
 
 	SubscribeRoutingEvents(context.Context, chan *models.RoutingEvent) error
+
+	SubscribeGraphEvents(context.Context, chan *models.ChannelEdgeUpdate) error
 }

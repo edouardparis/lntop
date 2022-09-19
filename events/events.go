@@ -12,6 +12,7 @@ const (
 	TransactionCreated    = "transaction.created"
 	WalletBalanceUpdated  = "wallet.balance.updated"
 	RoutingEventUpdated   = "routing.event.updated"
+	GraphUpdated          = "graph.updated"
 )
 
 type Event struct {

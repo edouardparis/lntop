@@ -2,6 +2,7 @@ package lnd
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"time"
 
@@ -21,7 +22,7 @@ import (
 
 const (
 	lndDefaultInvoiceExpiry = 3600
-	lndMinPoolCapacity      = 4
+	lndMinPoolCapacity      = 6
 )
 
 type Client struct {
@@ -91,7 +92,7 @@ func (l Backend) SubscribeInvoice(ctx context.Context, channelInvoice chan *mode
 	for {
 		select {
 		case <-ctx.Done():
-			break
+			return nil
 		default:
 			invoice, err := cltInvoices.Recv()
 			if err != nil {
@@ -123,7 +124,7 @@ func (l Backend) SubscribeTransactions(ctx context.Context, channel chan *models
 	for {
 		select {
 		case <-ctx.Done():
-			break
+			return nil
 		default:
 			transaction, err := cltTransactions.Recv()
 			if err != nil {
@@ -141,24 +142,84 @@ func (l Backend) SubscribeTransactions(ctx context.Context, channel chan *models
 }
 
 func (l Backend) SubscribeChannels(ctx context.Context, events chan *models.ChannelUpdate) error {
-	_, err := l.Client(ctx)
+	clt, err := l.Client(ctx)
+	if err != nil {
+		return err
+	}
+	defer clt.Close()
+
+	channelEvents, err := clt.SubscribeChannelEvents(ctx, &lnrpc.ChannelEventSubscription{})
 	if err != nil {
 		return err
 	}
 
-	// events, err := clt.SubscribeChannelEvents(ctx, &lnrpc.ChannelEventSubscription{})
-	// if err != nil {
-	// 	return err
-	// }
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			event, err := channelEvents.Recv()
+			if err != nil {
+				st, ok := status.FromError(err)
+				if ok && st.Code() == codes.Canceled {
+					l.logger.Debug("stopping subscribe channels: context canceled")
+					return nil
+				}
+				return err
+			}
+			if event.Type == lnrpc.ChannelEventUpdate_FULLY_RESOLVED_CHANNEL {
+				events <- &models.ChannelUpdate{}
+			}
 
-	// for {
-	// 	event, err := events.Recv()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// events <-
-	//}
-	return nil
+		}
+	}
+}
+
+func chanpointToString(c *lnrpc.ChannelPoint) string {
+	hash := c.GetFundingTxidBytes()
+	for i := 0; i < len(hash)/2; i++ {
+		hash[i], hash[len(hash)-i-1] = hash[len(hash)-i-1], hash[i]
+	}
+	output := c.OutputIndex
+	result := fmt.Sprintf("%s:%d", hex.EncodeToString(hash), output)
+	return result
+}
+
+func (l Backend) SubscribeGraphEvents(ctx context.Context, events chan *models.ChannelEdgeUpdate) error {
+	clt, err := l.Client(ctx)
+	if err != nil {
+		return err
+	}
+	defer clt.Close()
+
+	graphEvents, err := clt.SubscribeChannelGraph(ctx, &lnrpc.GraphTopologySubscription{})
+	if err != nil {
+		return err
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			event, err := graphEvents.Recv()
+			if err != nil {
+				st, ok := status.FromError(err)
+				if ok && st.Code() == codes.Canceled {
+					l.logger.Debug("stopping subscribe graph: context canceled")
+					return nil
+				}
+				return err
+			}
+			chanPoints := []string{}
+			for _, c := range event.ChannelUpdates {
+				chanPoints = append(chanPoints, chanpointToString(c.ChanPoint))
+			}
+			if len(chanPoints) > 0 {
+				events <- &models.ChannelEdgeUpdate{ChanPoints: chanPoints}
+			}
+		}
+	}
 }
 
 func (l Backend) SubscribeRoutingEvents(ctx context.Context, channelEvents chan *models.RoutingEvent) error {
@@ -176,7 +237,7 @@ func (l Backend) SubscribeRoutingEvents(ctx context.Context, channelEvents chan 
 	for {
 		select {
 		case <-ctx.Done():
-			break
+			return nil
 		default:
 			event, err := cltRoutingEvents.Recv()
 			if err != nil {
@@ -351,15 +412,15 @@ func (l Backend) GetChannelInfo(ctx context.Context, channel *models.Channel) er
 
 	t := time.Unix(int64(uint64(resp.LastUpdate)), 0)
 	channel.LastUpdate = &t
-	channel.Policy1 = protoToRoutingPolicy(resp.Node1Policy)
-	channel.Policy2 = protoToRoutingPolicy(resp.Node2Policy)
+	channel.LocalPolicy = protoToRoutingPolicy(resp.Node1Policy)
+	channel.RemotePolicy = protoToRoutingPolicy(resp.Node2Policy)
 
 	info, err := clt.GetInfo(ctx, &lnrpc.GetInfoRequest{})
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if info != nil {
-		channel.WeFirst = resp.Node1Pub == info.IdentityPubkey
+	if info != nil && resp.Node1Pub != info.IdentityPubkey {
+		channel.LocalPolicy, channel.RemotePolicy = channel.RemotePolicy, channel.LocalPolicy
 	}
 
 	return nil
