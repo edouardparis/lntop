@@ -7,10 +7,9 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/edouardparis/lntop/config"
-	lntcolor "github.com/edouardparis/lntop/ui/color"
+	"github.com/edouardparis/lntop/ui/color"
 	"github.com/edouardparis/lntop/ui/cursor"
 	"github.com/edouardparis/lntop/ui/models"
-	"github.com/gookit/color"
 )
 
 type View interface {
@@ -139,7 +138,7 @@ func interp(a, b [3]float64, r float64) (result [3]float64) {
 	return
 }
 
-func ColorizeAge(age uint32, text string, opts ...lntcolor.Option) string {
+func ColorizeAge(age uint32, text string, opts ...color.Option) string {
 	ageColors := [][3]float64{
 		{120, 0.9, 0.9},
 		{60, 0.9, 0.6},
@@ -153,11 +152,5 @@ func ColorizeAge(age uint32, text string, opts ...lntcolor.Option) string {
 	} else {
 		cur = ageColors[2]
 	}
-	val := color.HSL(cur[0]/360, cur[1], cur[2]).C256().Value()
-	c := color.S256(val)
-	options := lntcolor.NewOptions(opts)
-	if options.Bold {
-		c.AddOpts(color.Bold)
-	}
-	return c.Sprint(text)
+	return color.HSL256(cur[0]/360, cur[1], cur[2], opts...)(text)
 }

@@ -31,11 +31,11 @@ func SprintFunc(c color.Style) func(args ...interface{}) string {
 type Option func(*options)
 
 type options struct {
-	Bold bool
-	Bg   bool
+	bold bool
+	bg   bool
 }
 
-func NewOptions(opts []Option) options {
+func newOptions(opts []Option) options {
 	options := options{}
 	for i := range opts {
 		if opts[i] == nil {
@@ -46,24 +46,24 @@ func NewOptions(opts []Option) options {
 	return options
 }
 
-func Bold(o *options)       { o.Bold = true }
-func Background(o *options) { o.Bg = true }
+func Bold(o *options)       { o.bold = true }
+func Background(o *options) { o.bg = true }
 
 func Yellow(opts ...Option) func(a ...interface{}) string {
-	options := NewOptions(opts)
-	if options.Bold {
+	options := newOptions(opts)
+	if options.bold {
 		return yellowBold
 	}
 	return yellow
 }
 
 func Green(opts ...Option) func(a ...interface{}) string {
-	options := NewOptions(opts)
-	if options.Bold {
+	options := newOptions(opts)
+	if options.bold {
 		return greenBold
 	}
 
-	if options.Bg {
+	if options.bg {
 		return greenBg
 	}
 
@@ -71,44 +71,63 @@ func Green(opts ...Option) func(a ...interface{}) string {
 }
 
 func Red(opts ...Option) func(a ...interface{}) string {
-	options := NewOptions(opts)
-	if options.Bold {
+	options := newOptions(opts)
+	if options.bold {
 		return redBold
 	}
 	return red
 }
 
 func White(opts ...Option) func(a ...interface{}) string {
-	options := NewOptions(opts)
-	if options.Bold {
+	options := newOptions(opts)
+	if options.bold {
 		return whiteBold
 	}
 	return white
 }
 
 func Cyan(opts ...Option) func(a ...interface{}) string {
-	options := NewOptions(opts)
-	if options.Bold {
+	options := newOptions(opts)
+	if options.bold {
 		return cyanBold
 	}
-	if options.Bg {
+	if options.bg {
 		return cyanBg
 	}
 	return cyan
 }
 
 func Black(opts ...Option) func(a ...interface{}) string {
-	options := NewOptions(opts)
-	if options.Bg {
+	options := newOptions(opts)
+	if options.bg {
 		return blackBg
 	}
 	return black
 }
 
 func Magenta(opts ...Option) func(a ...interface{}) string {
-	options := NewOptions(opts)
-	if options.Bg {
+	options := newOptions(opts)
+	if options.bg {
 		return magentaBg
 	}
 	return magentaBg
+}
+
+func HSL256(h, s, l float64, opts ...Option) func(a ...interface{}) string {
+	options := newOptions(opts)
+	val := color.HSL(h, s, l).C256().Value()
+	c := color.S256(val)
+	if options.bg {
+		fg := color.White.C256().Value()
+		if l > 0.5 {
+			fg = color.Black.C256().Value()
+		}
+		c = color.S256(fg, val)
+	}
+	if options.bold {
+		c.AddOpts(color.Bold)
+	}
+	return func(a ...interface{}) string {
+		return c.Sprint(a...)
+	}
 }
