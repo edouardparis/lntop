@@ -7,7 +7,7 @@ import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
-	netModels "github.com/edouardparis/lntop/network/models"
+	netmodels "github.com/edouardparis/lntop/network/models"
 	"github.com/edouardparis/lntop/ui/color"
 	"github.com/edouardparis/lntop/ui/models"
 )
@@ -119,7 +119,7 @@ func (c Channel) Delete(g *gocui.Gui) error {
 	return g.DeleteView(CHANNEL_FOOTER)
 }
 
-func printPolicy(v *gocui.View, p *message.Printer, policy *netModels.RoutingPolicy, outgoing bool) {
+func printPolicy(v *gocui.View, p *message.Printer, policy *netmodels.RoutingPolicy, outgoing bool) {
 	green := color.Green()
 	cyan := color.Cyan()
 	red := color.Red()
@@ -186,22 +186,26 @@ func (c *Channel) display() {
 	cyan := color.Cyan()
 	fmt.Fprintln(v, green(" [ Channel ]"))
 	fmt.Fprintf(v, "%s %s\n",
-		cyan("         Status:"), status(channel))
+		cyan("             Status:"), status(channel))
+	if channel.Status == netmodels.ChannelForceClosing {
+		fmt.Fprintf(v, "%s %d blocks\n",
+			cyan("         Matured in:"), channel.BlocksTilMaturity)
+	}
 	fmt.Fprintf(v, "%s %d (%s)\n",
-		cyan("             ID:"), channel.ID, ToScid(channel.ID))
+		cyan("                 ID:"), channel.ID, ToScid(channel.ID))
 	fmt.Fprintf(v, "%s %s\n",
-		cyan("       Capacity:"), formatAmount(channel.Capacity))
+		cyan("           Capacity:"), formatAmount(channel.Capacity))
 	fmt.Fprintf(v, "%s %s\n",
-		cyan("  Local Balance:"), formatAmount(channel.LocalBalance))
+		cyan("      Local Balance:"), formatAmount(channel.LocalBalance))
 	fmt.Fprintf(v, "%s %s\n",
-		cyan(" Remote Balance:"), formatAmount(channel.RemoteBalance))
+		cyan("     Remote Balance:"), formatAmount(channel.RemoteBalance))
 	fmt.Fprintf(v, "%s %s\n",
-		cyan("  Channel Point:"), channel.ChannelPoint)
+		cyan("      Channel Point:"), channel.ChannelPoint)
 	fmt.Fprintln(v, "")
+
 	fmt.Fprintln(v, green(" [ Node ]"))
 	fmt.Fprintf(v, "%s %s\n",
 		cyan("         PubKey:"), channel.RemotePubKey)
-
 	if channel.Node != nil {
 		alias, forced := channel.ShortAlias()
 		if forced {

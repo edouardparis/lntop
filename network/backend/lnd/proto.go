@@ -170,12 +170,13 @@ func closingChannelProtoToChannel(c *lnrpc.PendingChannelsResponse_ClosedChannel
 
 func forceClosingChannelProtoToChannel(c *lnrpc.PendingChannelsResponse_ForceClosedChannel) *models.Channel {
 	return &models.Channel{
-		Status:        models.ChannelClosing,
-		RemotePubKey:  c.Channel.RemoteNodePub,
-		Capacity:      c.Channel.Capacity,
-		LocalBalance:  c.Channel.LocalBalance,
-		RemoteBalance: c.Channel.RemoteBalance,
-		ChannelPoint:  c.Channel.ChannelPoint,
+		Status:            models.ChannelForceClosing,
+		RemotePubKey:      c.Channel.RemoteNodePub,
+		Capacity:          c.Channel.Capacity,
+		LocalBalance:      c.Channel.LocalBalance,
+		RemoteBalance:     c.Channel.RemoteBalance,
+		ChannelPoint:      c.Channel.ChannelPoint,
+		BlocksTilMaturity: c.BlocksTilMaturity,
 	}
 }
 
