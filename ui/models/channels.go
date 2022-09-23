@@ -104,6 +104,7 @@ func (c *Channels) Update(newChannel *models.Channel) {
 	oldChannel.CSVDelay = newChannel.CSVDelay
 	oldChannel.Private = newChannel.Private
 	oldChannel.PendingHTLC = newChannel.PendingHTLC
+	oldChannel.Age = newChannel.Age
 
 	if newChannel.LastUpdate != nil {
 		oldChannel.LastUpdate = newChannel.LastUpdate
