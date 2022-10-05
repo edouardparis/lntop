@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/edouardparis/lntop/config"
+	"github.com/edouardparis/lntop/ui/color"
 	"github.com/edouardparis/lntop/ui/cursor"
 	"github.com/edouardparis/lntop/ui/models"
 )
@@ -115,4 +116,41 @@ func ToScid(id uint64) string {
 	outnum := id & 0xFFFF
 
 	return fmt.Sprintf("%dx%dx%d", blocknum, txnum, outnum)
+}
+
+func FormatAge(age uint32) string {
+	if age < 6 {
+		return fmt.Sprintf("%02dm", age*10)
+	} else if age < 144 {
+		return fmt.Sprintf("%02dh", age/6)
+	} else if age < 4383 {
+		return fmt.Sprintf("%02dd%02dh", age/144, (age%144)/6)
+	} else if age < 52596 {
+		return fmt.Sprintf("%02dm%02dd%02dh", age/4383, (age%4383)/144, (age%144)/6)
+	}
+	return fmt.Sprintf("%02dy%02dm%02dd", age/52596, (age%52596)/4383, (age%4383)/144)
+}
+
+func interp(a, b [3]float64, r float64) (result [3]float64) {
+	result[0] = a[0] + (b[0]-a[0])*r
+	result[1] = a[1] + (b[1]-a[1])*r
+	result[2] = a[2] + (b[2]-a[2])*r
+	return
+}
+
+func ColorizeAge(age uint32, text string, opts ...color.Option) string {
+	ageColors := [][3]float64{
+		{120, 0.9, 0.9},
+		{60, 0.9, 0.6},
+		{22, 1, 0.5},
+	}
+	cur := [3]float64{}
+	if age < 26298 {
+		cur = interp(ageColors[0], ageColors[1], float64(age)/26298)
+	} else if age < 52596 {
+		cur = interp(ageColors[1], ageColors[2], float64(age-26298)/26298)
+	} else {
+		cur = ageColors[2]
+	}
+	return color.HSL256(cur[0]/360, cur[1], cur[2], opts...)(text)
 }

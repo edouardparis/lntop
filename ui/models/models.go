@@ -55,6 +55,9 @@ func (m *Models) RefreshChannels(ctx context.Context) error {
 	index := map[string]*models.Channel{}
 	for i := range channels {
 		index[channels[i].ChannelPoint] = channels[i]
+		if channels[i].ID > 0 {
+			channels[i].Age = m.Info.BlockHeight - uint32(channels[i].ID>>40)
+		}
 		if !m.Channels.Contains(channels[i]) {
 			m.Channels.Add(channels[i])
 		}

@@ -82,11 +82,19 @@ columns = [
 	"UNSETTLED",   # the amount unsettled in the channel
 	"CFEE",        # the commit fee
 	"LAST UPDATE", # last update of the channel
+	# "AGE",       # approximate channel age
 	"PRIVATE",     # true if channel is private
 	"ID",          # the id of the channel
 	# "SCID",      # short channel id (BxTxO formatted)
 	# "NUPD",      # number of channel updates
 ]
+
+[views.channels.options]
+# Currently only one option for the AGE column. If enabled, uses multiple colors
+# from green to orange to indicate the channel age using 256 color scheme in
+# supported terminals
+
+# AGE = { color = "color" }
 
 [views.transactions]
 # It is possible to add, remove and order columns of the

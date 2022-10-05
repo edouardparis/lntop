@@ -638,6 +638,28 @@ func NewChannels(cfg *config.View, chans *models.Channels) *Channels {
 					return color.White(opts...)(printer.Sprintf("%7d", val))
 				},
 			}
+		case "AGE":
+			channels.columns[i] = channelsColumn{
+				width: 8,
+				name:  fmt.Sprintf("%10s", columns[i]),
+				sort: func(order models.Order) models.ChannelsSort {
+					return func(c1, c2 *netmodels.Channel) bool {
+						return models.UInt32Sort(c1.Age, c2.Age, order)
+					}
+				},
+				display: func(c *netmodels.Channel, opts ...color.Option) string {
+					if c.ID == 0 {
+						return fmt.Sprintf("%10s", "")
+					}
+					result := printer.Sprintf("%10s", FormatAge(c.Age))
+					if cfg.Options.GetOption("AGE", "color") == "color" {
+						return ColorizeAge(c.Age, result, opts...)
+					} else {
+						return color.White(opts...)(result)
+					}
+				},
+			}
+
 		default:
 			channels.columns[i] = channelsColumn{
 				width: 21,

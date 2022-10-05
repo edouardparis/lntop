@@ -4,8 +4,8 @@ go 1.16
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/fatih/color v1.7.0
 	github.com/gofrs/uuid v4.0.0+incompatible
+	github.com/gookit/color v1.5.2
 	github.com/jroimartin/gocui v0.4.0
 	github.com/lightningnetwork/lnd v0.15.0-beta
 	github.com/nsf/termbox-go v0.0.0-20190121233118-02980233997d // indirect

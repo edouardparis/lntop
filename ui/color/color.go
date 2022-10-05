@@ -1,26 +1,32 @@
 package color
 
-import "github.com/fatih/color"
+import "github.com/gookit/color"
 
 type Color color.Color
 
 var (
-	yellow     = color.New(color.FgYellow).SprintFunc()
-	yellowBold = color.New(color.FgYellow, color.Bold).SprintFunc()
-	green      = color.New(color.FgGreen).SprintFunc()
-	greenBold  = color.New(color.FgGreen, color.Bold).SprintFunc()
-	greenBg    = color.New(color.FgBlack, color.BgGreen).SprintFunc()
-	magentaBg  = color.New(color.FgBlack, color.BgMagenta).SprintFunc()
-	red        = color.New(color.FgRed).SprintFunc()
-	redBold    = color.New(color.FgRed, color.Bold).SprintFunc()
-	cyan       = color.New(color.FgCyan).SprintFunc()
-	cyanBold   = color.New(color.FgCyan, color.Bold).SprintFunc()
-	cyanBg     = color.New(color.BgCyan, color.FgBlack).SprintFunc()
-	white      = color.New().SprintFunc()
-	whiteBold  = color.New(color.Bold).SprintFunc()
-	blackBg    = color.New(color.BgBlack, color.FgWhite).SprintFunc()
-	black      = color.New(color.FgBlack).SprintFunc()
+	yellow     = SprintFunc(color.New(color.FgYellow))
+	yellowBold = SprintFunc(color.New(color.FgYellow, color.Bold))
+	green      = SprintFunc(color.New(color.FgGreen))
+	greenBold  = SprintFunc(color.New(color.FgGreen, color.Bold))
+	greenBg    = SprintFunc(color.New(color.FgBlack, color.BgGreen))
+	magentaBg  = SprintFunc(color.New(color.FgBlack, color.BgMagenta))
+	red        = SprintFunc(color.New(color.FgRed))
+	redBold    = SprintFunc(color.New(color.FgRed, color.Bold))
+	cyan       = SprintFunc(color.New(color.FgCyan))
+	cyanBold   = SprintFunc(color.New(color.FgCyan, color.Bold))
+	cyanBg     = SprintFunc(color.New(color.BgCyan, color.FgBlack))
+	white      = SprintFunc(color.New())
+	whiteBold  = SprintFunc(color.New(color.Bold))
+	blackBg    = SprintFunc(color.New(color.BgBlack, color.FgWhite))
+	black      = SprintFunc(color.New(color.FgBlack))
 )
+
+func SprintFunc(c color.Style) func(args ...interface{}) string {
+	return func(args ...interface{}) string {
+		return c.Sprint(args...)
+	}
+}
 
 type Option func(*options)
 
@@ -105,4 +111,23 @@ func Magenta(opts ...Option) func(a ...interface{}) string {
 		return magentaBg
 	}
 	return magentaBg
+}
+
+func HSL256(h, s, l float64, opts ...Option) func(a ...interface{}) string {
+	options := newOptions(opts)
+	val := color.HSL(h, s, l).C256().Value()
+	c := color.S256(val)
+	if options.bg {
+		fg := color.White.C256().Value()
+		if l > 0.5 {
+			fg = color.Black.C256().Value()
+		}
+		c = color.S256(fg, val)
+	}
+	if options.bold {
+		c.AddOpts(color.Bold)
+	}
+	return func(a ...interface{}) string {
+		return c.Sprint(a...)
+	}
 }
