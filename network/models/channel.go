@@ -52,6 +52,7 @@ type Channel struct {
 	Node                *Node
 	LocalPolicy         *RoutingPolicy
 	RemotePolicy        *RoutingPolicy
+	BlocksTilMaturity   int32
 }
 
 func (m Channel) MarshalLogObject(enc logging.ObjectEncoder) error {
