@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/jroimartin/gocui"
+	"github.com/awesome-gocui/gocui"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
@@ -38,9 +38,10 @@ type Routing struct {
 
 	columns []routingColumn
 
-	columnsView   *gocui.View
-	view          *gocui.View
-	routingEvents *models.RoutingLog
+	columnHeadersView *gocui.View
+	columnViews       []*gocui.View
+	view              *gocui.View
+	routingEvents     *models.RoutingLog
 
 	ox, oy int
 	cx, cy int
@@ -84,14 +85,22 @@ func (c Routing) Cursor() (int, int) {
 }
 
 func (c *Routing) SetCursor(cx, cy int) error {
-	err := c.columnsView.SetCursor(cx, 0)
+	if err := cursorCompat(c.columnHeadersView, cx, 0); err != nil {
+		return err
+	}
+	err := c.columnHeadersView.SetCursor(cx, 0)
 	if err != nil {
 		return err
 	}
 
-	err = c.view.SetCursor(cx, cy)
-	if err != nil {
-		return err
+	for _, cv := range c.columnViews {
+		if err := cursorCompat(c.view, cx, cy); err != nil {
+			return err
+		}
+		err = cv.SetCursor(cx, cy)
+		if err != nil {
+			return err
+		}
 	}
 
 	c.cx, c.cy = cx, cy
@@ -99,13 +108,20 @@ func (c *Routing) SetCursor(cx, cy int) error {
 }
 
 func (c *Routing) SetOrigin(ox, oy int) error {
-	err := c.columnsView.SetOrigin(ox, 0)
+	err := c.columnHeadersView.SetOrigin(ox, 0)
 	if err != nil {
 		return err
 	}
 	err = c.view.SetOrigin(ox, oy)
 	if err != nil {
 		return err
+	}
+
+	for _, cv := range c.columnViews {
+		err = cv.SetOrigin(0, oy)
+		if err != nil {
+			return err
+		}
 	}
 
 	c.ox, c.oy = ox, oy
@@ -149,7 +165,7 @@ func (c Routing) Index() int {
 	return cy + oy
 }
 
-func (c Routing) Delete(g *gocui.Gui) error {
+func (c *Routing) Delete(g *gocui.Gui) error {
 	err := g.DeleteView(ROUTING_COLUMNS)
 	if err != nil {
 		return err
@@ -160,24 +176,31 @@ func (c Routing) Delete(g *gocui.Gui) error {
 		return err
 	}
 
+	for _, cv := range c.columnViews {
+		err = g.DeleteView(cv.Name())
+		if err != nil {
+			return err
+		}
+	}
+	c.columnViews = c.columnViews[:0]
 	return g.DeleteView(ROUTING_FOOTER)
 }
 
 func (c *Routing) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	var err error
 	setCursor := false
-	c.columnsView, err = g.SetView(ROUTING_COLUMNS, x0-1, y0, x1+2, y0+2)
+	c.columnHeadersView, err = g.SetView(ROUTING_COLUMNS, x0-1, y0, x1+2, y0+2, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 		setCursor = true
 	}
-	c.columnsView.Frame = false
-	c.columnsView.BgColor = gocui.ColorGreen
-	c.columnsView.FgColor = gocui.ColorBlack
+	c.columnHeadersView.Frame = false
+	c.columnHeadersView.BgColor = gocui.ColorGreen
+	c.columnHeadersView.FgColor = gocui.ColorBlack
 
-	c.view, err = g.SetView(ROUTING, x0-1, y0+1, x1+2, y1-1)
+	c.view, err = g.SetView(ROUTING, x0-1, y0+1, x1+2, y1-1, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -189,6 +212,8 @@ func (c *Routing) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	c.view.SelBgColor = gocui.ColorCyan
 	c.view.SelFgColor = gocui.ColorBlack
 	c.view.Highlight = true
+	c.display(g)
+
 	if setCursor {
 		ox, oy := c.Origin()
 		err := c.SetOrigin(ox, oy)
@@ -203,9 +228,7 @@ func (c *Routing) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		}
 	}
 
-	c.display()
-
-	footer, err := g.SetView(ROUTING_FOOTER, x0-1, y1-2, x1+2, y1)
+	footer, err := g.SetView(ROUTING_FOOTER, x0-1, y1-2, x1+2, y1, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -214,7 +237,7 @@ func (c *Routing) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.Frame = false
 	footer.BgColor = gocui.ColorCyan
 	footer.FgColor = gocui.ColorBlack
-	footer.Clear()
+	footer.Rewind()
 	blackBg := color.Black(color.Background)
 	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s",
 		blackBg("F2"), "Menu",
@@ -223,8 +246,8 @@ func (c *Routing) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	return nil
 }
 
-func (c *Routing) display() {
-	c.columnsView.Clear()
+func (c *Routing) display(g *gocui.Gui) {
+	c.columnHeadersView.Rewind()
 	var buffer bytes.Buffer
 	currentColumnIndex := c.currentColumnIndex()
 	for i := range c.columns {
@@ -236,9 +259,7 @@ func (c *Routing) display() {
 		buffer.WriteString(c.columns[i].name)
 		buffer.WriteString(" ")
 	}
-	fmt.Fprintln(c.columnsView, buffer.String())
-
-	c.view.Clear()
+	fmt.Fprintln(c.columnHeadersView, buffer.String())
 
 	_, height := c.view.Size()
 	numEvents := len(c.routingEvents.Log)
@@ -247,18 +268,34 @@ func (c *Routing) display() {
 	if height < numEvents {
 		j = numEvents - height
 	}
+	if len(c.columnViews) == 0 {
+		c.columnViews = make([]*gocui.View, len(c.columns))
+	}
+	rewind := true
 	for ; j < numEvents; j++ {
 		var item = c.routingEvents.Log[j]
-		var buffer bytes.Buffer
+		x0, y0, _, y1 := c.view.Dimensions()
+		x0 -= c.ox
 		for i := range c.columns {
 			var opt color.Option
 			if currentColumnIndex == i {
 				opt = color.Bold
 			}
-			buffer.WriteString(c.columns[i].display(item, opt))
-			buffer.WriteString(" ")
+			width := c.columns[i].width
+			cc, _ := g.SetView("routing_content_"+c.columns[i].name, x0, y0, x0+width+2, y1, 0)
+			c.columnViews[i] = cc
+			if rewind {
+				cc.Rewind()
+			}
+			cc.Frame = false
+			cc.Autoscroll = false
+			cc.SelBgColor = gocui.ColorCyan
+			cc.SelFgColor = gocui.ColorBlack
+			cc.Highlight = true
+			fmt.Fprintln(cc, c.columns[i].display(item, opt), " ")
+			x0 += width + 1
 		}
-		fmt.Fprintln(c.view, buffer.String())
+		rewind = false
 	}
 }
 

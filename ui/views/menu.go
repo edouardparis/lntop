@@ -3,8 +3,8 @@ package views
 import (
 	"fmt"
 
+	"github.com/awesome-gocui/gocui"
 	"github.com/edouardparis/lntop/ui/color"
-	"github.com/jroimartin/gocui"
 )
 
 const (
@@ -106,7 +106,7 @@ func (c Menu) Delete(g *gocui.Gui) error {
 
 func (h Menu) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	setCursor := false
-	header, err := g.SetView(MENU_HEADER, x0-1, y0, x1, y0+2)
+	header, err := g.SetView(MENU_HEADER, x0-1, y0, x1, y0+2, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -117,10 +117,10 @@ func (h Menu) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	header.BgColor = gocui.ColorGreen
 	header.FgColor = gocui.ColorBlack
 
-	header.Clear()
+	header.Rewind()
 	fmt.Fprintln(header, " MENU")
 
-	h.view, err = g.SetView(MENU, x0-1, y0+1, x1, y1-2)
+	h.view, err = g.SetView(MENU, x0-1, y0+1, x1, y1-2, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -132,6 +132,16 @@ func (h Menu) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	h.view.Highlight = true
 	h.view.SelBgColor = gocui.ColorCyan
 	h.view.SelFgColor = gocui.ColorBlack
+
+	h.view.Rewind()
+	for i := range menu {
+		fmt.Fprintln(h.view, fmt.Sprintf(" %-9s", menu[i]))
+	}
+	_, err = g.SetCurrentView(MENU)
+	if err != nil {
+		return err
+	}
+
 	if setCursor {
 		ox, oy := h.Origin()
 		err := h.SetOrigin(ox, oy)
@@ -146,16 +156,7 @@ func (h Menu) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		}
 	}
 
-	h.view.Clear()
-	for i := range menu {
-		fmt.Fprintln(h.view, fmt.Sprintf(" %-9s", menu[i]))
-	}
-	_, err = g.SetCurrentView(MENU)
-	if err != nil {
-		return err
-	}
-
-	footer, err := g.SetView(MENU_FOOTER, x0-1, y1-2, x1, y1)
+	footer, err := g.SetView(MENU_FOOTER, x0-1, y1-2, x1, y1, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -164,7 +165,7 @@ func (h Menu) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.Frame = false
 	footer.BgColor = gocui.ColorCyan
 	footer.FgColor = gocui.ColorBlack
-	footer.Clear()
+	footer.Rewind()
 	blackBg := color.Black(color.Background)
 	fmt.Fprintln(footer, fmt.Sprintf("%s%s",
 		blackBg("F2"), "Close",

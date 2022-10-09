@@ -3,7 +3,7 @@ package views
 import (
 	"fmt"
 
-	"github.com/jroimartin/gocui"
+	"github.com/awesome-gocui/gocui"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
@@ -62,7 +62,7 @@ func (c *Transaction) SetOrigin(x, y int) error {
 }
 
 func (c *Transaction) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
-	header, err := g.SetView(TRANSACTION_HEADER, x0-1, y0, x1+2, y0+2)
+	header, err := g.SetView(TRANSACTION_HEADER, x0-1, y0, x1+2, y0+2, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -71,10 +71,10 @@ func (c *Transaction) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	header.Frame = false
 	header.BgColor = gocui.ColorGreen
 	header.FgColor = gocui.ColorBlack | gocui.AttrBold
-	header.Clear()
+	header.Rewind()
 	fmt.Fprintln(header, "Transaction")
 
-	v, err := g.SetView(TRANSACTION, x0-1, y0+1, x1+2, y1-1)
+	v, err := g.SetView(TRANSACTION, x0-1, y0+1, x1+2, y1-1, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -84,7 +84,7 @@ func (c *Transaction) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	c.view = v
 	c.display()
 
-	footer, err := g.SetView(TRANSACTION_FOOTER, x0-1, y1-2, x1, y1)
+	footer, err := g.SetView(TRANSACTION_FOOTER, x0-1, y1-2, x1, y1, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -93,7 +93,7 @@ func (c *Transaction) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.Frame = false
 	footer.BgColor = gocui.ColorCyan
 	footer.FgColor = gocui.ColorBlack
-	footer.Clear()
+	footer.Rewind()
 	blackBg := color.Black(color.Background)
 	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s",
 		blackBg("F2"), "Menu",
@@ -120,7 +120,7 @@ func (c Transaction) Delete(g *gocui.Gui) error {
 func (c *Transaction) display() {
 	p := message.NewPrinter(language.English)
 	v := c.view
-	v.Clear()
+	v.Rewind()
 	transaction := c.transactions.Current()
 	green := color.Green()
 	cyan := color.Cyan()

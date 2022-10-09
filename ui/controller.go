@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/jroimartin/gocui"
+	"github.com/awesome-gocui/gocui"
 
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/events"
@@ -247,7 +247,7 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 		defer cancel()
 		c.models.RefreshCurrentNode(ctx)
 		c.views.Main = c.views.Channel
-		return ToggleView(g, view, c.views.Channels)
+		return ToggleView(g, view, c.views.Channel)
 
 	case views.CHANNEL:
 		c.views.Main = c.views.Channels

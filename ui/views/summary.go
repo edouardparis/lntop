@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/jroimartin/gocui"
+	"github.com/awesome-gocui/gocui"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
@@ -29,7 +29,7 @@ type Summary struct {
 
 func (s *Summary) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	var err error
-	s.left, err = g.SetView(SUMMARY_LEFT, x0, y0, x1/2, y1)
+	s.left, err = g.SetView(SUMMARY_LEFT, x0, y0, x1/2, y1, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -38,7 +38,7 @@ func (s *Summary) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	s.left.Frame = false
 	s.left.Wrap = true
 
-	s.right, err = g.SetView(SUMMARY_RIGHT, x1/2, y0, x1, y1)
+	s.right, err = g.SetView(SUMMARY_RIGHT, x1/2, y0, x1, y1, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err

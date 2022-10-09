@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/edouardparis/lntop/logging"
+	"github.com/mattn/go-runewidth"
 )
 
 const (
@@ -79,12 +80,12 @@ func (m Channel) ShortAlias() (alias string, forced bool) {
 		alias = m.Node.ForcedAlias
 		forced = true
 	} else if m.Node == nil || m.Node.Alias == "" {
-		alias = m.RemotePubKey[:24]
+		alias = m.RemotePubKey[:25]
 	} else {
 		alias = strings.ReplaceAll(m.Node.Alias, "\ufe0f", "")
 	}
-	if len(alias) > 25 {
-		alias = alias[:24]
+	if runewidth.StringWidth(alias) > 25 {
+		alias = runewidth.Truncate(alias, 25, "")
 	}
 	return
 }
