@@ -288,6 +288,17 @@ func (c *Channels) display(g *gocui.Gui) {
 
 	if len(c.columnViews) == 0 {
 		c.columnViews = make([]*gocui.View, len(c.columns))
+		x0, y0, _, y1 := c.view.Dimensions()
+		for i := range c.columns {
+			width := c.columns[i].width
+			cc, _ := g.SetView("channel_content_"+c.columns[i].name, x0, y0, x0+width+2, y1, 0)
+			cc.Frame = false
+			cc.Autoscroll = false
+			cc.SelBgColor = gocui.ColorCyan
+			cc.SelFgColor = gocui.ColorBlack
+			cc.Highlight = true
+			c.columnViews[i] = cc
+		}
 	}
 	for ci, item := range c.channels.List() {
 		x0, y0, _, y1 := c.view.Dimensions()
@@ -303,11 +314,6 @@ func (c *Channels) display(g *gocui.Gui) {
 			if ci == 0 {
 				cc.Rewind()
 			}
-			cc.Frame = false
-			cc.Autoscroll = false
-			cc.SelBgColor = gocui.ColorCyan
-			cc.SelFgColor = gocui.ColorBlack
-			cc.Highlight = true
 			fmt.Fprintln(cc, c.columns[i].display(item, opt), " ")
 			x0 += width + 1
 		}
