@@ -1,8 +1,8 @@
 package ui
 
 import (
+	"github.com/awesome-gocui/gocui"
 	"github.com/edouardparis/lntop/ui/models"
-	"github.com/jroimartin/gocui"
 )
 
 func quit(g *gocui.Gui, v *gocui.View) error {

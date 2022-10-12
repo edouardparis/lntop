@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/awesome-gocui/gocui"
 	"github.com/edouardparis/lntop/ui/color"
 	"github.com/edouardparis/lntop/ui/models"
-	"github.com/jroimartin/gocui"
 )
 
 const (
@@ -20,7 +20,7 @@ type Header struct {
 }
 
 func (h *Header) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
-	v, err := g.SetView(HEADER, x0, y0, x1, y0+2)
+	v, err := g.SetView(HEADER, x0, y0, x1, y0+2, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err

@@ -3,7 +3,7 @@ package views
 import (
 	"fmt"
 
-	"github.com/jroimartin/gocui"
+	"github.com/awesome-gocui/gocui"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
@@ -63,7 +63,7 @@ func (c *Channel) SetOrigin(x, y int) error {
 }
 
 func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
-	header, err := g.SetView(CHANNEL_HEADER, x0-1, y0, x1+2, y0+2)
+	header, err := g.SetView(CHANNEL_HEADER, x0-1, y0, x1+2, y0+2, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -72,10 +72,10 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	header.Frame = false
 	header.BgColor = gocui.ColorGreen
 	header.FgColor = gocui.ColorBlack | gocui.AttrBold
-	header.Clear()
+	header.Rewind()
 	fmt.Fprintln(header, "Channel")
 
-	v, err := g.SetView(CHANNEL, x0-1, y0+1, x1+2, y1-1)
+	v, err := g.SetView(CHANNEL, x0-1, y0+1, x1+2, y1-1, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -85,7 +85,7 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	c.view = v
 	c.display()
 
-	footer, err := g.SetView(CHANNEL_FOOTER, x0-1, y1-2, x1, y1)
+	footer, err := g.SetView(CHANNEL_FOOTER, x0-1, y1-2, x1, y1, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -94,7 +94,7 @@ func (c *Channel) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.Frame = false
 	footer.BgColor = gocui.ColorCyan
 	footer.FgColor = gocui.ColorBlack
-	footer.Clear()
+	footer.Rewind()
 	blackBg := color.Black(color.Background)
 	fmt.Fprintf(footer, "%s%s %s%s %s%s %s%s\n",
 		blackBg("F2"), "Menu",

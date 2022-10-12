@@ -3,7 +3,7 @@ package views
 import (
 	"fmt"
 
-	"github.com/jroimartin/gocui"
+	"github.com/awesome-gocui/gocui"
 	"github.com/pkg/errors"
 
 	"github.com/edouardparis/lntop/config"
@@ -153,4 +153,12 @@ func ColorizeAge(age uint32, text string, opts ...color.Option) string {
 		cur = ageColors[2]
 	}
 	return color.HSL256(cur[0]/360, cur[1], cur[2], opts...)(text)
+}
+
+func cursorCompat(v *gocui.View, x, y int) error {
+	maxX, maxY := v.Size()
+	if x < 0 || x >= maxX || y < 0 || y >= maxY {
+		return gocui.ErrInvalidPoint
+	}
+	return nil
 }

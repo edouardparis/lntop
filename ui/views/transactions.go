@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/jroimartin/gocui"
+	"github.com/awesome-gocui/gocui"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
@@ -32,10 +32,10 @@ var DefaultTransactionsColumns = []string{
 type Transactions struct {
 	cfg *config.View
 
-	columns      []transactionsColumn
-	columnsView  *gocui.View
-	view         *gocui.View
-	transactions *models.Transactions
+	columns           []transactionsColumn
+	columnHeadersView *gocui.View
+	view              *gocui.View
+	transactions      *models.Transactions
 
 	ox, oy int
 	cx, cy int
@@ -87,11 +87,17 @@ func (c Transactions) Cursor() (int, int) {
 }
 
 func (c *Transactions) SetCursor(cx, cy int) error {
-	err := c.columnsView.SetCursor(cx, 0)
+	if err := cursorCompat(c.columnHeadersView, cx, 0); err != nil {
+		return err
+	}
+	err := c.columnHeadersView.SetCursor(cx, 0)
 	if err != nil {
 		return err
 	}
 
+	if err := cursorCompat(c.view, cx, cy); err != nil {
+		return err
+	}
 	err = c.view.SetCursor(cx, cy)
 	if err != nil {
 		return err
@@ -102,7 +108,7 @@ func (c *Transactions) SetCursor(cx, cy int) error {
 }
 
 func (c *Transactions) SetOrigin(ox, oy int) error {
-	err := c.columnsView.SetOrigin(ox, 0)
+	err := c.columnHeadersView.SetOrigin(ox, 0)
 	if err != nil {
 		return err
 	}
@@ -177,18 +183,18 @@ func (c Transactions) Delete(g *gocui.Gui) error {
 func (c *Transactions) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	var err error
 	setCursor := false
-	c.columnsView, err = g.SetView(TRANSACTIONS_COLUMNS, x0-1, y0, x1+2, y0+2)
+	c.columnHeadersView, err = g.SetView(TRANSACTIONS_COLUMNS, x0-1, y0, x1+2, y0+2, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 		setCursor = true
 	}
-	c.columnsView.Frame = false
-	c.columnsView.BgColor = gocui.ColorGreen
-	c.columnsView.FgColor = gocui.ColorBlack
+	c.columnHeadersView.Frame = false
+	c.columnHeadersView.BgColor = gocui.ColorGreen
+	c.columnHeadersView.FgColor = gocui.ColorBlack
 
-	c.view, err = g.SetView(TRANSACTIONS, x0-1, y0+1, x1+2, y1-1)
+	c.view, err = g.SetView(TRANSACTIONS, x0-1, y0+1, x1+2, y1-1, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -200,6 +206,8 @@ func (c *Transactions) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	c.view.SelBgColor = gocui.ColorCyan
 	c.view.SelFgColor = gocui.ColorBlack
 	c.view.Highlight = true
+	c.display()
+
 	if setCursor {
 		ox, oy := c.Origin()
 		err := c.SetOrigin(ox, oy)
@@ -214,9 +222,7 @@ func (c *Transactions) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		}
 	}
 
-	c.display()
-
-	footer, err := g.SetView(TRANSACTIONS_FOOTER, x0-1, y1-2, x1+2, y1)
+	footer, err := g.SetView(TRANSACTIONS_FOOTER, x0-1, y1-2, x1+2, y1, 0)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -225,7 +231,7 @@ func (c *Transactions) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	footer.Frame = false
 	footer.BgColor = gocui.ColorCyan
 	footer.FgColor = gocui.ColorBlack
-	footer.Clear()
+	footer.Rewind()
 	blackBg := color.Black(color.Background)
 	fmt.Fprintln(footer, fmt.Sprintf("%s%s %s%s %s%s",
 		blackBg("F2"), "Menu",
@@ -236,7 +242,7 @@ func (c *Transactions) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 }
 
 func (c *Transactions) display() {
-	c.columnsView.Clear()
+	c.columnHeadersView.Rewind()
 	var buffer bytes.Buffer
 	current := c.currentColumnIndex()
 	for i := range c.columns {
@@ -252,9 +258,9 @@ func (c *Transactions) display() {
 		buffer.WriteString(c.columns[i].name)
 		buffer.WriteString(" ")
 	}
-	fmt.Fprintln(c.columnsView, buffer.String())
+	fmt.Fprintln(c.columnHeadersView, buffer.String())
 
-	c.view.Clear()
+	c.view.Rewind()
 	for _, item := range c.transactions.List() {
 		var buffer bytes.Buffer
 		for i := range c.columns {
