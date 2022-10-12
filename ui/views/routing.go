@@ -167,18 +167,18 @@ func (c Routing) Index() int {
 
 func (c *Routing) Delete(g *gocui.Gui) error {
 	err := g.DeleteView(ROUTING_COLUMNS)
-	if err != nil {
+	if err != nil && err != gocui.ErrUnknownView {
 		return err
 	}
 
 	err = g.DeleteView(ROUTING)
-	if err != nil {
+	if err != nil && err != gocui.ErrUnknownView {
 		return err
 	}
 
 	for _, cv := range c.columnViews {
 		err = g.DeleteView(cv.Name())
-		if err != nil {
+		if err != nil && err != gocui.ErrUnknownView {
 			return err
 		}
 	}
