@@ -230,7 +230,7 @@ func (c *Channels) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	c.view.Frame = false
 	c.view.Autoscroll = false
 	c.view.SelBgColor = gocui.ColorCyan
-	c.view.SelFgColor = gocui.ColorBlack
+	c.view.SelFgColor = gocui.ColorBlack | gocui.AttrDim
 	c.view.Highlight = false
 	c.display(g)
 
@@ -295,7 +295,7 @@ func (c *Channels) display(g *gocui.Gui) {
 			cc.Frame = false
 			cc.Autoscroll = false
 			cc.SelBgColor = gocui.ColorCyan
-			cc.SelFgColor = gocui.ColorBlack
+			cc.SelFgColor = gocui.ColorBlack | gocui.AttrDim
 			cc.Highlight = true
 			c.columnViews[i] = cc
 		}

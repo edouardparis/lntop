@@ -204,7 +204,7 @@ func (c *Transactions) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	c.view.Frame = false
 	c.view.Autoscroll = false
 	c.view.SelBgColor = gocui.ColorCyan
-	c.view.SelFgColor = gocui.ColorBlack
+	c.view.SelFgColor = gocui.ColorBlack | gocui.AttrDim
 	c.view.Highlight = true
 	c.display()
 
