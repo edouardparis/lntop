@@ -105,6 +105,7 @@ func (c *Channels) Update(newChannel *models.Channel) {
 	oldChannel.Private = newChannel.Private
 	oldChannel.PendingHTLC = newChannel.PendingHTLC
 	oldChannel.Age = newChannel.Age
+	oldChannel.BlocksTilMaturity = newChannel.BlocksTilMaturity
 
 	if newChannel.LastUpdate != nil {
 		oldChannel.LastUpdate = newChannel.LastUpdate
