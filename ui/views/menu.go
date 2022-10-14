@@ -131,7 +131,7 @@ func (h Menu) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	h.view.Frame = false
 	h.view.Highlight = true
 	h.view.SelBgColor = gocui.ColorCyan
-	h.view.SelFgColor = gocui.ColorBlack
+	h.view.SelFgColor = gocui.ColorBlack | gocui.AttrDim
 
 	h.view.Rewind()
 	for i := range menu {
