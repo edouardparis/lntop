@@ -7,7 +7,7 @@ require (
 	github.com/awesome-gocui/gocui v1.1.0
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/gookit/color v1.5.2
-	github.com/lightningnetwork/lnd v0.15.0-beta
+	github.com/lightningnetwork/lnd v0.15.4-beta
 	github.com/mattn/go-runewidth v0.0.13
 	github.com/pkg/errors v0.9.1
 	go.uber.org/zap v1.17.0
