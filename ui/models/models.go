@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/logging"
@@ -19,9 +20,27 @@ type Models struct {
 	ChannelsBalance *ChannelsBalance
 	Transactions    *Transactions
 	RoutingLog      *RoutingLog
+	FwdingHist      *FwdingHist
 }
 
 func New(app *app.App) *Models {
+	fwdingHist := FwdingHist{}
+	startTime := app.Config.Views.FwdingHist.Options.GetOption("START_TIME", "start_time")
+	maxNumEvents := app.Config.Views.FwdingHist.Options.GetOption("MAX_NUM_EVENTS", "max_num_events")
+
+	if startTime != "" {
+		fwdingHist.StartTime = startTime
+	}
+
+	if maxNumEvents != "" {
+		max, err := strconv.ParseUint(maxNumEvents, 10, 32)
+		if err != nil {
+			app.Logger.Info("Couldn't parse the maximum number of forwarding events.")
+		} else {
+			fwdingHist.MaxNumEvents = uint32(max)
+		}
+	}
+
 	return &Models{
 		logger:          app.Logger.With(logging.String("logger", "models")),
 		network:         app.Network,
@@ -31,6 +50,7 @@ func New(app *app.App) *Models {
 		ChannelsBalance: &ChannelsBalance{},
 		Transactions:    &Transactions{},
 		RoutingLog:      &RoutingLog{},
+		FwdingHist:      &fwdingHist,
 	}
 }
 
@@ -44,6 +64,21 @@ func (m *Models) RefreshInfo(ctx context.Context) error {
 		return err
 	}
 	*m.Info = Info{info}
+	return nil
+}
+
+func (m *Models) RefreshForwardingHistory(ctx context.Context) error {
+<<<<<<< Updated upstream
+	forwardingEvents, err := m.network.GetForwardingHistory(ctx)
+=======
+	forwardingEvents, err := m.network.GetForwardingHistory(ctx, m.FwdingHist.StartTime, m.FwdingHist.MaxNumEvents)
+>>>>>>> Stashed changes
+	if err != nil {
+		return err
+	}
+
+	m.FwdingHist.Update(forwardingEvents)
+
 	return nil
 }
 
