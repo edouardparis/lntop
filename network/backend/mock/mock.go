@@ -86,6 +86,10 @@ func (b *Backend) DecodePayReq(ctx context.Context, payreq string) (*models.PayR
 	return &models.PayReq{}, nil
 }
 
+func (b *Backend) GetForwardingHistory(ctx context.Context, startTime string, maxNumEvents uint32) ([]*models.ForwardingEvent, error) {
+	return []*models.ForwardingEvent{}, nil
+}
+
 func (b *Backend) CreateInvoice(ctx context.Context, amt int64, desc string) (*models.Invoice, error) {
 	b.Lock()
 	defer b.Unlock()

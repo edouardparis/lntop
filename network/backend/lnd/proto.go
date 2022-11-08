@@ -398,3 +398,30 @@ func protoToRoutingEvent(resp *routerrpc.HtlcEvent) *models.RoutingEvent {
 		FailureDetail:     detail,
 	}
 }
+
+func protoToForwardingHistory(resp *lnrpc.ForwardingHistoryResponse) []*models.ForwardingEvent {
+	if resp == nil {
+		return nil
+	}
+
+	forwardingEvents := make([]*models.ForwardingEvent, len(resp.ForwardingEvents))
+	for i := range resp.ForwardingEvents {
+		forwardingEvents[i] = protoToForwardingEvent(resp.ForwardingEvents[i])
+	}
+	return forwardingEvents
+}
+
+func protoToForwardingEvent(resp *lnrpc.ForwardingEvent) *models.ForwardingEvent {
+	return &models.ForwardingEvent{
+
+		ChanIdIn:   resp.ChanIdIn,
+		ChanIdOut:  resp.ChanIdOut,
+		AmtIn:      resp.AmtIn,
+		AmtOut:     resp.AmtOut,
+		Fee:        resp.Fee,
+		FeeMsat:    resp.FeeMsat,
+		AmtInMsat:  resp.AmtInMsat,
+		AmtOutMsat: resp.AmtOutMsat,
+		EventTime:  time.Unix(0, int64(resp.TimestampNs)),
+	}
+}

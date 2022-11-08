@@ -68,11 +68,7 @@ func (m *Models) RefreshInfo(ctx context.Context) error {
 }
 
 func (m *Models) RefreshForwardingHistory(ctx context.Context) error {
-<<<<<<< Updated upstream
-	forwardingEvents, err := m.network.GetForwardingHistory(ctx)
-=======
 	forwardingEvents, err := m.network.GetForwardingHistory(ctx, m.FwdingHist.StartTime, m.FwdingHist.MaxNumEvents)
->>>>>>> Stashed changes
 	if err != nil {
 		return err
 	}

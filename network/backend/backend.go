@@ -43,4 +43,6 @@ type Backend interface {
 	SubscribeRoutingEvents(context.Context, chan *models.RoutingEvent) error
 
 	SubscribeGraphEvents(context.Context, chan *models.ChannelEdgeUpdate) error
+
+	GetForwardingHistory(context.Context, string, uint32) ([]*models.ForwardingEvent, error)
 }
