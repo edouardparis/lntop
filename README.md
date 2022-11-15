@@ -127,6 +127,22 @@ columns = [
 	"LAST UPDATE",    # last update
 	"DETAIL",         # error description
 ]
+
+[views.fwdinghist]
+columns = [
+         "ALIAS_IN",	# peer alias name of the incoming peer
+         "ALIAS_OUT",   # peer alias name of the outgoing peer
+         "AMT_IN",	# amount of sats received
+         "AMT_OUT",     # amount of sats forwarded
+         "FEE",      	# earned fee
+         "TIMESTAMP_NS",# forwarding event timestamp
+#        "CHAN_ID_IN",  # channel id of the incomming channel
+#        "CHAN_ID_OUT", # channel id of the outgoing channel
+]
+
+[views.fwdinghist.options]
+START_TIME = { start_time = "-6h" }
+MAX_NUM_EVENTS = { max_num_events = "333" }
 ```
 
 ## Routing view
