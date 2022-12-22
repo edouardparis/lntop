@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/lightningnetwork/lnd/lnrpc"
@@ -447,6 +449,93 @@ func (l Backend) GetNode(ctx context.Context, pubkey string, includeChannels boo
 	return result, nil
 }
 
+func (l Backend) GetForwardingHistory(ctx context.Context, startTime string, maxNumEvents uint32) ([]*models.ForwardingEvent, error) {
+	l.logger.Debug("GetForwardingHistory")
+
+	clt, err := l.Client(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer clt.Close()
+	t, err := parseTime(startTime, time.Now())
+	req := &lnrpc.ForwardingHistoryRequest{
+		StartTime:    t,
+		NumMaxEvents: maxNumEvents,
+	}
+	resp, err := clt.ForwardingHistory(ctx, req)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	result := protoToForwardingHistory(resp)
+
+	// Enrich peer alias names.
+	// This can be removed once the ForwardingHistory
+	// contains the peer aliases by default.
+	enrichPeerAliases := func(ctx context.Context, events []*models.ForwardingEvent) error {
+
+		if len(events) == 0 {
+			return nil
+		}
+
+		selfInfo, err := clt.GetInfo(ctx, &lnrpc.GetInfoRequest{})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		getPeerAlias := func(chanId uint64) (string, error) {
+			chanInfo, err := clt.GetChanInfo(ctx, &lnrpc.ChanInfoRequest{
+				ChanId: chanId,
+			})
+			if err != nil {
+				return "", errors.WithStack(err)
+			}
+			pubKey := chanInfo.Node1Pub
+			if selfInfo.IdentityPubkey == chanInfo.Node1Pub {
+				pubKey = chanInfo.Node2Pub
+			}
+			nodeInfo, err := clt.GetNodeInfo(ctx, &lnrpc.NodeInfoRequest{
+				PubKey: pubKey,
+			})
+			if err != nil {
+				return "", errors.WithStack(err)
+			}
+
+			return nodeInfo.Node.Alias, nil
+		}
+
+		cache := make(map[uint64]string)
+		for i, event := range events {
+
+			if val, ok := cache[event.ChanIdIn]; ok {
+				events[i].PeerAliasIn = val
+			} else {
+				events[i].PeerAliasIn, err = getPeerAlias(event.ChanIdIn)
+				if err != nil {
+					cache[event.ChanIdIn] = events[i].PeerAliasIn
+				}
+			}
+
+			if val, ok := cache[event.ChanIdOut]; ok {
+				events[i].PeerAliasOut = val
+			} else {
+				events[i].PeerAliasOut, err = getPeerAlias(event.ChanIdOut)
+				if err != nil {
+					cache[event.ChanIdOut] = events[i].PeerAliasOut
+				}
+			}
+		}
+
+		return nil
+
+	}
+	err = enrichPeerAliases(ctx, result)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return result, nil
+}
+
 func (l Backend) CreateInvoice(ctx context.Context, amount int64, desc string) (*models.Invoice, error) {
 	l.logger.Debug("Create invoice...",
 		logging.Int64("amount", amount),
@@ -562,4 +651,37 @@ func New(c *config.Network, logger logging.Logger) (*Backend, error) {
 	}
 
 	return backend, nil
+}
+
+// reTimeRange matches systemd.time-like short negative timeranges, e.g. "-200s".
+var reTimeRange = regexp.MustCompile(`^-\d{1,18}[s|m|h|d|w|M|y]$`)
+
+// secondsPer allows translating s(seconds), m(minutes), h(ours), d(ays),
+// w(eeks), M(onths) and y(ears) into corresponding seconds.
+var secondsPer = map[string]int64{
+	"s": 1,
+	"m": 60,
+	"h": 3600,
+	"d": 86400,
+	"w": 604800,
+	"M": 2630016,  // 30.44 days
+	"y": 31557600, // 365.25 days
+}
+
+// parseTime parses UNIX timestamps or short timeranges inspired by systemd
+// (when starting with "-"), e.g. "-1M" for one month (30.44 days) ago.
+func parseTime(s string, base time.Time) (uint64, error) {
+	if reTimeRange.MatchString(s) {
+		last := len(s) - 1
+
+		d, err := strconv.ParseInt(s[1:last], 10, 64)
+		if err != nil {
+			return uint64(0), err
+		}
+
+		mul := secondsPer[string(s[last])]
+		return uint64(base.Unix() - d*mul), nil
+	}
+
+	return strconv.ParseUint(s, 10, 64)
 }

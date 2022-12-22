@@ -35,6 +35,10 @@ func Int64(k string, i int64) Field {
 	return zap.Int64(k, i)
 }
 
+func Uint64(k string, i uint64) Field {
+	return zap.Uint64(k, i)
+}
+
 func Error(v error) Field {
 	return zap.Error(v)
 }

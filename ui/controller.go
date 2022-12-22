@@ -227,6 +227,8 @@ func (c *controller) Order(order models.Order) func(*gocui.Gui, *gocui.View) err
 			c.views.Channels.Sort("", order)
 		case views.TRANSACTIONS:
 			c.views.Transactions.Sort("", order)
+		case views.FWDINGHIST:
+			c.views.FwdingHist.Sort("", order)
 		}
 		return nil
 	}
@@ -290,6 +292,19 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 
 			c.views.Main = c.views.Routing
 			err = c.views.Routing.Set(g, 11, 6, maxX-1, maxY)
+			if err != nil {
+				return err
+			}
+		case views.FWDINGHIST:
+			err := c.views.Main.Delete(g)
+			if err != nil {
+				return err
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+			defer cancel()
+			c.models.RefreshForwardingHistory(ctx)
+			c.views.Main = c.views.FwdingHist
+			err = c.views.FwdingHist.Set(g, 11, 6, maxX-1, maxY)
 			if err != nil {
 				return err
 			}

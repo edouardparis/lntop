@@ -57,6 +57,14 @@ columns = [
 
 # AGE = { color = "color" }
 
+[views.fwdinghist.options]
+# The forwarding history options determine how many forwarding events the 
+# forwarding history tab is displaying. The higher the number of fetched 
+# forwarding events is the higher the alias lookup time, so only increase these
+# values if you can tolerate the longer loading times.
+START_TIME = { start_time = "-12h" }
+MAX_NUM_EVENTS = { max_num_events = "333" }
+
 [views.transactions]
 # It is possible to add, remove and order columns of the
 # table with the array columns. The available values are:
