@@ -1,4 +1,4 @@
-FROM golang:1.13-alpine as builder
+FROM golang:1.19-alpine as builder
 
 # install build dependencies
 RUN apk add --no-cache --update git gcc musl-dev
@@ -19,7 +19,7 @@ RUN go install ./...
 
 # ---------------------------------------------------------------------------------------------------------------------------
 
-FROM golang:1.13-alpine as final
+FROM golang:1.19-alpine as final
 
 RUN apk add --no-cache \
     bash fish \

@@ -11,7 +11,7 @@
 
 ## Install
 
-Require the [go programming language](https://golang.org/) (version >= 1.13)
+Require the [go programming language](https://golang.org/) (version >= 1.19.1)
 
 **Raspberry Pi users: be aware that Raspbian ships with Go 1.11** ( see
 [#30](https://github.com/edouardparis/lntop/issues/30) )
