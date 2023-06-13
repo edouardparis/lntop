@@ -1,6 +1,7 @@
 package lnd
 
 import (
+	"crypto/tls"
 	"io/ioutil"
 	"net/url"
 
@@ -37,9 +38,14 @@ func newClientConn(c *config.Network) (*grpc.ClientConn, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	cred, err := credentials.NewClientTLSFromFile(c.Cert, "")
-	if err != nil {
-		return nil, err
+	var cred credentials.TransportCredentials
+	if c.Cert != "" {
+		cred, err = credentials.NewClientTLSFromFile(c.Cert, "")
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		cred = credentials.NewTLS(&tls.Config{})
 	}
 
 	u, err := url.Parse(c.Address)
