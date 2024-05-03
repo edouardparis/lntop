@@ -34,7 +34,10 @@ type RoutingEvent struct {
 }
 
 func (u *RoutingEvent) Equals(other *RoutingEvent) bool {
-	return u.IncomingChannelId == other.IncomingChannelId && u.IncomingHtlcId == other.IncomingHtlcId && u.OutgoingChannelId == other.OutgoingChannelId && u.OutgoingHtlcId == other.OutgoingHtlcId
+	return u.IncomingChannelId == other.IncomingChannelId &&
+		u.IncomingHtlcId == other.IncomingHtlcId &&
+		u.OutgoingChannelId == other.OutgoingChannelId &&
+		u.OutgoingHtlcId == other.OutgoingHtlcId
 }
 
 func (u *RoutingEvent) Update(newer *RoutingEvent) {
@@ -42,4 +45,10 @@ func (u *RoutingEvent) Update(newer *RoutingEvent) {
 	u.Status = newer.Status
 	u.FailureCode = newer.FailureCode
 	u.FailureDetail = newer.FailureDetail
+}
+
+func (u *RoutingEvent) IsEmpty() bool {
+	return u.OutgoingChannelId == 0 &&
+		u.FeeMsat == 0 &&
+		u.AmountMsat == 0
 }
