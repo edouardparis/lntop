@@ -110,6 +110,11 @@ func (c *controller) SetModels(ctx context.Context) error {
 		return err
 	}
 
+	err = c.models.RefreshForwardingHistory(ctx)
+	if err != nil {
+		return err
+	}
+
 	return c.models.RefreshChannels(ctx)
 }
 
@@ -144,12 +149,14 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 				c.models.RefreshInfo,
 				c.models.RefreshWalletBalance,
 				c.models.RefreshTransactions,
+				c.models.RefreshForwardingHistory,
 			)
 		case events.ChannelBalanceUpdated:
 			refresh(
 				c.models.RefreshInfo,
 				c.models.RefreshChannelsBalance,
 				c.models.RefreshChannels,
+				c.models.RefreshForwardingHistory,
 			)
 		case events.ChannelPending:
 			refresh(
@@ -174,11 +181,18 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 				c.models.RefreshInfo,
 				c.models.RefreshChannelsBalance,
 				c.models.RefreshChannels,
+				c.models.RefreshForwardingHistory,
 			)
 		case events.PeerUpdated:
-			refresh(c.models.RefreshInfo)
+			refresh(
+				c.models.RefreshInfo,
+				c.models.RefreshForwardingHistory,
+			)
+
 		case events.RoutingEventUpdated:
-			refresh(c.models.RefreshRouting(event.Data))
+			refresh(
+				c.models.RefreshRouting(event.Data),
+			)
 		case events.GraphUpdated:
 			refresh(c.models.RefreshPolicies(event.Data))
 		}
@@ -235,6 +249,10 @@ func (c *controller) Order(order models.Order) func(*gocui.Gui, *gocui.View) err
 }
 
 func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+	defer cancel()
+
 	maxX, maxY := g.Size()
 	view := c.views.Get(v)
 	if view == nil {
@@ -245,8 +263,6 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 	case views.CHANNELS:
 		index := c.views.Channels.Index()
 		c.models.Channels.SetCurrent(index)
-		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
-		defer cancel()
 		c.models.RefreshCurrentNode(ctx)
 		c.views.Main = c.views.Channel
 		return ToggleView(g, view, c.views.Channel)
@@ -300,9 +316,6 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 			if err != nil {
 				return err
 			}
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
-			defer cancel()
-			c.models.RefreshForwardingHistory(ctx)
 			c.views.Main = c.views.FwdingHist
 			err = c.views.FwdingHist.Set(g, 11, 6, maxX-1, maxY)
 			if err != nil {
