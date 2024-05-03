@@ -96,7 +96,9 @@ func (p *PubSub) routingUpdates(ctx context.Context, sub chan *events.Event) {
 	go func() {
 		for hu := range routingUpdates {
 			p.logger.Debug("receive htlcUpdate")
-			sub <- events.NewWithData(events.RoutingEventUpdated, hu)
+			if (*hu).OutgoingChannelId != 0 {
+				sub <- events.NewWithData(events.RoutingEventUpdated, hu)
+			}
 		}
 		p.wg.Done()
 	}()
