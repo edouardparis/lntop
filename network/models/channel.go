@@ -96,11 +96,14 @@ type ChannelUpdate struct {
 type ChannelEdgeUpdate struct {
 	ChanPoints []string
 }
+
 type RoutingPolicy struct {
-	TimeLockDelta    uint32
-	MinHtlc          int64
-	MaxHtlc          uint64
-	FeeBaseMsat      int64
-	FeeRateMilliMsat int64
-	Disabled         bool
+	TimeLockDelta           uint32
+	MinHtlc                 int64
+	MaxHtlc                 uint64
+	FeeBaseMsat             int64
+	FeeRateMilliMsat        int64
+	Disabled                bool
+	InboundFeeBaseMsat      int32
+	InboundFeeRateMilliMsat int32
 }
