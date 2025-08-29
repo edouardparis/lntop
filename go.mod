@@ -1,6 +1,6 @@
 module github.com/edouardparis/lntop
 
-go 1.22.2
+go 1.24.6
 
 require (
 	github.com/BurntSushi/toml v0.3.1
