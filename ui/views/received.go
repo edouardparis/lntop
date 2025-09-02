@@ -44,6 +44,8 @@ type Received struct {
 type receivedColumn struct {
 	name    string
 	width   int
+	sorted  bool
+	sort    func(models.Order) models.ReceivedSort
 	display func(*netmodels.Invoice, ...color.Option) string
 }
 
@@ -80,6 +82,20 @@ func (c *Received) SetOrigin(ox, oy int) error {
 	return nil
 }
 
+func (c *Received) currentColumnIndex() int {
+	x := c.ox + c.cx
+	index := 0
+	sum := 0
+	for i := range c.columns {
+		sum += c.columns[i].width + 1
+		if x < sum {
+			return index
+		}
+		index++
+	}
+	return index
+}
+
 func (c *Received) Speed() (int, int, int, int) {
 	up, down := 0, 0
 	if c.Index() > 0 {
@@ -88,8 +104,14 @@ func (c *Received) Speed() (int, int, int, int) {
 	if c.Index() < c.received.Len()-1 {
 		down = 1
 	}
-	// columns have static widths: TYPE(7) TIME(25) AMOUNT(12) MEMO(40) R_HASH(64)
-	return 7, 0, down, up
+	current := c.currentColumnIndex()
+	if current > len(c.columns)-1 {
+		return 0, c.columns[current-1].width + 1, down, up
+	}
+	if current == 0 {
+		return c.columns[0].width + 1, 0, down, up
+	}
+	return c.columns[current].width + 1, c.columns[current-1].width + 1, down, up
 }
 
 func (c *Received) Limits() (int, int) {
@@ -168,7 +190,17 @@ func (c *Received) Set(g *gocui.Gui, x0, y0, x1, y1 int) error {
 func (c *Received) display() {
 	c.columnHeadersView.Rewind()
 	var buffer bytes.Buffer
+	current := c.currentColumnIndex()
 	for i := range c.columns {
+		if current == i {
+			buffer.WriteString(color.Cyan(color.Background)(c.columns[i].name))
+			buffer.WriteString(" ")
+			continue
+		} else if c.columns[i].sorted {
+			buffer.WriteString(color.Magenta(color.Background)(c.columns[i].name))
+			buffer.WriteString(" ")
+			continue
+		}
 		buffer.WriteString(c.columns[i].name)
 		buffer.WriteString(" ")
 	}
@@ -178,7 +210,11 @@ func (c *Received) display() {
 	for _, inv := range c.received.List() {
 		var b bytes.Buffer
 		for i := range c.columns {
-			b.WriteString(c.columns[i].display(inv))
+			var opt color.Option
+			if current == i {
+				opt = color.Bold
+			}
+			b.WriteString(c.columns[i].display(inv, opt))
 			b.WriteString(" ")
 		}
 		fmt.Fprintln(c.view, b.String())
@@ -202,12 +238,17 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 			received.columns[i] = receivedColumn{
 				width: 7,
 				name:  fmt.Sprintf("%-7s", cols[i]),
+				sort: func(order models.Order) models.ReceivedSort {
+					return func(a, b *netmodels.Invoice) bool {
+						return models.IntSort(int(a.Kind), int(b.Kind), order)
+					}
+				},
 				display: func(inv *netmodels.Invoice, opts ...color.Option) string {
 					label := "invoice"
 					col := color.White(opts...)
 					if inv.Kind == netmodels.KindKeysend || inv.PaymentRequest == "" {
 						label = "keysend"
-						col = color.White(opts...) // make keysend white like invoice
+						col = color.White(opts...)
 					}
 					return col(fmt.Sprintf("%-7s", label))
 				},
@@ -216,6 +257,19 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 			received.columns[i] = receivedColumn{
 				width: 25,
 				name:  fmt.Sprintf("%25s", cols[i]),
+				sort: func(order models.Order) models.ReceivedSort {
+					return func(a, b *netmodels.Invoice) bool {
+						at := a.SettleDate
+						if at == 0 {
+							at = a.CreationDate
+						}
+						bt := b.SettleDate
+						if bt == 0 {
+							bt = b.CreationDate
+						}
+						return models.Int64Sort(at, bt, order)
+					}
+				},
 				display: func(inv *netmodels.Invoice, opts ...color.Option) string {
 					// Prefer settle date, fallback to creation
 					ts := inv.SettleDate
@@ -230,6 +284,19 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 			received.columns[i] = receivedColumn{
 				width: 12,
 				name:  fmt.Sprintf("%12s", cols[i]),
+				sort: func(order models.Order) models.ReceivedSort {
+					return func(a, b *netmodels.Invoice) bool {
+						av := a.AmountPaid
+						if av == 0 {
+							av = a.Amount
+						}
+						bv := b.AmountPaid
+						if bv == 0 {
+							bv = b.Amount
+						}
+						return models.Int64Sort(av, bv, order)
+					}
+				},
 				display: func(inv *netmodels.Invoice, opts ...color.Option) string {
 					amt := inv.AmountPaid
 					if amt == 0 {
@@ -242,6 +309,11 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 			received.columns[i] = receivedColumn{
 				width: 40,
 				name:  fmt.Sprintf("%-40s", cols[i]),
+				sort: func(order models.Order) models.ReceivedSort {
+					return func(a, b *netmodels.Invoice) bool {
+						return models.StringSort(a.Description, b.Description, order)
+					}
+				},
 				display: func(inv *netmodels.Invoice, opts ...color.Option) string {
 					return color.White(opts...)(fmt.Sprintf("%-40s", inv.Description))
 				},
@@ -250,6 +322,11 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 			received.columns[i] = receivedColumn{
 				width: 64,
 				name:  fmt.Sprintf("%-64s", cols[i]),
+				sort: func(order models.Order) models.ReceivedSort {
+					return func(a, b *netmodels.Invoice) bool {
+						return models.StringSort(a.GetRHash(), b.GetRHash(), order)
+					}
+				},
 				display: func(inv *netmodels.Invoice, opts ...color.Option) string {
 					return color.White(opts...)(fmt.Sprintf("%-64s", inv.GetRHash()))
 				},
@@ -263,4 +340,21 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 		}
 	}
 	return received
+}
+
+func (c *Received) Sort(column string, order models.Order) {
+	if column == "" {
+		index := c.currentColumnIndex()
+		if index >= len(c.columns) {
+			return
+		}
+		col := c.columns[index]
+		if col.sort == nil {
+			return
+		}
+		c.received.Sort(col.sort(order))
+		for i := range c.columns {
+			c.columns[i].sorted = i == index
+		}
+	}
 }
