@@ -88,7 +88,7 @@ func (c *Received) Speed() (int, int, int, int) {
 	if c.Index() < c.received.Len()-1 {
 		down = 1
 	}
-	// columns have static widths: TYPE(7) TIME(20) AMOUNT(12) MEMO(40) R_HASH(64)
+	// columns have static widths: TYPE(7) TIME(25) AMOUNT(12) MEMO(40) R_HASH(64)
 	return 7, 0, down, up
 }
 
@@ -214,15 +214,16 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 			}
 		case "TIME":
 			received.columns[i] = receivedColumn{
-				width: 20,
-				name:  fmt.Sprintf("%20s", cols[i]),
+				width: 25,
+				name:  fmt.Sprintf("%25s", cols[i]),
 				display: func(inv *netmodels.Invoice, opts ...color.Option) string {
 					// Prefer settle date, fallback to creation
 					ts := inv.SettleDate
 					if ts == 0 {
 						ts = inv.CreationDate
 					}
-					return color.White(opts...)(fmt.Sprintf("%20s", time.Unix(ts, 0).Format("15:04:05 Jan _2")))
+					// Show time with year appended, preserving original style
+					return color.White(opts...)(fmt.Sprintf("%25s", time.Unix(ts, 0).Format("15:04:05 Jan _2 2006")))
 				},
 			}
 		case "AMOUNT":
