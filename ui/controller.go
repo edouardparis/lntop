@@ -250,6 +250,8 @@ func (c *controller) Order(order models.Order) func(*gocui.Gui, *gocui.View) err
 			c.views.Transactions.Sort("", order)
 		case views.FWDINGHIST:
 			c.views.FwdingHist.Sort("", order)
+		case views.RECEIVED:
+			c.views.Received.Sort("", order)
 		}
 		return nil
 	}
