@@ -232,6 +232,7 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 	}
 
 	received.columns = make([]receivedColumn, len(cols))
+	var timeColIndex = -1
 	for i := range cols {
 		switch cols[i] {
 		case "TYPE":
@@ -254,6 +255,7 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 				},
 			}
 		case "TIME":
+			timeColIndex = i
 			received.columns[i] = receivedColumn{
 				width: 25,
 				name:  fmt.Sprintf("%25s", cols[i]),
@@ -277,7 +279,7 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 						ts = inv.CreationDate
 					}
 					// Show time with year appended, preserving original style
-					return color.White(opts...)(fmt.Sprintf("%25s", time.Unix(ts, 0).Format("15:04:05 Jan _2 2006")))
+					return color.Green(opts...)(fmt.Sprintf("%25s", time.Unix(ts, 0).Format("15:04:05 Jan _2 2006")))
 				},
 			}
 		case "AMOUNT":
@@ -336,6 +338,15 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 				width:   10,
 				name:    fmt.Sprintf("%-10s", cols[i]),
 				display: func(inv *netmodels.Invoice, opts ...color.Option) string { return "" },
+			}
+		}
+	}
+	// Default sort by TIME descending so latest invoices show first
+	if timeColIndex >= 0 {
+		if cmp := received.columns[timeColIndex].sort; cmp != nil {
+			rec.Sort(cmp(models.Desc))
+			for i := range received.columns {
+				received.columns[i].sorted = (i == timeColIndex)
 			}
 		}
 	}

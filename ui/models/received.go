@@ -11,9 +11,10 @@ import (
 type ReceivedSort func(*netmodels.Invoice, *netmodels.Invoice) bool
 
 type Received struct {
-	list []*netmodels.Invoice
-	sort ReceivedSort
-	mu   sync.RWMutex
+	list          []*netmodels.Invoice
+	sort          ReceivedSort
+	mu            sync.RWMutex
+	StartDateUnix int64
 }
 
 func (r *Received) List() []*netmodels.Invoice { return r.list }
@@ -48,6 +49,16 @@ func (r *Received) Add(inv *netmodels.Invoice) {
 	if !inv.Settled {
 		return
 	}
+	// Apply start date filter if set
+	if r.StartDateUnix > 0 {
+		ts := inv.SettleDate
+		if ts == 0 {
+			ts = inv.CreationDate
+		}
+		if ts < r.StartDateUnix {
+			return
+		}
+	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if r.Contains(inv) {
@@ -78,9 +89,11 @@ func (m *Models) RefreshReceivedFromNetwork(ctx context.Context) error {
 		return err
 	}
 	for _, inv := range invoices {
-		if inv != nil && inv.Settled {
-			m.Received.Add(inv)
+		if inv == nil || !inv.Settled {
+			continue
 		}
+		// Add() will apply start date filter as needed
+		m.Received.Add(inv)
 	}
 	return nil
 }
