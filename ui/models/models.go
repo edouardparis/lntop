@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"strconv"
+	"time"
 
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/logging"
@@ -42,6 +43,19 @@ func New(app *app.App) *Models {
 		}
 	}
 
+	rec := &Received{}
+	// Parse optional start date for the Received tab in format YYYY-MM-DD
+	if app.Config != nil && app.Config.Views.Received != nil {
+		if sd := app.Config.Views.Received.Options.GetOption("START_DATE", "start_date"); sd != "" {
+			if t, err := time.Parse("2006-01-02", sd); err == nil {
+				// Use local time midnight
+				rec.StartDateUnix = t.Unix()
+			} else {
+				app.Logger.Info("Couldn't parse RECEIVED start date, expected YYYY-MM-DD")
+			}
+		}
+	}
+
 	return &Models{
 		logger:          app.Logger.With(logging.String("logger", "models")),
 		network:         app.Network,
@@ -52,7 +66,7 @@ func New(app *app.App) *Models {
 		Transactions:    &Transactions{},
 		RoutingLog:      &RoutingLog{},
 		FwdingHist:      &fwdingHist,
-		Received:        &Received{},
+		Received:        rec,
 	}
 }
 

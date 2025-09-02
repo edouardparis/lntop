@@ -143,6 +143,23 @@ columns = [
 [views.fwdinghist.options]
 START_TIME = { start_time = "-6h" }
 MAX_NUM_EVENTS = { max_num_events = "333" }
+
+[views.received]
+# Customize the Received tab columns and options
+# Available columns: TYPE, TIME, AMOUNT, MEMO, R_HASH
+columns = [
+    "TYPE",
+    "TIME",
+    "AMOUNT",
+    "MEMO",
+    "R_HASH",
+]
+
+[views.received.options]
+# Filter displayed received invoices by a start date (inclusive).
+# Format is YYYY-MM-DD in local time. Invoices before this date are hidden.
+# Example: show only invoices from September 1, 2025 and later.
+START_DATE = { start_date = "2025-09-01" }
 ```
 
 ## Routing view

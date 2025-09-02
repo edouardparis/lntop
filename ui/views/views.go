@@ -113,7 +113,7 @@ func New(cfg config.Views, m *models.Models) *Views {
 		Transaction:  NewTransaction(m.Transactions),
 		Routing:      NewRouting(cfg.Routing, m.RoutingLog, m.Channels),
 		FwdingHist:   NewFwdingHist(cfg.FwdingHist, m.FwdingHist),
-		Received:     NewReceived(nil, m.Received),
+		Received:     NewReceived(cfg.Received, m.Received),
 		Main:         main,
 	}
 }
