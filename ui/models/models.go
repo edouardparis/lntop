@@ -21,6 +21,7 @@ type Models struct {
 	Transactions    *Transactions
 	RoutingLog      *RoutingLog
 	FwdingHist      *FwdingHist
+	Received        *Received
 }
 
 func New(app *app.App) *Models {
@@ -51,6 +52,7 @@ func New(app *app.App) *Models {
 		Transactions:    &Transactions{},
 		RoutingLog:      &RoutingLog{},
 		FwdingHist:      &fwdingHist,
+		Received:        &Received{},
 	}
 }
 

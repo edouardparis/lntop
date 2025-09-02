@@ -115,6 +115,12 @@ func (c *controller) SetModels(ctx context.Context) error {
 		return err
 	}
 
+	// Populate received invoices initially
+	err = c.models.RefreshReceivedFromNetwork(ctx)
+	if err != nil {
+		return err
+	}
+
 	return c.models.RefreshChannels(ctx)
 }
 
@@ -182,6 +188,7 @@ func (c *controller) Listen(ctx context.Context, g *gocui.Gui, sub chan *events.
 				c.models.RefreshChannelsBalance,
 				c.models.RefreshChannels,
 				c.models.RefreshForwardingHistory,
+				c.models.RefreshReceived(event.Data),
 			)
 		case events.PeerUpdated:
 			refresh(
@@ -318,6 +325,16 @@ func (c *controller) OnEnter(g *gocui.Gui, v *gocui.View) error {
 			}
 			c.views.Main = c.views.FwdingHist
 			err = c.views.FwdingHist.Set(g, 11, 6, maxX-1, maxY)
+			if err != nil {
+				return err
+			}
+		case views.RECEIVED:
+			err := c.views.Main.Delete(g)
+			if err != nil {
+				return err
+			}
+			c.views.Main = c.views.Received
+			err = c.views.Received.Set(g, 11, 6, maxX-1, maxY)
 			if err != nil {
 				return err
 			}

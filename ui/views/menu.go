@@ -18,6 +18,7 @@ var menu = []string{
 	"TRANSAC",
 	"ROUTING",
 	"FWDHIST",
+	"RECEIVED",
 }
 
 type Menu struct {
@@ -88,6 +89,8 @@ func (h Menu) Current() string {
 			return ROUTING
 		case "FWDHIST":
 			return FWDINGHIST
+		case "RECEIVED":
+			return RECEIVED
 		}
 	}
 	return ""
