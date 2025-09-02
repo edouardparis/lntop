@@ -27,7 +27,7 @@ func protoToChannelsBalance(w *lnrpc.ChannelBalanceResponse) *models.ChannelsBal
 }
 
 func addInvoiceProtoToInvoice(req *lnrpc.Invoice, resp *lnrpc.AddInvoiceResponse) *models.Invoice {
-	return &models.Invoice{
+	inv := &models.Invoice{
 		Expiry:         req.GetExpiry(),
 		Amount:         req.GetValue(),
 		Description:    req.GetMemo(),
@@ -36,10 +36,17 @@ func addInvoiceProtoToInvoice(req *lnrpc.Invoice, resp *lnrpc.AddInvoiceResponse
 		PaymentRequest: resp.GetPaymentRequest(),
 		Index:          resp.GetAddIndex(),
 	}
+	// Determine kind: if PaymentRequest is empty, treat as keysend
+	if inv.PaymentRequest == "" {
+		inv.Kind = models.KindKeysend
+	} else {
+		inv.Kind = models.KindInvoice
+	}
+	return inv
 }
 
 func lookupInvoiceProtoToInvoice(resp *lnrpc.Invoice) *models.Invoice {
-	return &models.Invoice{
+	inv := &models.Invoice{
 		Index:            resp.GetAddIndex(),
 		Amount:           resp.GetValue(),
 		AmountPaid:       resp.GetAmtPaidSat(),
@@ -57,6 +64,12 @@ func lookupInvoiceProtoToInvoice(resp *lnrpc.Invoice) *models.Invoice {
 		CLTVExpiry:       resp.GetCltvExpiry(),
 		Private:          resp.GetPrivate(),
 	}
+	if inv.PaymentRequest == "" {
+		inv.Kind = models.KindKeysend
+	} else {
+		inv.Kind = models.KindInvoice
+	}
+	return inv
 }
 
 func listChannelsProtoToChannels(r *lnrpc.ListChannelsResponse) []*models.Channel {

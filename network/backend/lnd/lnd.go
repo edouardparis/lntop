@@ -591,6 +591,26 @@ func (l Backend) GetInvoice(ctx context.Context, RHash string) (*models.Invoice,
 	return invoice, nil
 }
 
+func (l Backend) ListInvoices(ctx context.Context) ([]*models.Invoice, error) {
+	l.logger.Debug("List invoices...")
+	clt, err := l.Client(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer clt.Close()
+
+	req := &lnrpc.ListInvoiceRequest{NumMaxInvoices: 0}
+	resp, err := clt.ListInvoices(ctx, req)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	invoices := make([]*models.Invoice, len(resp.Invoices))
+	for i := range resp.Invoices {
+		invoices[i] = lookupInvoiceProtoToInvoice(resp.Invoices[i])
+	}
+	return invoices, nil
+}
+
 func (l Backend) SendPayment(ctx context.Context, payreq *models.PayReq) (*models.Payment, error) {
 	l.logger.Debug("Send payment...",
 		logging.String("destination", payreq.Destination),
