@@ -47,11 +47,12 @@ func New(app *app.App) *Models {
 	// Parse optional start date for the Received tab in format YYYY-MM-DD
 	if app.Config != nil && app.Config.Views.Received != nil {
 		if sd := app.Config.Views.Received.Options.GetOption("START_DATE", "start_date"); sd != "" {
-			if t, err := time.Parse("2006-01-02", sd); err == nil {
-				// Use local time midnight
-				rec.StartDateUnix = t.Unix()
+			// Interpret the date in the user's local timezone at local midnight
+			if t, err := time.ParseInLocation("2006-01-02", sd, time.Local); err == nil {
+				localMidnight := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.Local)
+				rec.StartDateUnix = localMidnight.Unix()
 			} else {
-				app.Logger.Info("Couldn't parse RECEIVED start date, expected YYYY-MM-DD")
+				app.Logger.Info("Couldn't parse RECEIVED start date, expected YYYY-MM-DD", logging.String("value", sd), logging.Error(err))
 			}
 		}
 	}

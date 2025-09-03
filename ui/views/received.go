@@ -279,7 +279,7 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 						ts = inv.CreationDate
 					}
 					// Show time with year appended, preserving original style
-					return color.Green(opts...)(fmt.Sprintf("%25s", time.Unix(ts, 0).Format("15:04:05 Jan _2 2006")))
+					return color.White(opts...)(fmt.Sprintf("%25s", time.Unix(ts, 0).Format("15:04:05 Jan _2 2006")))
 				},
 			}
 		case "AMOUNT":
@@ -304,7 +304,7 @@ func NewReceived(cfg *config.View, rec *models.Received) *Received {
 					if amt == 0 {
 						amt = inv.Amount
 					}
-					return color.Yellow(opts...)(printer.Sprintf("%12d", amt))
+					return color.White(opts...)(printer.Sprintf("%12d", amt))
 				},
 			}
 		case "MEMO":
