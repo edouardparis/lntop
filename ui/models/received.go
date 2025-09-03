@@ -52,11 +52,14 @@ func (r *Received) Add(inv *netmodels.Invoice) {
 	// Apply start date filter if set
 	if r.StartDateUnix > 0 {
 		ts := inv.SettleDate
-		if ts == 0 {
-			ts = inv.CreationDate
-		}
-		if ts < r.StartDateUnix {
-			return
+		// If invoice is settled but SettleDate is not available, do not
+		// exclude it based on CreationDate, as it may have been created
+		// before the start date but settled after. Only fall back to
+		// CreationDate for display/sort, not for filtering.
+		if ts > 0 {
+			if ts < r.StartDateUnix {
+				return
+			}
 		}
 	}
 	r.mu.Lock()
