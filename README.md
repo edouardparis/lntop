@@ -1,3 +1,8 @@
+**WARNING: This project is no longer maintained**
+
+You can use [hieblmi/lntop](https://github.com/hieblmi/lntop) as an alternative.
+
+
 # lntop
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/edouardparis/lntop/blob/master/LICENSE)
