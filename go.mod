@@ -11,7 +11,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.13
 	github.com/pkg/errors v0.9.1
 	go.uber.org/zap v1.17.0
-	golang.org/x/text v0.3.7
+	golang.org/x/text v0.3.8
 	google.golang.org/grpc v1.38.0
 	gopkg.in/macaroon-bakery.v2 v2.1.0 // indirect
 	gopkg.in/macaroon.v2 v2.1.0
