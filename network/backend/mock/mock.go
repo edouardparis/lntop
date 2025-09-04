@@ -125,6 +125,16 @@ func (b *Backend) GetInvoice(ctx context.Context, hash string) (*models.Invoice,
 	return &invoice, nil
 }
 
+func (b *Backend) ListInvoices(ctx context.Context) ([]*models.Invoice, error) {
+	// Return current map values; in mock we don't simulate history beyond created
+	result := make([]*models.Invoice, 0, len(b.invoices))
+	for _, inv := range b.invoices {
+		invCopy := inv
+		result = append(result, &invCopy)
+	}
+	return result, nil
+}
+
 func New(c *config.Network) *Backend {
 	return &Backend{
 		invoices: make(map[string]models.Invoice),

@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"strconv"
+	"time"
 
 	"github.com/edouardparis/lntop/app"
 	"github.com/edouardparis/lntop/logging"
@@ -21,6 +22,7 @@ type Models struct {
 	Transactions    *Transactions
 	RoutingLog      *RoutingLog
 	FwdingHist      *FwdingHist
+	Received        *Received
 }
 
 func New(app *app.App) *Models {
@@ -41,6 +43,20 @@ func New(app *app.App) *Models {
 		}
 	}
 
+	rec := &Received{}
+	// Parse optional start date for the Received tab in format YYYY-MM-DD
+	if app.Config != nil && app.Config.Views.Received != nil {
+		if sd := app.Config.Views.Received.Options.GetOption("START_DATE", "start_date"); sd != "" {
+			// Interpret the date in the user's local timezone at local midnight
+			if t, err := time.ParseInLocation("2006-01-02", sd, time.Local); err == nil {
+				localMidnight := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.Local)
+				rec.StartDateUnix = localMidnight.Unix()
+			} else {
+				app.Logger.Info("Couldn't parse RECEIVED start date, expected YYYY-MM-DD", logging.String("value", sd), logging.Error(err))
+			}
+		}
+	}
+
 	return &Models{
 		logger:          app.Logger.With(logging.String("logger", "models")),
 		network:         app.Network,
@@ -51,6 +67,7 @@ func New(app *app.App) *Models {
 		Transactions:    &Transactions{},
 		RoutingLog:      &RoutingLog{},
 		FwdingHist:      &fwdingHist,
+		Received:        rec,
 	}
 }
 

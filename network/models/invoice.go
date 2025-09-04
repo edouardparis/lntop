@@ -6,6 +6,13 @@ import (
 	"github.com/edouardparis/lntop/logging"
 )
 
+type ReceivedKind int
+
+const (
+	KindInvoice ReceivedKind = iota
+	KindKeysend
+)
+
 type Invoice struct {
 	// Index: index of this invoice.
 	// Each newly created invoice will increment
@@ -37,6 +44,8 @@ type Invoice struct {
 	CLTVExpiry uint64
 	// Private: Whether this invoice should include routing hints for private channels.
 	Private bool
+	// Kind indicates whether this was a regular invoice or a keysend (spontaneous) payment.
+	Kind ReceivedKind
 }
 
 func (m Invoice) GetRHash() string {

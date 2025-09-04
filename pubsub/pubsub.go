@@ -33,11 +33,19 @@ func (p *PubSub) invoices(ctx context.Context, sub chan *events.Event) {
 
 	go func() {
 		for invoice := range invoices {
-			p.logger.Debug("receive invoice", logging.Object("invoice", invoice))
+			p.logger.Debug(
+				"receive invoice",
+				logging.Object("invoice", invoice),
+			)
+
 			if invoice.Settled {
-				sub <- events.New(events.InvoiceSettled)
+				sub <- events.NewWithData(
+					events.InvoiceSettled, invoice,
+				)
 			} else {
-				sub <- events.New(events.InvoiceCreated)
+				sub <- events.NewWithData(
+					events.InvoiceCreated, invoice,
+				)
 			}
 		}
 		p.wg.Done()
@@ -96,7 +104,9 @@ func (p *PubSub) routingUpdates(ctx context.Context, sub chan *events.Event) {
 	go func() {
 		for hu := range routingUpdates {
 			p.logger.Debug("receive htlcUpdate")
-			sub <- events.NewWithData(events.RoutingEventUpdated, hu)
+			if !hu.IsEmpty() {
+				sub <- events.NewWithData(events.RoutingEventUpdated, hu)
+			}
 		}
 		p.wg.Done()
 	}()

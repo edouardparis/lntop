@@ -133,15 +133,19 @@ func printPolicy(v *gocui.View, p *message.Printer, policy *netmodels.RoutingPol
 		fmt.Fprintln(v, red("disabled"))
 	}
 	fmt.Fprintf(v, "%s %d\n",
-		cyan("     Time lock delta:"), policy.TimeLockDelta)
+		cyan("             Time lock delta:"), policy.TimeLockDelta)
 	fmt.Fprintf(v, "%s %s\n",
-		cyan("     Min htlc (msat):"), formatAmount(policy.MinHtlc))
+		cyan("             Min htlc (msat):"), formatAmount(policy.MinHtlc))
 	fmt.Fprintf(v, "%s %s\n",
-		cyan("      Max htlc (sat):"), formatAmount(int64(policy.MaxHtlc/1000)))
+		cyan("              Max htlc (sat):"), formatAmount(int64(policy.MaxHtlc/1000)))
 	fmt.Fprintf(v, "%s %s\n",
-		cyan("       Fee base msat:"), formatAmount(policy.FeeBaseMsat))
+		cyan("               Fee base msat:"), formatAmount(policy.FeeBaseMsat))
 	fmt.Fprintf(v, "%s %d\n",
-		cyan(" Fee rate milli msat:"), policy.FeeRateMilliMsat)
+		cyan("         Fee rate milli msat:"), policy.FeeRateMilliMsat)
+	fmt.Fprintf(v, "%s %d\n",
+		cyan("       Inbound fee base msat:"), policy.InboundFeeBaseMsat)
+	fmt.Fprintf(v, "%s %d\n",
+		cyan(" Inbound fee rate milli msat:"), policy.InboundFeeRateMilliMsat)
 }
 
 func formatAmount(amt int64) string {

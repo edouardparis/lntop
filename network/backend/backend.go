@@ -32,6 +32,8 @@ type Backend interface {
 
 	GetInvoice(context.Context, string) (*models.Invoice, error)
 
+	ListInvoices(context.Context) ([]*models.Invoice, error)
+
 	DecodePayReq(context.Context, string) (*models.PayReq, error)
 
 	SendPayment(context.Context, *models.PayReq) (*models.Payment, error)

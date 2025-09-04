@@ -32,6 +32,7 @@ type Views struct {
 	Transaction  *Transaction
 	Routing      *Routing
 	FwdingHist   *FwdingHist
+	Received     *Received
 }
 
 func (v Views) Get(vi *gocui.View) View {
@@ -53,6 +54,8 @@ func (v Views) Get(vi *gocui.View) View {
 		return v.Routing.Wrap(vi)
 	case FWDINGHIST:
 		return v.FwdingHist.Wrap(vi)
+	case RECEIVED:
+		return v.Received.Wrap(vi)
 	default:
 		return nil
 	}
@@ -110,6 +113,7 @@ func New(cfg config.Views, m *models.Models) *Views {
 		Transaction:  NewTransaction(m.Transactions),
 		Routing:      NewRouting(cfg.Routing, m.RoutingLog, m.Channels),
 		FwdingHist:   NewFwdingHist(cfg.FwdingHist, m.FwdingHist),
+		Received:     NewReceived(cfg.Received, m.Received),
 		Main:         main,
 	}
 }
